@@ -62,6 +62,14 @@ strings.
 * empty key values will be set to NULL
 
 ================================================================================
+WHY WRITE A NEW CONFIG LIBRARY?:
+
+while there are many different configuration formats and parser libraries
+out there, the answer is "for fun", but perhaps also for the performance,
+portability and overhead benefits. this library is a minimal and very fast
+alternative.
+
+================================================================================
 HOW IT WORKS:
 
 when reading a buffer with cfg2, first we find how many keys are there. after
