@@ -60,6 +60,7 @@ strings.
 * the parser will skip empty lines or lines that do not contain '='
 * comment lines still can be defined starting with the # character
 * empty key values will be set to NULL
+* the parser does not handle duplicates i.e. memory will be allocated for such
 
 ================================================================================
 WHY WRITE A NEW CONFIG LIBRARY?:
