@@ -4,7 +4,7 @@
  *
  * author: lubomir i. ivanov (neolit123 at gmail)
  * this code is released in the public domain without warranty of any kind.
- * providing credit to the original author is recommended but not mandatory. 
+ * providing credit to the original author is recommended but not mandatory.
  *
  * cfg2.c:
  *	this file holds the library definitions
@@ -283,10 +283,14 @@ static cfg_error_t cfg_free_memory(cfg_t *st)
 	free(st->values_hash);
 	st->values_hash = NULL;
 
-	free(st->cache_keys_index);
-	st->cache_keys_index = NULL;
-	free(st->cache_keys_hash);
-	st->cache_keys_hash = NULL;
+	if (st->cache_keys_index) {
+		free(st->cache_keys_index);
+		st->cache_keys_index = NULL;
+	}
+	if (st->cache_keys_hash) {
+		free(st->cache_keys_hash);
+		st->cache_keys_hash = NULL;
+	}
 	st->nkeys = 0;
 	return CFG_ERROR_OK;
 }
