@@ -53,7 +53,7 @@ the above pretty much covers what the library can be used for.
 format notes:
 * the supported format is technically not INI. it's just a generic
 configuration format in the form: "key=value". sections and other INI
-specifics are not supported. think of it a INI without the extras.
+specifics are not supported. think of it as INI without the extras.
 * the parser does not skip spaces near the '=' character, so these
 should be avoided. if there are spaces, they become part of the key/value
 strings.
@@ -88,15 +88,15 @@ keys on a modern dual core processor.
 ================================================================================
 API:
 
-the API is pretty simple. it uses naming scheme for functions similar to GLib.
-the usage logic is quite common as well:
+the API is pretty simple. it uses naming scheme for functions similar to GLib
+and the usage logic is quite common as well:
 	create a library object
 	init/allocate object
 	work with object
 	free object
 
-for information for each API function take a look at the comments in "cfg2.h".
-also a better usage example can be found in "test.c".
+for more specific information for each API function take a look at the comments
+in "cfg2.h". also a better usage example can be found in "test.c".
 
 small usage example without error checking:
 --------------------------------------------------------------------------------
@@ -112,15 +112,17 @@ cfg_free(&st);
 ================================================================================
 COMPILATION:
 
-to compile the example (in ./test) use:
-make test
+go to the root folder and then:
 
-to create a library file (in ./lib) use:
+to create a library file (in ./lib) write:
 make lib
 
-the library makefile can only be used with gcc as the compiler/linker,
-but the library is compatible with msvc as well. to do that use your
-prefered tool chain (e.g. VISUAL C++ IDE, CL, LINK).
+to compile the example (in ./test) write:
+make test
+
+at the moment the library makefile can only be used with gcc as
+the compiler/linker, but the library is compatible with msvc as well.
+to do that use your prefered tool chain (e.g. VISUAL C++ IDE, CL, LINK).
 
 ================================================================================
 
