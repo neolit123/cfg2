@@ -29,12 +29,13 @@ int main(void)
 
 	puts("[cfg2 test]");
 	puts("* init");
-	err = cfg_init(&st); /* init the structure */
+	/* init the structure with cache buffer size of 4. this means that 4 unique
+	 * (and fast) entries will be cached at all times. */
+	err = cfg_init(&st, 4);
 	if (err > 0) {
 		printf("cfg_init() ERROR: %d\n", err);
 		goto exit;
 	}
-	err = cfg_cache_size_set(&st, 8);
 	if (err > 0) {
 		printf("cfg_cache_size_set() ERROR: %d\n", err);
 		goto exit;

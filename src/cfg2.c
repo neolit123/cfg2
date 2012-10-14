@@ -36,7 +36,7 @@ cfg_error_t cfg_cache_size_set(cfg_t *st, cfg_int size)
 	return CFG_ERROR_OK;
 }
 
-cfg_error_t cfg_init(cfg_t *st)
+cfg_error_t cfg_init(cfg_t *st, cfg_int cache_size)
 {
 	st->keys_hash = NULL;
 	st->values_hash = NULL;
@@ -49,7 +49,10 @@ cfg_error_t cfg_init(cfg_t *st)
 	st->cache_keys_index = NULL;
 	st->cache_keys_hash = NULL;
 	st->init = CFG_TRUE;
-	st->cache_size = CFG_CACHE_SIZE;
+	if (cache_size < 0)
+		st->cache_size = CFG_CACHE_SIZE;
+	else
+		st->cache_size = cache_size;
 	return CFG_ERROR_OK;
 }
 

@@ -57,8 +57,10 @@ typedef struct {
 	cfg_int cache_size;
 } cfg_t;
 
-/* init the library object. must be called before everything else */
-cfg_error_t cfg_init(cfg_t*);
+/* init the library object. must be called before everything else. the
+ * second parameter is the size of the cache buffer. if set to a value less
+ * than zero the default buffer size will be used - CFG_CACHE_SIZE */
+cfg_error_t cfg_init(cfg_t*, cfg_int);
 
 /* free all memory allocated by the library for a cfg_t object */
 cfg_error_t cfg_free(cfg_t*);
