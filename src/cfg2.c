@@ -21,18 +21,26 @@ void cfg_cache_clear(cfg_t *st)
 
 cfg_error_t cfg_cache_size_set(cfg_t *st, cfg_int size)
 {
+	int diff;
 	if (st->init != CFG_TRUE)
 		return CFG_ERROR_INIT;
 	if (size < 0)
 		return CFG_ERROR_CRITICAL;
-	st->cache_size = size;
-	if (size == 0)
+	if (size == 0) {
+		st->cache_size = size;
 		return CFG_ERROR_OK;
+	}
 	st->cache_keys_hash = (cfg_uint32 *)realloc(st->cache_keys_hash, size * sizeof(cfg_uint32));
 	st->cache_keys_index = (cfg_int *)realloc(st->cache_keys_index, size * sizeof(cfg_int));
 	if (!st->cache_keys_index || !st->cache_keys_hash)
 		return CFG_ERROR_ALLOC;
-	cfg_cache_clear(st);
+	/* if the new buffers are larger lets set the extra part to zeroes */
+	if (size > st->cache_size) {
+		diff = size - st->cache_size;
+		memset((void *)&st->cache_keys_hash[st->cache_size], 0, diff * sizeof(cfg_uint32));
+		memset((void *)&st->cache_keys_index[st->cache_size], 0, diff * sizeof(cfg_int));
+	}
+	st->cache_size = size;
 	return CFG_ERROR_OK;
 }
 
@@ -352,6 +360,9 @@ cfg_error_t cfg_parse_buffer(cfg_t *st, cfg_char *buf, cfg_int sz)
 	if (ret > 0)
 		return ret;
 	ret = cfg_cache_size_set(st, st->cache_size);
+	if (ret > 0)
+		return ret;
+	cfg_cache_clear(st);
 	if (ret > 0)
 		return ret;
 

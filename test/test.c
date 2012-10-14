@@ -3,8 +3,8 @@
  * a simplistic configuration parser for INI like syntax in ANSI C
  *
  * author: lubomir i. ivanov (neolit123 at gmail)
- * this code is released in the public domain without warranty of any kind
- * providing credit to the original author is recommended but not mandatory. 
+ * this code is released in the public domain without warranty of any kind.
+ * providing credit to the original author is recommended but not mandatory.
  *
  * test.c:
  *	test file for the api
