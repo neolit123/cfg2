@@ -1,5 +1,6 @@
 # libcfg2 makefile
 
+DEBUG=-g
 CC=gcc
 AR=ar
 ARFLAGS=rcs
@@ -19,10 +20,10 @@ $(LIBFILE): src/cfg2.o
 	$(AR) $(ARFLAGS) $(LIBFILE) src/cfg2.o
 
 src/cfg2.o: src/cfg2.c include/cfg2.h Makefile
-	$(CC) $(CFLAGS) src/cfg2.c -o src/cfg2.o
+	$(CC) $(CFLAGS) $(DEBUG) src/cfg2.c -o src/cfg2.o
 
 test/test.o: test/test.c include/cfg2.h Makefile
-	$(CC) $(CFLAGS) test/test.c -o test/test.o
+	$(CC) $(CFLAGS) $(DEBUG) test/test.c -o test/test.o
 
 $(TESTEXE): $(LIBFILE) test/test.o
 	$(CC) test/test.o -o $(TESTEXE) $(LDFLAGS)
