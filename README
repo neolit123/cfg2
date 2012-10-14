@@ -21,7 +21,7 @@ of developers. in comparison, while gettext provides the means to supposedly
 ease the whole process, in the long run it ends up being difficult to maintain,
 according to a decent amount of people.
 
-examples areas are:
+example areas are:
 	1) .po -> .mo conversations
 	2) requires translation tweaks based on source code changes (ouch?)
 	3) speed - there are some report that the library is not the most efficient

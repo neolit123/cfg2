@@ -29,7 +29,7 @@ int main(void)
 
 	puts("[cfg2 test]");
 	puts("* init");
-	err = cfg_init(&st); /* make sure we init the structure */
+	err = cfg_init(&st); /* init the structure */
 	if (err > 0) {
 		printf("cfg_init() ERROR: %d\n", err);
 		goto exit;
