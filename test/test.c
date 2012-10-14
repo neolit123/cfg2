@@ -4,6 +4,7 @@
  *
  * author: lubomir i. ivanov (neolit123 at gmail)
  * this code is released in the public domain without warranty of any kind
+ * providing credit to the original author is recommended but not mandatory. 
  *
  * test.c:
  *	test file for the api

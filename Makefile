@@ -1,3 +1,5 @@
+# libcfg2 makefile
+
 CC=gcc
 AR=ar
 ARFLAGS=rcs

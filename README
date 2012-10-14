@@ -9,9 +9,9 @@ author:
 ================================================================================
 INTRODUCTION:
 
-cfg2 is a library that can read a simple configuration format (from file or
-buffer) and then be used to retrieve each key/value from memory with optimal
-performance.
+not related to other libcfg* libraries, cfg2 is a library that can read
+a simple configuration format (from file or buffer) and then be used
+to retrieve each key/value from memory with optimal performance.
 
 overnight, cfg2 sprung out of annoyances related to how badly designed the
 gettext library is (author's opinion). in terms of translation and
