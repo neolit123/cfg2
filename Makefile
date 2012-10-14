@@ -12,6 +12,9 @@ lib: $(LIBFILE)
 all: $(TESTEXE)
 test: $(TESTEXE)
 
+run: $(TESTEXE)
+	cd test && ./test.exe && cd ..
+
 $(LIBFILE): src/cfg2.o
 	$(AR) $(ARFLAGS) $(LIBFILE) src/cfg2.o
 
