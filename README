@@ -120,6 +120,9 @@ make lib
 to compile the example (in ./test) write:
 make test
 
+to run the example write:
+make run
+
 at the moment the library makefile can only be used with gcc as
 the compiler/linker, but the library is compatible with msvc as well.
 to do that use your prefered tool chain (e.g. VISUAL C++ IDE, CL, LINK).

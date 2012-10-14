@@ -13,6 +13,7 @@
 
 void cfg_cache_clear(cfg_t *st)
 {
+	/* clearing the cache buffers technically sets them to the first index (0) */ 
 	if (st->cache_size && st->init == CFG_TRUE) {
 		memset((void *)st->cache_keys_hash, 0, st->cache_size * sizeof(cfg_uint32));
 		memset((void *)st->cache_keys_index, 0, st->cache_size * sizeof(cfg_int));
@@ -26,19 +27,25 @@ cfg_error_t cfg_cache_size_set(cfg_t *st, cfg_int size)
 		return CFG_ERROR_INIT;
 	if (size < 0)
 		return CFG_ERROR_CRITICAL;
+	/* check if we are setting the buffers to zero length */
 	if (size == 0) {
-		st->cache_size = size;
-		return CFG_ERROR_OK;
-	}
-	st->cache_keys_hash = (cfg_uint32 *)realloc(st->cache_keys_hash, size * sizeof(cfg_uint32));
-	st->cache_keys_index = (cfg_int *)realloc(st->cache_keys_index, size * sizeof(cfg_int));
-	if (!st->cache_keys_index || !st->cache_keys_hash)
-		return CFG_ERROR_ALLOC;
-	/* if the new buffers are larger lets set the extra part to zeroes */
-	if (size > st->cache_size) {
-		diff = size - st->cache_size;
-		memset((void *)&st->cache_keys_hash[st->cache_size], 0, diff * sizeof(cfg_uint32));
-		memset((void *)&st->cache_keys_index[st->cache_size], 0, diff * sizeof(cfg_int));
+		if (st->cache_keys_hash)
+			free(st->cache_keys_hash);
+		st->cache_keys_hash = NULL;
+		if (st->cache_keys_index)
+			free(st->cache_keys_index);
+		st->cache_keys_index = NULL;
+	}	else {
+		st->cache_keys_hash = (cfg_uint32 *)realloc(st->cache_keys_hash, size * sizeof(cfg_uint32));
+		st->cache_keys_index = (cfg_int *)realloc(st->cache_keys_index, size * sizeof(cfg_int));
+		if (!st->cache_keys_index || !st->cache_keys_hash)
+			return CFG_ERROR_ALLOC;
+		/* if the new buffers are larger, lets fill the extra indexes with zeroes */
+		if (size > st->cache_size) {
+			diff = size - st->cache_size;
+			memset((void *)&st->cache_keys_hash[st->cache_size], 0, diff * sizeof(cfg_uint32));
+			memset((void *)&st->cache_keys_index[st->cache_size], 0, diff * sizeof(cfg_int));
+		}
 	}
 	st->cache_size = size;
 	return CFG_ERROR_OK;
