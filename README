@@ -9,14 +9,14 @@ author:
 ================================================================================
 INTRODUCTION:
 
-not related to other libcfg* libraries, cfg2 is a library that can read
+not being related to other libcfg* projects, cfg2 is a library that can read
 a simple configuration format (from file or buffer) and then be used
 to retrieve each key/value from memory with optimal performance.
 
-overnight, cfg2 sprung out of annoyances related to how badly designed the
-gettext library is (author's opinion). in terms of translation and
-localization of individual software products, Windows application has been
-using INI configurations and this seems to be working quite well for a lot
+overnight, cfg2 sprung out of annoyances related to how badly designed
+gettext is (author's opinion). in terms of translation and localization
+of individual software products, Windows application has been using INI
+configurations and this seems to be working quite well for a lot
 of developers. in comparison, while gettext provides the means to supposedly
 ease the whole process, in the long run it ends up being difficult to maintain,
 according to a decent amount of people.
