@@ -1,0 +1,4 @@
+*.o
+*.a
+*.exe
+_backup.cmd

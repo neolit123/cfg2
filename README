@@ -1,0 +1,128 @@
+cfg2 0.1 README
+a simplistic configuration parser for INI like syntax in ANSI C
+
+last revisited:
+	14.10.2012
+author:
+	lubomir i. ivanov (neolit123 at gmail)
+
+================================================================================
+INTRODUCTION:
+
+cfg2 is a library that can read a simple configuration format (from file or
+buffer) and then be used to retrieve each key/value from memory with optimal
+performance.
+
+overnight, cfg2 sprung out of annoyances related to how badly designed the
+gettext library is (author's opinion). in terms of translation and
+localization of individual software products, Windows application has been
+using INI configurations and this seems to be working quite well for a lot
+of developers. in comparison, while gettext provides the means to supposedly
+ease the whole process, in the long run it ends up being difficult to maintain,
+according to a decent amount of people.
+
+examples areas are:
+	1) .po -> .mo conversations
+	2) requires translation tweaks based on source code changes (ouch?)
+	3) speed - there are some report that the library is not the most efficient
+
+but actually cfg2 is not an alternative to gettext!
+
+strongly designed, legacy games like quake2 have been using a very simple
+configuration file format in the lines of "key=value".
+
+format example:
+--------------------------------------------------------------------------------
+key1=value1
+key2=value2
+# a comment line
+key3=value \t with some special \n characters
+key4=some value \
+on multiple lines
+
+# integer value
+key5=-12345678
+# floating point value
+key6=12345678.312
+# hex value
+key7=0xfafafafa
+--------------------------------------------------------------------------------
+
+the above pretty much covers what the library can be used for.
+
+format notes:
+* the supported format is technically not INI. it's just a generic
+configuration format in the form: "key=value". sections and other INI
+specifics are not supported. think of it a INI without the extras.
+* the parser does not skip spaces near the '=' character, so these
+should be avoided. if there are spaces, they become part of the key/value
+strings.
+* the parser will skip empty lines or lines that do not contain '='
+* comment lines still can be defined starting with the # character
+* empty key values will be set to NULL
+
+================================================================================
+HOW IT WORKS:
+
+when reading a buffer with cfg2, first we find how many keys are there. after
+we have a number, we allocate lists of values (or pointers) with that size.
+
+then we go trough the buffer again and store the key values in string buffers
+and also calculate hash values for each one (using fnv-32). the is a common
+performance boost, since when we are looking for a value in the list we
+simply compare hash values (32bit integer) instead of complete strings.
+
+another present optimization is caching N values in a separate cache buffer and
+always checking this buffer first, instead of the main one (which can be huge).
+this technique optimizes performance when a value is used multiple times.
+the cache buffer can be resized dynamically or disabled when its size is set to
+zero.
+
+================================================================================
+PERFORMANCE:
+
+the library should be pretty fast even without optimization flags. from tests
+it takes around 5 seconds to parse a 25MB text file with near 1.5*(10**6)
+keys on a modern dual core processor.
+
+================================================================================
+API:
+
+the API is pretty simple. it uses naming scheme for functions similar to GLib.
+the usage logic is quite common as well:
+	create a library object
+	init/allocate object
+	work with object
+	free object
+
+for information for each API function take a look at the comments in "cfg2.h".
+also a better usage example can be found in "test.c".
+
+small usage example without error checking:
+--------------------------------------------------------------------------------
+char *k;
+cfg_t st; /* library object */
+
+cfg_init(&st); /* init the library */
+cfg_parse_file(&st, some_file); /* parse a file */
+k = cfg_value_get(&st, "key1"); /* get c string value */
+puts(k); /* value1 */
+cfg_free(&st);
+
+================================================================================
+COMPILATION:
+
+to compile the example (in ./test) use:
+make test
+
+to create a library file (in ./lib) use:
+make lib
+
+the library makefile can only be used with gcc as the compiler/linker,
+but the library is compatible with msvc as well. to do that use your
+prefered tool chain (e.g. VISUAL C++ IDE, CL, LINK).
+
+================================================================================
+
+lubomir
+--
