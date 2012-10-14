@@ -1,0 +1,5 @@
+0.11 - 15.10.2012 
++ added better cfg_cache_size_set() handling
+
+0.10 - 14.10.2012
+initial relase
