@@ -13,7 +13,7 @@
 
 void cfg_cache_clear(cfg_t *st)
 {
-	/* clearing the cache buffers technically sets them to the first index (0) */ 
+	/* clearing the cache buffers technically sets them to the first index (0) */
 	if (st->cache_size && st->init == CFG_TRUE) {
 		memset((void *)st->cache_keys_hash, 0, st->cache_size * sizeof(cfg_uint32));
 		memset((void *)st->cache_keys_index, 0, st->cache_size * sizeof(cfg_int));
@@ -77,7 +77,10 @@ static cfg_uint32 cfg_hash_get(cfg_char *str)
 	cfg_uint32 hash = 0x811c9dc5;
 	if (str)
 		while(*str) {
-			hash += (hash << 1) + (hash << 4) + (hash << 7) + (hash << 8) + (hash << 24);
+			/* or multiple with addition and bit shifting:
+			 * hash += (hash << 1) + (hash << 4) + (hash << 7) + (hash << 8) + (hash << 24);
+			*/
+			hash *= hash;
 			hash ^= *str++;
 		}
 	return hash;
