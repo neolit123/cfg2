@@ -9,9 +9,6 @@
  * cfg2.c:
  *	this is the library header
  */
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
 
 /* preprocessor definitions and macros */
 #define CFG_TRUE 1
