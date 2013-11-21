@@ -396,7 +396,12 @@ cfg_error_t cfg_parse_buffer(cfg_t *st, cfg_char *buf, cfg_int sz)
 		bp++;
 	}
 
-	/* allocate memory for the list */
+	/* allocate memory for the list
+	 * NOTE: this has to be reworked to use a single list of 'entry' objects
+	 * instead! an 'entry' object will contain a key, value, key_hash, value_hash.
+	 * this can speed the parser and maintainer code, since the list
+	 * will potentially occupy only one continuous memory location and there
+	 * won't be four lists with the eventual fragmentation and cache stalls. */
 	st->keys = (cfg_char **)malloc(nkeys * sizeof(cfg_char *));
 	st->values = (cfg_char **)malloc(nkeys * sizeof(cfg_char *));
 	st->keys_hash = (cfg_uint32 *)malloc(nkeys * sizeof(cfg_uint32));
