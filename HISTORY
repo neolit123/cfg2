@@ -1,3 +1,6 @@
+0.12 - 19.11.2013
+improved memory organization via the sub-struct cfg_entry_t
+
 0.11 - 15.10.2012 
 + added better cfg_cache_size_set() handling
 
