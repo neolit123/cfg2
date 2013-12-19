@@ -80,6 +80,9 @@ cfg_error_t cfg_cache_size_set(cfg_t*, cfg_int);
 /* clear the cache */
 void cfg_cache_clear(cfg_t*);
 
+/* retrieve the nth etnry */
+cfg_entry_t *cfg_entry_nth(cfg_t*, cfg_int);
+
 /* retrieve the nth key */
 cfg_char* cfg_key_nth(cfg_t*, cfg_int);
 

@@ -133,6 +133,13 @@ static cfg_char *cfg_value_escape(cfg_char *str) {
 	return str;
 }
 
+cfg_entry_t *cfg_entry_nth(cfg_t *st, cfg_int n)
+{
+	if (n < 0 || n > st->nkeys - 1 || !st->nkeys)
+		return NULL;
+	return &(st->entry[n]);
+}
+
 cfg_char* cfg_key_nth(cfg_t *st, cfg_int n)
 {
 	if (n < 0 || n > st->nkeys - 1 || !st->nkeys)
