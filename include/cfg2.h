@@ -36,15 +36,20 @@ typedef enum {
 	/* 8  */ CFG_ERROR_KEY_NOT_FOUND
 } cfg_error_t;
 
+/* an entry pair of key / value */
+typedef struct {
+	cfg_uint32 key_hash;
+	cfg_uint32 value_hash;
+	cfg_char *key;
+	cfg_char *value;
+} cfg_entry_t;
+
 /* the main library object */
 typedef struct {
 	cfg_uint32 *cache_keys_hash;
 	cfg_int *cache_keys_index;
 
-	cfg_uint32 *keys_hash;
-	cfg_uint32 *values_hash;
-	cfg_char **keys;
-	cfg_char **values;
+	cfg_entry_t *entry;
 	cfg_char *buf;
 	FILE *file;
 

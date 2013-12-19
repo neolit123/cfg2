@@ -55,7 +55,7 @@ int main(void)
 	i = 0;
 	/* print all keys / values */
 	while (i < st.nkeys) {
-		printf("%#08x, %#08x, %s, %s\n", st.keys_hash[i], st.values_hash[i], st.keys[i], st.values[i]);
+		printf("%#08x, %#08x, %s, %s\n", st.entry[i].key_hash, st.entry[i].value_hash, st.entry[i].key, st.entry[i].value);
 		i++;
 	}
 
@@ -72,7 +72,7 @@ int main(void)
 	puts("* cache");
 	i = 0;
 	while (i < st.cache_size) {
-		printf("cache item: %d, index: %d, value: %s\n", i, st.cache_keys_index[i], st.values[st.cache_keys_index[i]]);
+		printf("cache item: %d, index: %d, value: %s\n", i, st.cache_keys_index[i], st.entry[st.cache_keys_index[i]].value);
 		i++;
 	}
 

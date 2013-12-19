@@ -38,7 +38,7 @@ cfg_error_t cfg_cache_size_set(cfg_t *st, cfg_int size)
 		if (st->cache_keys_index)
 			free(st->cache_keys_index);
 		st->cache_keys_index = NULL;
-	}	else {
+	} else {
 		st->cache_keys_hash = (cfg_uint32 *)realloc(st->cache_keys_hash, size * sizeof(cfg_uint32));
 		st->cache_keys_index = (cfg_int *)realloc(st->cache_keys_index, size * sizeof(cfg_int));
 		if (!st->cache_keys_index || !st->cache_keys_hash)
@@ -56,10 +56,7 @@ cfg_error_t cfg_cache_size_set(cfg_t *st, cfg_int size)
 
 cfg_error_t cfg_init(cfg_t *st, cfg_int cache_size)
 {
-	st->keys_hash = NULL;
-	st->values_hash = NULL;
-	st->keys = NULL;
-	st->values = NULL;
+	st->entry = NULL;
 	st->buf = NULL;
 	st->file = NULL;
 	st->nkeys = 0;
@@ -140,14 +137,14 @@ cfg_char* cfg_key_nth(cfg_t *st, cfg_int n)
 {
 	if (n < 0 || n > st->nkeys - 1 || !st->nkeys)
 		return NULL;
-	return st->keys[n];
+	return st->entry[n].key;
 }
 
 cfg_char* cfg_value_nth(cfg_t *st, cfg_int n)
 {
 	if (n < 0 || n > st->nkeys - 1 || !st->nkeys)
 		return NULL;
-	return st->values[n];
+	return st->entry[n].value;
 }
 
 cfg_int cfg_key_get_index(cfg_t *st, cfg_char *key)
@@ -159,7 +156,7 @@ cfg_int cfg_key_get_index(cfg_t *st, cfg_char *key)
 		return -1;
 	hash = cfg_hash_get(key);
 	while (i < st->nkeys) {
-		if (hash == st->keys_hash[i])
+		if (hash == st->entry[i].key_hash)
 			return i;
 		i++;
 	}
@@ -175,8 +172,8 @@ cfg_char* cfg_key_get(cfg_t *st, cfg_char *value)
 		return NULL;
 	hash = cfg_hash_get(value);
 	while (i < st->nkeys) {
-		if (hash == st->values_hash[i])
-			return st->keys[i];
+		if (hash == st->entry[i].value_hash)
+			return st->entry[i].key;
 		i++;
 	}
 	return NULL;
@@ -196,7 +193,7 @@ cfg_char* cfg_value_get(cfg_t *st, cfg_char *key)
 		i = 0;
 		while (i < st->cache_size) {
 			if (hash == st->cache_keys_hash[i])
-				return st->values[st->cache_keys_index[i]];
+				return st->entry[st->cache_keys_index[i]].value;
 			i++;
 		}
 	}
@@ -204,7 +201,7 @@ cfg_char* cfg_value_get(cfg_t *st, cfg_char *key)
 	/* check for value in main list */
 	i = 0;
 	while (i < st->nkeys) {
-		if (hash == st->keys_hash[i]) {
+		if (hash == st->entry[i].key_hash) {
 			if (st->cache_size > 0) {
 				/* lets add to the cache */
 				if (st->cache_size > 1) {
@@ -216,7 +213,7 @@ cfg_char* cfg_value_get(cfg_t *st, cfg_char *key)
 				st->cache_keys_hash[0] = hash;
 				st->cache_keys_index[0] = i;
 			}
-			return st->values[i];
+			return st->entry[i].value;
 		}
 		i++;
 	}
@@ -259,15 +256,15 @@ cfg_error_t cfg_value_set(cfg_t *st, cfg_char *key, cfg_char *value)
 	hash_key = cfg_hash_get(key);
 	value = cfg_value_escape(value);
 	while (i < st->nkeys) {
-		if (hash_key == st->keys_hash[i]) {
-			st->values_hash[i] = cfg_hash_get(value);
-			if (st->values[i])
-				free(st->values[i]);
-			st->values[i] = (cfg_char *)malloc((len + 1) * sizeof(cfg_char));
-			if (!st->values[i])
+		if (hash_key == st->entry[i].key_hash) {
+			st->entry[i].value_hash = cfg_hash_get(value);
+			if (st->entry[i].value)
+				free(st->entry[i].value);
+			st->entry[i].value = (cfg_char *)malloc((len + 1) * sizeof(cfg_char));
+			if (!st->entry[i].value)
 				return CFG_ERROR_ALLOC;
-			strncpy(st->values[i], value, len);
-			st->values[i][len] = '\0';
+			strncpy(st->entry[i].value, value, len);
+			st->entry[i].value[len] = '\0';
 			return CFG_ERROR_OK;
 		}
 		i++;
@@ -279,34 +276,26 @@ static cfg_error_t cfg_free_memory(cfg_t *st)
 {
 	cfg_int i = 0;
 
-	if ((!st->keys || !st->values || !st->keys_hash || !st->values_hash) && st->nkeys)
+	if (!st->entry && st->nkeys)
 		return CFG_ERROR_CRITICAL;
 	if (!st->nkeys) /* nothing to do here */
 		return CFG_ERROR_OK;
 
 	while (i < st->nkeys) {
-		if (!st->keys[i]) {
+		if (!st->entry[i].key) {
 			return CFG_ERROR_NULL_KEY;
-		}	else {
-			free(st->keys[i]);
-			st->keys[i] = NULL;
+		} else {
+			free(st->entry[i].key);
+			st->entry[i].key = NULL;
 		}
-		if (st->values[i]) {
-			free(st->values[i]);
-			st->values[i] = NULL;
+		if (st->entry[i].value) {
+			free(st->entry[i].value);
+			st->entry[i].value = NULL;
 		}
 		i++;
 	}
-	free(st->keys);
-	st->keys = NULL;
-	free(st->values);
-	st->values = NULL;
-
-	free(st->keys_hash);
-	st->keys_hash = NULL;
-	free(st->values_hash);
-	st->values_hash = NULL;
-
+	free(st->entry);
+	st->entry = NULL;
 	if (st->cache_keys_index) {
 		free(st->cache_keys_index);
 		st->cache_keys_index = NULL;
@@ -402,11 +391,8 @@ cfg_error_t cfg_parse_buffer(cfg_t *st, cfg_char *buf, cfg_int sz)
 	 * this can speed the parser and maintainer code, since the list
 	 * will potentially occupy only one continuous memory location and there
 	 * won't be four lists with the eventual fragmentation and cache stalls. */
-	st->keys = (cfg_char **)malloc(nkeys * sizeof(cfg_char *));
-	st->values = (cfg_char **)malloc(nkeys * sizeof(cfg_char *));
-	st->keys_hash = (cfg_uint32 *)malloc(nkeys * sizeof(cfg_uint32));
-	st->values_hash = (cfg_uint32 *)malloc(nkeys * sizeof(cfg_uint32));
-	if (!st->keys || !st->values || !st->keys_hash || !st->values_hash)
+	st->entry = (cfg_entry_t *)malloc(nkeys * sizeof(cfg_entry_t));
+	if (!st->entry)
 		return CFG_ERROR_ALLOC;
 
 	/* fill keys and values */
@@ -419,29 +405,29 @@ cfg_error_t cfg_parse_buffer(cfg_t *st, cfg_char *buf, cfg_int sz)
 			cfg_check_line_equalsign(bp, ec, ls);
 			/* fill key */
 			sz = ec - ls + 1;
-			st->keys[n] = (cfg_char *)malloc(sz * sizeof(cfg_char));
-			if (!st->keys[n])
+			st->entry[n].key = (cfg_char *)malloc(sz * sizeof(cfg_char));
+			if (!st->entry[n].key)
 				return CFG_ERROR_ALLOC;
-			strncpy(st->keys[n], ls, sz);
-			st->keys[n][sz - 1] = '\0';
-			st->keys_hash[n] = cfg_hash_get(st->keys[n]);
+			strncpy(st->entry[n].key, ls, sz);
+			st->entry[n].key[sz - 1] = '\0';
+			st->entry[n].key_hash = cfg_hash_get(st->entry[n].key);
 
 			/* fill key value */
 			sz = bp - ec;
 			if (sz - 1 == 0) { /* empty value */
-				st->values[n] = NULL;
-				st->values_hash[n] = cfg_hash_get(NULL);
+				st->entry[n].value = NULL;
+				st->entry[n].value_hash = cfg_hash_get(NULL);
 				ls = bp + 1;
 				bp++;
 				n++;
 				continue;
 			}
-			st->values[n] = (cfg_char *)malloc(sz * sizeof(cfg_char));
-			if (!st->values[n])
+			st->entry[n].value = (cfg_char *)malloc(sz * sizeof(cfg_char));
+			if (!st->entry[n].value)
 				return CFG_ERROR_ALLOC;
-			strncpy(st->values[n], ec + 1, sz);
-			st->values[n][sz - 1] = '\0';
-			st->values_hash[n] = cfg_hash_get(cfg_value_escape(st->values[n]));
+			strncpy(st->entry[n].value, ec + 1, sz);
+			st->entry[n].value[sz - 1] = '\0';
+			st->entry[n].value_hash = cfg_hash_get(cfg_value_escape(st->entry[n].value));
 			ls = bp + 1;
 			n++;
 		}
