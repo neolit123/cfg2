@@ -6,7 +6,7 @@
  * this code is released in the public domain without warranty of any kind.
  * providing credit to the original author is recommended but not mandatory. 
  *
- * cfg2.c:
+ * cfg2.h:
  *	this is the library header
  */
 
