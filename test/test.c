@@ -21,7 +21,7 @@
  */
 int main(void)
 {
-  int i, err;
+	int i, err;
 	cfg_t st;
 	char buf[] =
 "key1=\\tvalue1\n" \
@@ -80,5 +80,5 @@ int main(void)
 	puts("* free");
 	cfg_free(&st);
 	puts("* end");
-  return 0;
+	return 0;
 }
