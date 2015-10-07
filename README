@@ -1,4 +1,4 @@
-cfg2 0.12 README
+cfg2 0.13.0 README
 a simplistic configuration parser for INI like syntax in ANSI C
 
 last revisited:

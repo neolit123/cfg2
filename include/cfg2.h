@@ -15,6 +15,10 @@
 #define CFG_FALSE 0
 #define CFG_CACHE_SIZE 32
 
+#define CFG_VERSION_MAJOR 0
+#define CFG_VERSION_MINOR 13
+#define CFG_VERSION_PATCH 0
+
 typedef char cfg_char;
 typedef float cfg_float;
 typedef double cfg_double;

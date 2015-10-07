@@ -1,8 +1,11 @@
-0.12 - 19.11.2013
+0.13.0 - 08.10.2015
+implement support for escaped '=' characters
+
+0.12.0 - 19.11.2013
 improved memory organization via the sub-struct cfg_entry_t
 
-0.11 - 15.10.2012 
+0.11.0 - 15.10.2012
 + added better cfg_cache_size_set() handling
 
-0.10 - 14.10.2012
+0.10.0 - 14.10.2012
 initial release
