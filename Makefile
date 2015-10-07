@@ -4,7 +4,7 @@ DEBUG=-g
 CC=gcc
 AR=ar
 ARFLAGS=rcs
-CFLAGS=-c -Wall -I./include
+CFLAGS=-c -Wall -std=c89 -pedantic -I./include
 LDFLAGS=-L./lib -lcfg2
 LIBFILE=lib/libcfg2.a
 TESTEXE=test/test.exe
