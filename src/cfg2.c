@@ -14,6 +14,9 @@
 #include <string.h>
 #include "cfg2.h"
 
+static const char key_value_separator = 0x1;
+static const char endline_separator = '\n';
+
 void cfg_cache_clear(cfg_t *st)
 {
 	/* clearing the cache buffers technically sets them to the first index (0) */
@@ -97,7 +100,7 @@ static cfg_uint32 cfg_hash_get(cfg_char *str)
 	*(end) = '\0'
 
 /* escape all special characters (like \n) in a string */
-static cfg_char *cfg_value_escape(cfg_char *str) {
+static cfg_char *cfg_escape(cfg_char *str) {
 	cfg_char *p = str, *end = str + strlen(str);
 	cfg_char next;
 
@@ -126,6 +129,8 @@ static cfg_char *cfg_value_escape(cfg_char *str) {
 			case 'b':
 				cfg_escape_char_trim('\b', p, end);
 				break;
+			default:
+				cfg_escape_char_trim(next, p, end);
 			}
 		}
 		p++;
@@ -261,7 +266,7 @@ cfg_error_t cfg_value_set(cfg_t *st, cfg_char *key, cfg_char *value)
 	if (!value || !key || st->nkeys == 0)
 		return CFG_ERROR_CRITICAL;
 	hash_key = cfg_hash_get(key);
-	value = cfg_value_escape(value);
+	value = cfg_escape(value);
 	while (i < st->nkeys) {
 		if (hash_key == st->entry[i].key_hash) {
 			st->entry[i].value_hash = cfg_hash_get(value);
@@ -340,11 +345,11 @@ cfg_error_t cfg_free(cfg_t *st)
 
 /* a couple of helper macros */
 #define cfg_check_endline_multiline(bp, buf) \
-	*bp == '\n' && (bp > buf && *(bp - 1) != '\\')
+	(*bp == endline_separator && (bp > buf && *(bp - 1) != '\\'))
 
-#define cfg_check_line_equalsign(bp, ec, ls) \
+#define cfg_check_line_key_value_separator(bp, ec, ls) \
 	*bp = '\0'; \
-	ec = strchr(ls, '='); \
+	ec = strchr(ls, key_value_separator); \
 	*bp = '\n'; \
 	if (bp - ls == 0 || *ls == '#' || !ec) { \
 		ls = bp + 1; \
@@ -383,9 +388,11 @@ cfg_error_t cfg_parse_buffer(cfg_t *st, cfg_char *buf, cfg_int sz)
 	bend = bp + sz;
 	n = nkeys = 0;
 	while (bp < bend) {
+		if (*bp == '=' && bp > st->buf && *(bp - 1) != '\\')
+			*bp = key_value_separator;
 		/* check if this is a multi-line definition */
 		if (cfg_check_endline_multiline(bp, st->buf)) {
-			cfg_check_line_equalsign(bp, ec, ls);
+			cfg_check_line_key_value_separator(bp, ec, ls);
 			nkeys++;
 			ls = bp + 1;
 		}
@@ -404,7 +411,7 @@ cfg_error_t cfg_parse_buffer(cfg_t *st, cfg_char *buf, cfg_int sz)
 	while (bp < bend) {
 		/* check if this is a multi-line definition */
 		if (cfg_check_endline_multiline(bp, st->buf)) {
-			cfg_check_line_equalsign(bp, ec, ls);
+			cfg_check_line_key_value_separator(bp, ec, ls);
 			/* fill key */
 			sz = ec - ls + 1;
 			st->entry[n].key = (cfg_char *)malloc(sz * sizeof(cfg_char));
@@ -412,6 +419,7 @@ cfg_error_t cfg_parse_buffer(cfg_t *st, cfg_char *buf, cfg_int sz)
 				return CFG_ERROR_ALLOC;
 			strncpy(st->entry[n].key, ls, sz);
 			st->entry[n].key[sz - 1] = '\0';
+			st->entry[n].key = cfg_escape(st->entry[n].key);
 			st->entry[n].key_hash = cfg_hash_get(st->entry[n].key);
 
 			/* fill key value */
@@ -429,7 +437,8 @@ cfg_error_t cfg_parse_buffer(cfg_t *st, cfg_char *buf, cfg_int sz)
 				return CFG_ERROR_ALLOC;
 			strncpy(st->entry[n].value, ec + 1, sz);
 			st->entry[n].value[sz - 1] = '\0';
-			st->entry[n].value_hash = cfg_hash_get(cfg_value_escape(st->entry[n].value));
+			st->entry[n].value = cfg_escape(st->entry[n].value);
+			st->entry[n].value_hash = cfg_hash_get(st->entry[n].value);
 			ls = bp + 1;
 			n++;
 		}
