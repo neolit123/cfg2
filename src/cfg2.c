@@ -80,10 +80,7 @@ static cfg_uint32 cfg_hash_get(cfg_char *str)
 	cfg_uint32 hash = 0x811c9dc5;
 	if (!str)
 		return hash;
-	while(*str) {
-		/* or multiple with addition and bit shifting:
-		 * hash += (hash << 1) + (hash << 4) + (hash << 7) + (hash << 8) + (hash << 24);
-		*/
+	while (*str) {
 		hash *= hash;
 		hash ^= *str++;
 	}
