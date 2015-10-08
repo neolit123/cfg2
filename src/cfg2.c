@@ -14,8 +14,6 @@
 #include <string.h>
 #include "cfg2.h"
 
-static const char key_value_separator = 0x1;
-
 void cfg_cache_clear(cfg_t *st)
 {
 	/* clearing the cache buffers technically sets them to the first index (0) */
@@ -66,6 +64,7 @@ cfg_error_t cfg_init(cfg_t *st, cfg_int cache_size)
 	st->cache_keys_index = NULL;
 	st->cache_keys_hash = NULL;
 	st->init = CFG_TRUE;
+	st->key_value_separator = CFG_KEY_VALUE_SEPARATOR;
 	if (cache_size < 0)
 		st->cache_size = CFG_CACHE_SIZE;
 	else
@@ -93,7 +92,7 @@ static cfg_uint32 cfg_hash_get(cfg_char *str)
 		continue
 
 /* escape all special characters (like \n) in a string */
-static cfg_uint32 cfg_escape(cfg_char *str)
+static cfg_uint32 cfg_escape(cfg_t *st, cfg_char *str)
 {
 	char *src, *dst;
 	int escape = 0;
@@ -121,7 +120,7 @@ static cfg_uint32 cfg_escape(cfg_char *str)
 			case '=':
 				keys++;
 			case '\n':
-				*dst = key_value_separator;
+				*dst = st->key_value_separator;
 				dst++;
 				continue;
 			}
@@ -276,7 +275,7 @@ cfg_error_t cfg_value_set(cfg_t *st, cfg_char *key, cfg_char *value)
 			entry->value = strdup(value);
 			if (!entry->value)
 				return CFG_ERROR_ALLOC;
-			cfg_escape(entry->value);
+			cfg_escape(st, entry->value);
 			return CFG_ERROR_OK;
 		}
 		i++;
@@ -358,21 +357,21 @@ static cfg_error_t cfg_parse_buffer_keys(cfg_t *st)
 		entry->index = i;
 
 		end = p;
-		while (*end != key_value_separator)
+		while (*end != st->key_value_separator)
 			end++;
 		*end = '\0';
 		entry->key = strdup(p);
-		*end = key_value_separator;
+		*end = st->key_value_separator;
 		end++;
 		p = end;
 
 		entry->key_hash = cfg_hash_get(entry->key);
 
-		while (*end != key_value_separator)
+		while (*end != st->key_value_separator)
 			end++;
 		*end = '\0';
 		entry->value = strdup(p);
-		*end = key_value_separator;
+		*end = st->key_value_separator;
 		end++;
 		p = end;
 
@@ -405,7 +404,7 @@ cfg_error_t cfg_parse_buffer(cfg_t *st, cfg_char *buf, cfg_uint32 sz)
 	if (ret > 0)
 		return ret;
 
-	nkeys = cfg_escape(buf);
+	nkeys = cfg_escape(st, buf);
 
 	/* allocate memory for the list */
 	st->entry = (cfg_entry_t *)malloc(nkeys * sizeof(cfg_entry_t));

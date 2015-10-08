@@ -14,6 +14,7 @@
 #define CFG_TRUE 1
 #define CFG_FALSE 0
 #define CFG_CACHE_SIZE 32
+#define CFG_KEY_VALUE_SEPARATOR 0x01
 
 #define CFG_VERSION_MAJOR 0
 #define CFG_VERSION_MINOR 13
@@ -71,6 +72,7 @@ typedef struct {
 	cfg_int nkeys;
 	cfg_int buf_size;
 	cfg_int cache_size;
+	cfg_char key_value_separator;
 } cfg_t;
 
 /* init the library object. must be called before everything else. the
