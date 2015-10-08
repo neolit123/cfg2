@@ -122,3 +122,6 @@ cfg_long cfg_value_get_long(cfg_t*, cfg_char*, cfg_int);
 
 /* retrieve a specific value by key as double precision floating point. */
 cfg_double cfg_value_get_double(cfg_t*, cfg_char*);
+
+/* set a value to a string */
+cfg_error_t cfg_value_set(cfg_t *st, cfg_char *key, cfg_char *value);
