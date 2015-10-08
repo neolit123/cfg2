@@ -15,7 +15,6 @@
 #include "cfg2.h"
 
 static const char key_value_separator = 0x1;
-static const char endline_separator = '\n';
 
 void cfg_cache_clear(cfg_t *st)
 {
