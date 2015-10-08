@@ -23,6 +23,7 @@ int main(void)
 {
 	int i, err;
 	cfg_t st;
+	cfg_entry_t *entry;
 	char buf[] =
 "key1=\\tvalue1\n" \
 "key2=value2\n" \
@@ -34,6 +35,7 @@ int main(void)
 	/* init the structure with cache buffer size of 4. this means that 4 unique
 	 * (and fast) entries will be cached at all times. */
 	err = cfg_init(&st, 4);
+	st.verbose = 1;
 	if (err > 0) {
 		printf("cfg_init() ERROR: %d\n", err);
 		goto exit;
@@ -55,7 +57,7 @@ int main(void)
 	i = 0;
 	/* print all keys / values */
 	while (i < st.nkeys) {
-		printf("%#08x, %#08x, %s, %s\n", st.entry[i].key_hash, st.entry[i].value_hash, st.entry[i].key, st.entry[i].value);
+		printf("%#08x, %#08x, %s, %s, %#08x\n", st.entry[i].key_hash, st.entry[i].value_hash, st.entry[i].key, st.entry[i].value, st.entry[i].section_hash);
 		i++;
 	}
 
@@ -72,6 +74,11 @@ int main(void)
 	printf("get hex (key7): %#lx\n", cfg_value_get_ulong(&st, "key7", 16));
 	printf("get hex (key=8): %#lx\n", cfg_value_get_ulong(&st, "key=8", 16));
 	printf("nkeys: %d\n", st.nkeys);
+	printf("nsections: %d\n", st.nsections);
+
+	/* test a section */
+	entry = cfg_section_entry(&st, "section2", "key11");
+	printf("\ntest entry from section: %s\n\n", (entry) ? entry->value : "not found");
 
 	/* dump the cache */
 	puts("* cache");
