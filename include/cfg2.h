@@ -24,8 +24,9 @@ typedef float cfg_float;
 typedef double cfg_double;
 typedef int cfg_int;
 typedef long cfg_long;
+typedef unsigned int cfg_uint;
+typedef unsigned int cfg_uint32; /* backwards copatibility */
 typedef unsigned long cfg_ulong;
-typedef unsigned int cfg_uint32;
 
 /* list of different error types */
 typedef enum {
@@ -41,16 +42,19 @@ typedef enum {
 } cfg_error_t;
 
 /* an entry pair of key / value */
-typedef struct {
-	cfg_uint32 key_hash;
-	cfg_uint32 value_hash;
+struct cfg_entry {
+	cfg_uint key_hash;
+	cfg_uint value_hash;
 	cfg_char *key;
 	cfg_char *value;
-} cfg_entry_t;
+	cfg_int index;
+};
+
+typedef struct cfg_entry cfg_entry_t;
 
 /* the main library object */
 typedef struct {
-	cfg_uint32 *cache_keys_hash;
+	cfg_uint *cache_keys_hash;
 	cfg_int *cache_keys_index;
 
 	cfg_entry_t *entry;
