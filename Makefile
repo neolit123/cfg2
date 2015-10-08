@@ -29,4 +29,4 @@ $(TESTEXE): $(LIBFILE) test/test.o
 	$(CC) test/test.o -o $(TESTEXE) $(LDFLAGS)
 
 clean:
-	rm -f src/cfg2.o test/test.o $(LIBFILE) $(TESTEXE)  
+	rm -f src/cfg2.o test/test.o $(LIBFILE) $(TESTEXE)
