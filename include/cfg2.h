@@ -19,13 +19,19 @@
 #define CFG_VERSION_MINOR 13
 #define CFG_VERSION_PATCH 0
 
+#ifdef _MSC_VER
+	typedef unsigned __int32 cfg_uint32t;
+#else
+	#include <stdint.h>
+	typedef uint32_t cfg_uint32;
+#endif
+
 typedef char cfg_char;
 typedef float cfg_float;
 typedef double cfg_double;
 typedef int cfg_int;
 typedef long cfg_long;
 typedef unsigned int cfg_uint;
-typedef unsigned int cfg_uint32; /* backwards copatibility */
 typedef unsigned long cfg_ulong;
 
 /* list of different error types */
@@ -43,8 +49,8 @@ typedef enum {
 
 /* an entry pair of key / value */
 struct cfg_entry {
-	cfg_uint key_hash;
-	cfg_uint value_hash;
+	cfg_uint32 key_hash;
+	cfg_uint32 value_hash;
 	cfg_char *key;
 	cfg_char *value;
 	cfg_int index;
@@ -54,7 +60,7 @@ typedef struct cfg_entry cfg_entry_t;
 
 /* the main library object */
 typedef struct {
-	cfg_uint *cache_keys_hash;
+	cfg_uint32 *cache_keys_hash;
 	cfg_int *cache_keys_index;
 
 	cfg_entry_t *entry;
