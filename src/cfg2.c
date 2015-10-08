@@ -78,14 +78,15 @@ cfg_error_t cfg_init(cfg_t *st, cfg_int cache_size)
 static cfg_uint32 cfg_hash_get(cfg_char *str)
 {
 	cfg_uint32 hash = 0x811c9dc5;
-	if (str)
-		while(*str) {
-			/* or multiple with addition and bit shifting:
-			 * hash += (hash << 1) + (hash << 4) + (hash << 7) + (hash << 8) + (hash << 24);
-			*/
-			hash *= hash;
-			hash ^= *str++;
-		}
+	if (!str)
+		return hash;
+	while(*str) {
+		/* or multiple with addition and bit shifting:
+		 * hash += (hash << 1) + (hash << 4) + (hash << 7) + (hash << 8) + (hash << 24);
+		*/
+		hash *= hash;
+		hash ^= *str++;
+	}
 	return hash;
 }
 
