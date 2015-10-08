@@ -81,7 +81,8 @@ cfg_error_t cfg_init(cfg_t*, cfg_int);
 /* free all memory allocated by the library for a cfg_t object */
 cfg_error_t cfg_free(cfg_t*);
 
-/* parse a char buffer by passing its size as the 3rd parameter */
+/* parse a NULL terminated char buffer.
+ * the third argument is size, but is redundant (deprecated). */
 cfg_error_t cfg_parse_buffer(cfg_t*, cfg_char*, cfg_uint32);
 
 /* parse a file by name, passed as the 2nd parameter */
