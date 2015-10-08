@@ -86,53 +86,55 @@ static cfg_uint32 cfg_hash_get(cfg_char *str)
 	return hash;
 }
 
-#define cfg_escape_char_trim(c, p, end) \
-	*p = c; \
-	memmove(p + 1, p + 2, end - (p + 1)); \
-	*((end)--) = '\0'
-
-#define cfg_multi_line_trim(p, end) \
-	memmove(p, p + 2, end - (p + 2)); \
-	end -= 2; \
-	*(end) = '\0'
+#define cfg_escape_special_char(char1, char2) \
+	case char1: \
+		*dst = char2; \
+		dst++; \
+		continue
 
 /* escape all special characters (like \n) in a string */
-static cfg_char *cfg_escape(cfg_char *str) {
-	cfg_char *p = str, *end = str + strlen(str);
-	cfg_char next;
+static cfg_uint32 cfg_escape(cfg_char *str)
+{
+	char *src, *dst;
+	int escape = 0;
+	cfg_uint32 keys = 0;
 
-	while (*p) {
-		if (*p == '\\') {
-			next = *(p + 1);
-			switch (next) {
-			case '\n': /* multi-line value: remove the \\ and \n characters */
-				cfg_multi_line_trim(p, end);
-				break;
-			case 'n':
-				cfg_escape_char_trim('\n', p, end);
-				break;
-			case 't':
-				cfg_escape_char_trim('\t', p, end);
-				break;
-			case 'r':
-				cfg_escape_char_trim('\r', p, end);
-				break;
-			case 'v':
-				cfg_escape_char_trim('\v', p, end);
-				break;
-			case 'f':
-				cfg_escape_char_trim('\f', p, end);
-				break;
-			case 'b':
-				cfg_escape_char_trim('\b', p, end);
-				break;
-			default:
-				cfg_escape_char_trim(next, p, end);
+	for (src = dst = str; *src != '\0'; src++) {
+		if (*src == '#' && ((src > str && *(src - 1) == '\n') || src == str)) {
+			while (*src != '\n')
+				src++;
+			continue;
+		}
+		*dst = *src;
+		if (escape) {
+			escape = 0;
+			switch (*dst) {
+			case '\n':
+				continue;
+			cfg_escape_special_char('t', '\t');
+			cfg_escape_special_char('r', '\r');
+			cfg_escape_special_char('v', '\v');
+			cfg_escape_special_char('b', '\b');
+			}
+		} else {
+			switch (*dst) {
+			case '=':
+				keys++;
+			case '\n':
+				*dst = key_value_separator;
+				dst++;
+				continue;
 			}
 		}
-		p++;
+		escape = 0;
+		if (*dst == '\\') {
+			escape = 1;
+			continue;
+		}
+		dst++;
 	}
-	return str;
+	*dst = '\0';
+	return keys;
 }
 
 cfg_entry_t *cfg_entry_nth(cfg_t *st, cfg_int n)
@@ -257,23 +259,24 @@ cfg_double cfg_value_get_double(cfg_t *st, cfg_char *key)
 cfg_error_t cfg_value_set(cfg_t *st, cfg_char *key, cfg_char *value)
 {
 	cfg_int i = 0;
-	cfg_int len = strlen(value);
 	cfg_uint32 hash_key;
+	cfg_entry_t *entry;
 
 	if (!value || !key || st->nkeys == 0)
 		return CFG_ERROR_CRITICAL;
+
 	hash_key = cfg_hash_get(key);
-	value = cfg_escape(value);
+
 	while (i < st->nkeys) {
-		if (hash_key == st->entry[i].key_hash) {
-			st->entry[i].value_hash = cfg_hash_get(value);
-			if (st->entry[i].value)
-				free(st->entry[i].value);
-			st->entry[i].value = (cfg_char *)malloc((len + 1) * sizeof(cfg_char));
-			if (!st->entry[i].value)
+		entry = &st->entry[i];
+		if (hash_key == entry->key_hash) {
+			entry->value_hash = cfg_hash_get(value);
+			if (entry->value)
+				free(entry->value);
+			entry->value = strdup(value);
+			if (!entry->value)
 				return CFG_ERROR_ALLOC;
-			strncpy(st->entry[i].value, value, len);
-			st->entry[i].value[len] = '\0';
+			cfg_escape(entry->value);
 			return CFG_ERROR_OK;
 		}
 		i++;
@@ -329,7 +332,6 @@ cfg_error_t cfg_free(cfg_t *st)
 			return ret;
 
 		st->buf = NULL;
-		st->buf_size = 0;
 
 		if (st->file)
 			fclose(st->file);
@@ -340,31 +342,57 @@ cfg_error_t cfg_free(cfg_t *st)
 	return CFG_ERROR_OK;
 }
 
-/* a couple of helper macros */
-#define cfg_check_endline_multiline(bp, buf) \
-	(*bp == endline_separator && (bp > buf && *(bp - 1) != '\\'))
+static cfg_error_t cfg_parse_buffer_keys(cfg_t *st)
+{
+	cfg_uint32 nkeys = st->nkeys;
+	cfg_char *buf = st->buf;
 
-#define cfg_check_line_key_value_separator(bp, ec, ls) \
-	*bp = '\0'; \
-	ec = strchr(ls, key_value_separator); \
-	*bp = '\n'; \
-	if (bp - ls == 0 || *ls == '#' || !ec) { \
-		ls = bp + 1; \
-		bp++; \
-		continue; \
+	cfg_uint32 i;
+	cfg_entry_t *entry;
+
+	cfg_char *p, *end;
+	p = buf;
+
+	for (i = 0; i < nkeys; i++) {
+		entry = &st->entry[i];
+		entry->index = i;
+
+		end = p;
+		while (*end != key_value_separator)
+			end++;
+		*end = '\0';
+		entry->key = strdup(p);
+		*end = key_value_separator;
+		end++;
+		p = end;
+
+		entry->key_hash = cfg_hash_get(entry->key);
+
+		while (*end != key_value_separator)
+			end++;
+		*end = '\0';
+		entry->value = strdup(p);
+		*end = key_value_separator;
+		end++;
+		p = end;
+
+		entry->value_hash = cfg_hash_get(entry->value);
 	}
 
-cfg_error_t cfg_parse_buffer(cfg_t *st, cfg_char *buf, cfg_int sz)
+	return CFG_ERROR_OK;
+}
+
+cfg_error_t cfg_parse_buffer(cfg_t *st, cfg_char *buf, cfg_uint32 sz)
 {
-	cfg_int n, ret, nkeys;
-	cfg_char *bp, *bend, *ls, *ec;
+	cfg_int ret;
+	cfg_uint32 nkeys;
+	(void)sz;
 
 	if (st->init != CFG_TRUE)
 		return CFG_ERROR_INIT;
 
 	/* set buffer */
 	st->buf = buf;
-	st->buf_size = sz;
 
 	/* clear old keys */
 	ret = cfg_free_memory(st);
@@ -377,79 +405,23 @@ cfg_error_t cfg_parse_buffer(cfg_t *st, cfg_char *buf, cfg_int sz)
 	if (ret > 0)
 		return ret;
 
-	/* find the number of keys by going trough the entire buffer initially.
-	 * we use this method instead of a growing list, since realloc can end up
-	 * being slow. even if our estimate is off a little realloc will have to copy
-	 * all pointer values for the buffer to grow */
-	ls = bp = st->buf;
-	bend = bp + sz;
-	n = nkeys = 0;
-	while (bp < bend) {
-		if (*bp == '=' && bp > st->buf && *(bp - 1) != '\\')
-			*bp = key_value_separator;
-		/* check if this is a multi-line definition */
-		if (cfg_check_endline_multiline(bp, st->buf)) {
-			cfg_check_line_key_value_separator(bp, ec, ls);
-			nkeys++;
-			ls = bp + 1;
-		}
-		bp++;
-	}
+	nkeys = cfg_escape(buf);
 
 	/* allocate memory for the list */
 	st->entry = (cfg_entry_t *)malloc(nkeys * sizeof(cfg_entry_t));
 	if (!st->entry)
 		return CFG_ERROR_ALLOC;
 
-	/* fill keys and values */
-	ls = bp = st->buf;
-	bend = bp + sz;
-	n = 0;
-	while (bp < bend) {
-		/* check if this is a multi-line definition */
-		if (cfg_check_endline_multiline(bp, st->buf)) {
-			cfg_check_line_key_value_separator(bp, ec, ls);
-			/* fill key */
-			sz = ec - ls + 1;
-			st->entry[n].key = (cfg_char *)malloc(sz * sizeof(cfg_char));
-			if (!st->entry[n].key)
-				return CFG_ERROR_ALLOC;
-			strncpy(st->entry[n].key, ls, sz);
-			st->entry[n].key[sz - 1] = '\0';
-			st->entry[n].key = cfg_escape(st->entry[n].key);
-			st->entry[n].key_hash = cfg_hash_get(st->entry[n].key);
-
-			/* fill key value */
-			sz = bp - ec;
-			if (sz - 1 == 0) { /* empty value */
-				st->entry[n].value = NULL;
-				st->entry[n].value_hash = cfg_hash_get(NULL);
-				ls = bp + 1;
-				bp++;
-				n++;
-				continue;
-			}
-			st->entry[n].value = (cfg_char *)malloc(sz * sizeof(cfg_char));
-			if (!st->entry[n].value)
-				return CFG_ERROR_ALLOC;
-			strncpy(st->entry[n].value, ec + 1, sz);
-			st->entry[n].value[sz - 1] = '\0';
-			st->entry[n].value = cfg_escape(st->entry[n].value);
-			st->entry[n].value_hash = cfg_hash_get(st->entry[n].value);
-			ls = bp + 1;
-			n++;
-		}
-		bp++;
-	}
 	st->nkeys = nkeys;
-	return CFG_ERROR_OK;
+	return cfg_parse_buffer_keys(st);
 }
 
 cfg_error_t cfg_parse_file(cfg_t *st, cfg_char *filename)
 {
 	FILE *f;
 	cfg_char *buf;
-	cfg_int sz = 0, ret;
+	cfg_uint32 sz = 0;
+	cfg_int ret;
 
 	if (st->init != CFG_TRUE)
 		return CFG_ERROR_INIT;
@@ -465,20 +437,21 @@ cfg_error_t cfg_parse_file(cfg_t *st, cfg_char *filename)
 		sz++;
 	rewind(f);
 
-	buf = (cfg_char *)malloc(sz * sizeof(cfg_char));
+	buf = (cfg_char *)malloc((sz + 1) * sizeof(cfg_char));
 	if (!buf) {
 		fclose(f);
 		st->file = NULL;
 		return CFG_ERROR_ALLOC;
 	}
-	if (fread(buf, sizeof(cfg_char), sz, f) != (cfg_uint32)sz) {
+	if (fread(buf, sizeof(cfg_char), sz, f) != sz) {
 		fclose(f);
 		return CFG_ERROR_FREAD;
 	}
 	fclose(f);
 	st->file = NULL;
 
-	ret = cfg_parse_buffer(st, buf, sz);
+	buf[sz] = '\0';
+	ret = cfg_parse_buffer(st, buf, 0);
 	free(st->buf);
 	st->buf = NULL;
 	return ret;

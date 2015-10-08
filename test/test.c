@@ -44,7 +44,7 @@ int main(void)
 	}
 	printf("* cache size: %d\n", st.cache_size);
 	puts("* parse");
-	err = cfg_parse_buffer(&st, buf, strlen(buf));
+	err = cfg_parse_buffer(&st, buf, 0);
 	err = cfg_parse_file(&st, "test.cfg");
 	puts("* actions");
 	if (err > 0) {
@@ -58,6 +58,9 @@ int main(void)
 		printf("%#08x, %#08x, %s, %s\n", st.entry[i].key_hash, st.entry[i].value_hash, st.entry[i].key, st.entry[i].value);
 		i++;
 	}
+
+	/* test setting a new value */
+	cfg_value_set(&st, "key1", "\tvalue1 value1");
 
 	/* print some values */
 	printf("find value by key (key1): %s\n", cfg_value_get(&st, "key1"));
