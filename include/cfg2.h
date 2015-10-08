@@ -4,7 +4,7 @@
  *
  * author: lubomir i. ivanov (neolit123 at gmail)
  * this code is released in the public domain without warranty of any kind.
- * providing credit to the original author is recommended but not mandatory. 
+ * providing credit to the original author is recommended but not mandatory.
  *
  * cfg2.h:
  *	this is the library header
@@ -82,7 +82,7 @@ cfg_error_t cfg_init(cfg_t*, cfg_int);
 cfg_error_t cfg_free(cfg_t*);
 
 /* parse a char buffer by passing its size as the 3rd parameter */
-cfg_error_t cfg_parse_buffer(cfg_t*, cfg_char*, cfg_int);
+cfg_error_t cfg_parse_buffer(cfg_t*, cfg_char*, cfg_uint32);
 
 /* parse a file by name, passed as the 2nd parameter */
 cfg_error_t cfg_parse_file(cfg_t*, cfg_char*);
