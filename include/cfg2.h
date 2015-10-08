@@ -15,6 +15,7 @@
 #define CFG_FALSE 0
 #define CFG_CACHE_SIZE 32
 #define CFG_KEY_VALUE_SEPARATOR 0x01
+#define CFG_SECTION_SEPARATOR 0x02
 
 #define CFG_VERSION_MAJOR 0
 #define CFG_VERSION_MINOR 14
@@ -52,6 +53,7 @@ typedef enum {
 struct cfg_entry {
 	cfg_uint32 key_hash;
 	cfg_uint32 value_hash;
+	cfg_uint32 section_hash;
 	cfg_char *key;
 	cfg_char *value;
 	cfg_int index;
@@ -68,11 +70,14 @@ typedef struct {
 	cfg_char *buf;
 	FILE *file;
 
+	cfg_int verbose;
 	cfg_int init;
 	cfg_int nkeys;
+	cfg_int nsections;
 	cfg_int buf_size;
 	cfg_int cache_size;
 	cfg_char key_value_separator;
+	cfg_char section_separator;
 } cfg_t;
 
 /* init the library object. must be called before everything else. the
@@ -99,6 +104,9 @@ void cfg_cache_clear(cfg_t*);
 
 /* retrieve the nth etnry */
 cfg_entry_t *cfg_entry_nth(cfg_t*, cfg_int);
+
+/* return a value from section (2nd argument) and key (3rd argument) */
+cfg_entry_t *cfg_section_entry(cfg_t*, cfg_char*, cfg_char*);
 
 /* retrieve the nth key */
 cfg_char* cfg_key_nth(cfg_t*, cfg_int);

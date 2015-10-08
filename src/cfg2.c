@@ -26,7 +26,7 @@ void cfg_cache_clear(cfg_t *st)
 cfg_error_t cfg_cache_size_set(cfg_t *st, cfg_int size)
 {
 	int diff;
-	if (st->init != CFG_TRUE)
+	if (!st || st->init != CFG_TRUE)
 		return CFG_ERROR_INIT;
 	if (size < 0)
 		return CFG_ERROR_CRITICAL;
@@ -56,15 +56,21 @@ cfg_error_t cfg_cache_size_set(cfg_t *st, cfg_int size)
 
 cfg_error_t cfg_init(cfg_t *st, cfg_int cache_size)
 {
+	if (!st)
+		return CFG_ERROR_INIT;
+
 	st->entry = NULL;
 	st->buf = NULL;
 	st->file = NULL;
+	st->verbose = 0;
 	st->nkeys = 0;
+	st->nsections = 0;
 	st->buf_size = 0;
 	st->cache_keys_index = NULL;
 	st->cache_keys_hash = NULL;
 	st->init = CFG_TRUE;
 	st->key_value_separator = CFG_KEY_VALUE_SEPARATOR;
+	st->section_separator = CFG_SECTION_SEPARATOR;
 	if (cache_size < 0)
 		st->cache_size = CFG_CACHE_SIZE;
 	else
@@ -92,35 +98,52 @@ static cfg_uint32 cfg_hash_get(cfg_char *str)
 		continue
 
 /* escape all special characters (like \n) in a string */
-static cfg_uint32 cfg_escape(cfg_t *st, cfg_char *str)
+static void cfg_escape(cfg_t *st, cfg_char *buf, cfg_uint32 *keys, cfg_uint32 *sections)
 {
-	char *src, *dst;
+	cfg_char *src, *dst;
 	int escape = 0;
-	cfg_uint32 keys = 0;
+	*keys = 0;
+	*sections = 0;
 
-	for (src = dst = str; *src != '\0'; src++) {
-		if (*src == '#' && ((src > str && *(src - 1) == '\n') || src == str)) {
-			while (*src != '\n')
+	for (src = dst = buf; *src != '\0'; src++) {
+		/* start of a line */
+		if ((src > buf && *(src - 1) == '\n') || src == buf) {
+			/* skip empty lines */
+			while (*src == '\n' || *src == ' ')
 				src++;
-			continue;
+			/* skip comment lines */
+			if (*src == '#') {
+				while (*src != '\n')
+					src++;
+				src++;
+			}
 		}
 		*dst = *src;
+		/* handle escaped characters */
 		if (escape) {
 			escape = 0;
 			switch (*dst) {
-			case '\n':
-				continue;
+			cfg_escape_special_char('n', '\n');
 			cfg_escape_special_char('t', '\t');
 			cfg_escape_special_char('r', '\r');
 			cfg_escape_special_char('v', '\v');
 			cfg_escape_special_char('b', '\b');
+			case '\n':
+				continue;
 			}
+		/* handle key/value/section separators */
 		} else {
 			switch (*dst) {
 			case '=':
-				keys++;
+				(*keys)++;
 			case '\n':
 				*dst = st->key_value_separator;
+				dst++;
+				continue;
+			case '[':
+				(*sections)++;
+			case ']':
+				*dst = st->section_separator;
 				dst++;
 				continue;
 			}
@@ -133,26 +156,27 @@ static cfg_uint32 cfg_escape(cfg_t *st, cfg_char *str)
 		dst++;
 	}
 	*dst = '\0';
-	return keys;
+	if (st->verbose > 0)
+		fprintf(stderr, "\n[cfg2] cfg_escape():\n%s\n[cfg2-end]\n", buf);
 }
 
 cfg_entry_t *cfg_entry_nth(cfg_t *st, cfg_int n)
 {
-	if (n < 0 || n > st->nkeys - 1 || !st->nkeys)
+	if (!st || n < 0 || n > st->nkeys - 1 || !st->nkeys)
 		return NULL;
 	return &(st->entry[n]);
 }
 
 cfg_char* cfg_key_nth(cfg_t *st, cfg_int n)
 {
-	if (n < 0 || n > st->nkeys - 1 || !st->nkeys)
+	if (!st || n < 0 || n > st->nkeys - 1 || !st->nkeys)
 		return NULL;
 	return st->entry[n].key;
 }
 
 cfg_char* cfg_value_nth(cfg_t *st, cfg_int n)
 {
-	if (n < 0 || n > st->nkeys - 1 || !st->nkeys)
+	if (!st || n < 0 || n > st->nkeys - 1 || !st->nkeys)
 		return NULL;
 	return st->entry[n].value;
 }
@@ -162,7 +186,7 @@ cfg_int cfg_key_get_index(cfg_t *st, cfg_char *key)
 	cfg_int i = 0;
 	cfg_uint32 hash;
 
-	if (!key || !st->nkeys)
+	if (!st || !key || !st->nkeys)
 		return -1;
 	hash = cfg_hash_get(key);
 	while (i < st->nkeys) {
@@ -178,7 +202,7 @@ cfg_char* cfg_key_get(cfg_t *st, cfg_char *value)
 	cfg_int i = 0;
 	cfg_uint32 hash;
 
-	if (!value || !st->nkeys)
+	if (!st || !value || !st->nkeys)
 		return NULL;
 	hash = cfg_hash_get(value);
 	while (i < st->nkeys) {
@@ -189,12 +213,34 @@ cfg_char* cfg_key_get(cfg_t *st, cfg_char *value)
 	return NULL;
 }
 
+cfg_entry_t *cfg_section_entry(cfg_t *st, cfg_char *section, cfg_char *key)
+{
+	cfg_uint32 section_hash, key_hash, i;
+	cfg_entry_t *entry;
+
+	if (!st || !key || !section || !st->nkeys)
+		return NULL;
+
+	section_hash = cfg_hash_get(section);
+	key_hash = cfg_hash_get(key);
+
+	i = 0;
+	while (i < st->nkeys) {
+		entry = &st->entry[i];
+		if (section_hash == entry->section_hash &&
+		    key_hash == entry->key_hash)
+			return entry;
+		i++;
+	}
+	return NULL;
+}
+
 cfg_char* cfg_value_get(cfg_t *st, cfg_char *key)
 {
-	cfg_int i;
+	cfg_uint32 i;
 	cfg_uint32 hash;
 
-	if (!key || !st->nkeys)
+	if (!st || !key || !st->nkeys)
 		return NULL;
 	hash = cfg_hash_get(key);
 
@@ -260,6 +306,7 @@ cfg_error_t cfg_value_set(cfg_t *st, cfg_char *key, cfg_char *value)
 	cfg_int i = 0;
 	cfg_uint32 hash_key;
 	cfg_entry_t *entry;
+	cfg_uint32 keys, sections;
 
 	if (!value || !key || st->nkeys == 0)
 		return CFG_ERROR_CRITICAL;
@@ -275,7 +322,7 @@ cfg_error_t cfg_value_set(cfg_t *st, cfg_char *key, cfg_char *value)
 			entry->value = strdup(value);
 			if (!entry->value)
 				return CFG_ERROR_ALLOC;
-			cfg_escape(st, entry->value);
+			cfg_escape(st, entry->value, &keys, &sections);
 			return CFG_ERROR_OK;
 		}
 		i++;
@@ -344,6 +391,7 @@ cfg_error_t cfg_free(cfg_t *st)
 static cfg_error_t cfg_parse_buffer_keys(cfg_t *st)
 {
 	cfg_uint32 nkeys = st->nkeys;
+	cfg_uint32 section_hash = 0;
 	cfg_char *buf = st->buf;
 
 	cfg_uint32 i;
@@ -356,6 +404,22 @@ static cfg_error_t cfg_parse_buffer_keys(cfg_t *st)
 		entry = &st->entry[i];
 		entry->index = i;
 
+		/* store current section hash */
+		if (*p == st->section_separator) {
+			p++;
+			end = p;
+			while (*end != st->section_separator)
+				end++;
+			*end = '\0';
+			section_hash = cfg_hash_get(p);
+			*end = st->section_separator;
+			end++;
+			end++;
+			p = end;
+		}
+		entry->section_hash = section_hash;
+
+		/* parse key */
 		end = p;
 		while (*end != st->key_value_separator)
 			end++;
@@ -367,6 +431,7 @@ static cfg_error_t cfg_parse_buffer_keys(cfg_t *st)
 
 		entry->key_hash = cfg_hash_get(entry->key);
 
+		/* parse value */
 		while (*end != st->key_value_separator)
 			end++;
 		*end = '\0';
@@ -384,7 +449,7 @@ static cfg_error_t cfg_parse_buffer_keys(cfg_t *st)
 cfg_error_t cfg_parse_buffer(cfg_t *st, cfg_char *buf, cfg_uint32 sz)
 {
 	cfg_int ret;
-	cfg_uint32 nkeys;
+	cfg_uint32 keys, sections;
 	(void)sz;
 
 	if (st->init != CFG_TRUE)
@@ -404,14 +469,15 @@ cfg_error_t cfg_parse_buffer(cfg_t *st, cfg_char *buf, cfg_uint32 sz)
 	if (ret > 0)
 		return ret;
 
-	nkeys = cfg_escape(st, buf);
+	cfg_escape(st, buf, &keys, &sections);
 
 	/* allocate memory for the list */
-	st->entry = (cfg_entry_t *)malloc(nkeys * sizeof(cfg_entry_t));
+	st->entry = (cfg_entry_t *)malloc(keys * sizeof(cfg_entry_t));
 	if (!st->entry)
 		return CFG_ERROR_ALLOC;
 
-	st->nkeys = nkeys;
+	st->nkeys = keys;
+	st->nsections = sections;
 	return cfg_parse_buffer_keys(st);
 }
 

@@ -48,6 +48,8 @@ int main(void)
 	puts("* parse");
 	err = cfg_parse_buffer(&st, buf, 0);
 	err = cfg_parse_file(&st, "test.cfg");
+
+	puts("");
 	puts("* actions");
 	if (err > 0) {
 		printf("cfg_parse_file() ERROR: %d\n", err);
@@ -63,8 +65,9 @@ int main(void)
 
 	/* test setting a new value */
 	cfg_value_set(&st, "key1", "\tvalue1 value1");
-
+	
 	/* print some values */
+	puts("");
 	printf("find value by key (key1): %s\n", cfg_value_get(&st, "key1"));
 	printf("find value by key (key=8): %s\n", cfg_value_get(&st, "key=8"));
 	printf("find key index (key3): %d\n", cfg_key_get_index(&st, "key3"));
@@ -77,8 +80,12 @@ int main(void)
 	printf("nsections: %d\n", st.nsections);
 
 	/* test a section */
+	puts("");
 	entry = cfg_section_entry(&st, "section2", "key11");
-	printf("\ntest entry from section: %s\n\n", (entry) ? entry->value : "not found");
+	printf("test entry from section: %s\n", (entry) ? entry->value : "not found");
+	entry = cfg_section_entry(&st, "section1", "key10");
+	printf("test entry from section: %s\n", (entry) ? entry->value : "not found");
+	puts("");
 
 	/* dump the cache */
 	puts("* cache");
