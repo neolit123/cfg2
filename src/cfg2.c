@@ -63,7 +63,7 @@ cfg_error_t cfg_init(cfg_t *st, cfg_int cache_size)
 	st->buf = NULL;
 	st->file = NULL;
 	st->verbose = 0;
-	st->nkeys = 0;
+	st->nkeys = 0;	
 	st->nsections = 0;
 	st->buf_size = 0;
 	st->cache_keys_index = NULL;
@@ -71,6 +71,7 @@ cfg_error_t cfg_init(cfg_t *st, cfg_int cache_size)
 	st->init = CFG_TRUE;
 	st->key_value_separator = CFG_KEY_VALUE_SEPARATOR;
 	st->section_separator = CFG_SECTION_SEPARATOR;
+	st->comment_char = CFG_COMMENT_CHAR;
 	if (cache_size < 0)
 		st->cache_size = CFG_CACHE_SIZE;
 	else
@@ -112,7 +113,7 @@ static void cfg_escape(cfg_t *st, cfg_char *buf, cfg_uint32 *keys, cfg_uint32 *s
 			while (*src == '\n' || *src == ' ')
 				src++;
 			/* skip comment lines */
-			if (*src == '#') {
+			if (*src == st->comment_char) {
 				while (*src != '\n')
 					src++;
 				src++;
