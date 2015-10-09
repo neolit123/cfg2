@@ -36,18 +36,20 @@ format example:
 [section1]
 key1=value1
 key2=value2
-# a comment line
+; a comment line
 key3=value \t with some special \n characters
 key4=some value \
 on multiple lines
 
 [section2]
-# integer value
+; integer value
 key5=-12345678
-# floating point value
+; floating point value
 key6=12345678.312
-# hex value
+; hex value
 key7=0xfafafafa
+; key/value with whitespace
+\"    key8  \"=\"   value8  \"
 --------------------------------------------------------------------------------
 
 the above pretty much covers what the library can be used for.
