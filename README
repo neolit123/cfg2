@@ -1,8 +1,8 @@
-cfg2 0.14.0 README
+cfg2 0.16.0 README
 a simplistic configuration parser for INI like syntax in ANSI C
 
 last revisited:
-	08.10.2015
+	10.10.2015
 author:
 	lubomir i. ivanov (neolit123 at gmail)
 
@@ -24,7 +24,8 @@ according to a decent amount of people.
 example areas are:
 	1) .po -> .mo conversations
 	2) requires translation tweaks based on source code changes (ouch?)
-	3) speed - there are some report that the library is not the most efficient
+	3) speed - there are some report that the library is not the most
+	efficient
 
 but actually cfg2 is not an alternative to gettext!
 
@@ -50,6 +51,9 @@ key6=12345678.312
 key7=0xfafafafa
 ; key/value with whitespace
 \"    key8  \"=\"   value8  \"
+; HelloWorld as a case-insensitive hex value (needs extra parsing)
+key9=48656c6c6f576f726c64
+
 --------------------------------------------------------------------------------
 
 the above pretty much covers what the library can be used for.
@@ -62,7 +66,8 @@ specified here:
 * comment lines still can be defined starting with the ';' character
 or a custom character using cfg_t's 'comment_char' field
 * the parser does not handle duplicates i.e. memory will be allocated for such;
-to separate duplicates use sections.
+to separate duplicates use sections
+* the parser is not very strict, so not many errors will be thrown
 
 ================================================================================
 WHY WRITE A NEW CONFIG LIBRARY?:
@@ -101,7 +106,7 @@ zero.
 arrays are used instead of linked lists for performance reasons.
 
 without cache support and all the helper functions the source code can
-be squeezed into 200loc of readable code.
+be squeezed into 200 lines of readable code.
 
 ================================================================================
 PERFORMANCE:
