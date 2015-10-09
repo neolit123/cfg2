@@ -98,7 +98,7 @@ static void cfg_escape(cfg_t *st, cfg_char *buf, cfg_uint32 *keys, cfg_uint32 *s
 		/* start of a line */
 		if ((src > buf && *(src - 1) == '\n') || src == buf) {
 			/* skip empty lines */
-			while (*src == '\n' || *src == ' ')
+			while (*src == '\n' || *src == ' ' || *src == '\t')
 				src++;
 			/* skip comment lines */
 			if (*src == st->comment_char) {
