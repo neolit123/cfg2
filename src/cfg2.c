@@ -16,8 +16,7 @@
 
 void cfg_cache_clear(cfg_t *st)
 {
-	/* clearing the cache buffers technically sets them to the first index (0) */
-	if (st->cache_size && st->init == CFG_TRUE)
+	if (st->cache_size && st->cache)
 		memset((void *)st->cache, 0, st->cache_size * sizeof(cfg_entry_t *));
 }
 
