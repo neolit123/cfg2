@@ -59,13 +59,19 @@ int main(void)
 	i = 0;
 	/* print all keys / values */
 	while (i < st.nkeys) {
-		printf("%#08x, %#08x, %s, %s, %#08x\n", st.entry[i].key_hash, st.entry[i].value_hash, st.entry[i].key, st.entry[i].value, st.entry[i].section_hash);
+		printf("%#08x, %#08x, %s, %s, %#08x\n",
+			st.entry[i].key_hash,
+			st.entry[i].value_hash,
+			st.entry[i].key,
+			st.entry[i].value,
+			st.entry[i].section_hash
+		);
 		i++;
 	}
 
 	/* test setting a new value */
 	cfg_value_set(&st, "key1", "\tvalue1 value1");
-	
+
 	/* print some values */
 	puts("");
 	printf("find value by key (key1): %s\n", cfg_value_get(&st, "key1"));
@@ -81,9 +87,9 @@ int main(void)
 
 	/* test a section */
 	puts("");
-	entry = cfg_section_entry(&st, "section2", "key11");
+	entry = cfg_section_entry_get(&st, "section2", "key11");
 	printf("test entry from section: %s\n", (entry) ? entry->value : "not found");
-	entry = cfg_section_entry(&st, "section1", "key10");
+	entry = cfg_section_entry_get(&st, "section1", "key10");
 	printf("test entry from section: %s\n", (entry) ? entry->value : "not found");
 	puts("");
 
@@ -91,11 +97,17 @@ int main(void)
 	puts("* cache");
 	i = 0;
 	while (i < st.cache_size) {
-		printf("cache item: %d, index: %d, value: %s\n", i, st.cache_keys_index[i], st.entry[st.cache_keys_index[i]].value);
+		printf("%u, %08x, %08x, %s\n",
+			st.cache_index[i],
+			st.cache_key_hash[i],
+			st.cache_section_hash[i],
+			st.entry[st.cache_index[i]].value
+		);
 		i++;
 	}
 
 	exit:
+	puts("");
 	puts("* free");
 	cfg_free(&st);
 	puts("* end");

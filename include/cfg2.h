@@ -59,26 +59,27 @@ struct cfg_entry {
 	cfg_uint32 section_hash;
 	cfg_char *key;
 	cfg_char *value;
-	cfg_int index;
+	cfg_uint32 index;
 };
 
 typedef struct cfg_entry cfg_entry_t;
 
 /* the main library object */
 typedef struct {
-	cfg_uint32 *cache_keys_hash;
-	cfg_int *cache_keys_index;
+	cfg_uint32 *cache_index;
+	cfg_uint32 *cache_key_hash;
+	cfg_uint32 *cache_section_hash;
 
 	cfg_entry_t *entry;
 	cfg_char *buf;
 	FILE *file;
 
-	cfg_int verbose;
-	cfg_int init;
-	cfg_int nkeys;
-	cfg_int nsections;
-	cfg_int buf_size;
-	cfg_int cache_size;
+	cfg_uint32 verbose;
+	cfg_uint32 init;
+	cfg_uint32 nkeys;
+	cfg_uint32 nsections;
+	cfg_uint32 buf_size;
+	cfg_uint32 cache_size;
 	cfg_char key_value_separator;
 	cfg_char section_separator;
 	cfg_char comment_char;
@@ -87,7 +88,7 @@ typedef struct {
 /* init the library object. must be called before everything else. the
  * second parameter is the size of the cache buffer. if set to a value less
  * than zero the default buffer size will be used - CFG_CACHE_SIZE */
-cfg_error_t cfg_init(cfg_t*, cfg_int);
+cfg_error_t cfg_init(cfg_t*, cfg_uint32);
 
 /* free all memory allocated by the library for a cfg_t object */
 cfg_error_t cfg_free(cfg_t*);
@@ -101,31 +102,31 @@ cfg_error_t cfg_parse_file(cfg_t*, cfg_char*);
 
 /* set the size of the cache (2nd parameter). note that this also clears
  * the cache */
-cfg_error_t cfg_cache_size_set(cfg_t*, cfg_int);
+cfg_error_t cfg_cache_size_set(cfg_t*, cfg_uint32);
 
 /* clear the cache */
 void cfg_cache_clear(cfg_t*);
 
 /* retrieve the nth etnry */
-cfg_entry_t *cfg_entry_nth(cfg_t*, cfg_int);
+cfg_entry_t *cfg_entry_nth(cfg_t*, cfg_uint32);
 
 /* return a value from section (2nd argument) and key (3rd argument) */
-cfg_entry_t *cfg_section_entry(cfg_t*, cfg_char*, cfg_char*);
+cfg_entry_t *cfg_section_entry_get(cfg_t*, cfg_char*, cfg_char*);
 
 /* retrieve the nth key */
-cfg_char* cfg_key_nth(cfg_t*, cfg_int);
+cfg_char *cfg_key_nth(cfg_t*, cfg_uint32);
 
 /* retrieve a key from key value */
-cfg_char* cfg_key_get(cfg_t*, cfg_char*);
+cfg_char *cfg_key_get(cfg_t*, cfg_char*);
 
 /* get the list index of a key */
-cfg_int cfg_key_get_index(cfg_t*, cfg_char*);
+cfg_uint32 cfg_key_get_index(cfg_t*, cfg_char*);
 
 /* retrieve the nth value */
-cfg_char* cfg_value_nth(cfg_t*, cfg_int);
+cfg_char *cfg_value_nth(cfg_t*, cfg_uint32);
 
 /* retrieve a specific value by key */
-cfg_char* cfg_value_get(cfg_t*, cfg_char*);
+cfg_char *cfg_value_get(cfg_t*, cfg_char*);
 
 /* retrieve a specific value by key as unsigned long integer.
  * third value is integer base (2, 10, 16 etc.) */
@@ -140,3 +141,6 @@ cfg_double cfg_value_get_double(cfg_t*, cfg_char*);
 
 /* set a value (3rd argument) for a specific key (2nd argument) */
 cfg_error_t cfg_value_set(cfg_t*, cfg_char*, cfg_char*);
+
+/* add an entry to the cache */
+cfg_error_t cfg_cache_entry_add(cfg_t*, cfg_entry_t*);

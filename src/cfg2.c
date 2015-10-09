@@ -18,12 +18,13 @@ void cfg_cache_clear(cfg_t *st)
 {
 	/* clearing the cache buffers technically sets them to the first index (0) */
 	if (st->cache_size && st->init == CFG_TRUE) {
-		memset((void *)st->cache_keys_hash, 0, st->cache_size * sizeof(cfg_uint32));
-		memset((void *)st->cache_keys_index, 0, st->cache_size * sizeof(cfg_int));
+		memset((void *)st->cache_index, 0, st->cache_size * sizeof(cfg_uint32));
+		memset((void *)st->cache_key_hash, 0, st->cache_size * sizeof(cfg_uint32));
+		memset((void *)st->cache_section_hash, 0, st->cache_size * sizeof(cfg_uint32));
 	}
 }
 
-cfg_error_t cfg_cache_size_set(cfg_t *st, cfg_int size)
+cfg_error_t cfg_cache_size_set(cfg_t *st, cfg_uint32 size)
 {
 	int diff;
 	if (!st || st->init != CFG_TRUE)
@@ -32,29 +33,31 @@ cfg_error_t cfg_cache_size_set(cfg_t *st, cfg_int size)
 		return CFG_ERROR_CRITICAL;
 	/* check if we are setting the buffers to zero length */
 	if (size == 0) {
-		if (st->cache_keys_hash)
-			free(st->cache_keys_hash);
-		st->cache_keys_hash = NULL;
-		if (st->cache_keys_index)
-			free(st->cache_keys_index);
-		st->cache_keys_index = NULL;
+		free(st->cache_index);
+		st->cache_index = NULL;
+		free(st->cache_key_hash);
+		st->cache_key_hash = NULL;
+		free(st->cache_section_hash);
+		st->cache_section_hash = NULL;
 	} else {
-		st->cache_keys_hash = (cfg_uint32 *)realloc(st->cache_keys_hash, size * sizeof(cfg_uint32));
-		st->cache_keys_index = (cfg_int *)realloc(st->cache_keys_index, size * sizeof(cfg_int));
-		if (!st->cache_keys_index || !st->cache_keys_hash)
+		st->cache_index = (cfg_uint32 *)realloc(st->cache_index, size * sizeof(cfg_uint32));
+		st->cache_key_hash = (cfg_uint32 *)realloc(st->cache_key_hash, size * sizeof(cfg_uint32));
+		st->cache_section_hash = (cfg_uint32 *)realloc(st->cache_section_hash, size * sizeof(cfg_uint32));
+		if (!st->cache_index || !st->cache_key_hash || !st->cache_section_hash)
 			return CFG_ERROR_ALLOC;
 		/* if the new buffers are larger, lets fill the extra indexes with zeroes */
 		if (size > st->cache_size) {
 			diff = size - st->cache_size;
-			memset((void *)&st->cache_keys_hash[st->cache_size], 0, diff * sizeof(cfg_uint32));
-			memset((void *)&st->cache_keys_index[st->cache_size], 0, diff * sizeof(cfg_int));
+			memset((void *)&st->cache_index[st->cache_size], 0, diff * sizeof(cfg_uint32));
+			memset((void *)&st->cache_key_hash[st->cache_size], 0, diff * sizeof(cfg_uint32));
+			memset((void *)&st->cache_section_hash[st->cache_size], 0, diff * sizeof(cfg_uint32));
 		}
 	}
 	st->cache_size = size;
 	return CFG_ERROR_OK;
 }
 
-cfg_error_t cfg_init(cfg_t *st, cfg_int cache_size)
+cfg_error_t cfg_init(cfg_t *st, cfg_uint32 cache_size)
 {
 	if (!st)
 		return CFG_ERROR_INIT;
@@ -63,19 +66,17 @@ cfg_error_t cfg_init(cfg_t *st, cfg_int cache_size)
 	st->buf = NULL;
 	st->file = NULL;
 	st->verbose = 0;
-	st->nkeys = 0;	
+	st->nkeys = 0;
 	st->nsections = 0;
 	st->buf_size = 0;
-	st->cache_keys_index = NULL;
-	st->cache_keys_hash = NULL;
+	st->cache_index = NULL;
+	st->cache_key_hash = NULL;
+	st->cache_section_hash = NULL;
 	st->init = CFG_TRUE;
 	st->key_value_separator = CFG_KEY_VALUE_SEPARATOR;
 	st->section_separator = CFG_SECTION_SEPARATOR;
 	st->comment_char = CFG_COMMENT_CHAR;
-	if (cache_size < 0)
-		st->cache_size = CFG_CACHE_SIZE;
-	else
-		st->cache_size = cache_size;
+	st->cache_size = cache_size;
 	return CFG_ERROR_OK;
 }
 
@@ -162,30 +163,30 @@ static void cfg_escape(cfg_t *st, cfg_char *buf, cfg_uint32 *keys, cfg_uint32 *s
 		fprintf(stderr, "\n[cfg2] cfg_escape():\n%s\n[cfg2-end]\n", buf);
 }
 
-cfg_entry_t *cfg_entry_nth(cfg_t *st, cfg_int n)
+cfg_entry_t *cfg_entry_nth(cfg_t *st, cfg_uint32 n)
 {
-	if (!st || n < 0 || n > st->nkeys - 1 || !st->nkeys)
+	if (!st || n > st->nkeys - 1 || !st->nkeys)
 		return NULL;
 	return &(st->entry[n]);
 }
 
-cfg_char *cfg_key_nth(cfg_t *st, cfg_int n)
+cfg_char *cfg_key_nth(cfg_t *st, cfg_uint32 n)
 {
-	if (!st || n < 0 || n > st->nkeys - 1 || !st->nkeys)
+	if (!st || n > st->nkeys - 1 || !st->nkeys)
 		return NULL;
 	return st->entry[n].key;
 }
 
-cfg_char *cfg_value_nth(cfg_t *st, cfg_int n)
+cfg_char *cfg_value_nth(cfg_t *st, cfg_uint32 n)
 {
-	if (!st || n < 0 || n > st->nkeys - 1 || !st->nkeys)
+	if (!st || n > st->nkeys - 1 || !st->nkeys)
 		return NULL;
 	return st->entry[n].value;
 }
 
-cfg_int cfg_key_get_index(cfg_t *st, cfg_char *key)
+cfg_uint32 cfg_key_get_index(cfg_t *st, cfg_char *key)
 {
-	cfg_int i = 0;
+	cfg_uint32 i = 0;
 	cfg_uint32 hash;
 
 	if (!st || !key || !st->nkeys)
@@ -201,7 +202,7 @@ cfg_int cfg_key_get_index(cfg_t *st, cfg_char *key)
 
 cfg_char *cfg_key_get(cfg_t *st, cfg_char *value)
 {
-	cfg_int i = 0;
+	cfg_uint32 i = 0;
 	cfg_uint32 hash;
 
 	if (!st || !value || !st->nkeys)
@@ -215,7 +216,7 @@ cfg_char *cfg_key_get(cfg_t *st, cfg_char *value)
 	return NULL;
 }
 
-cfg_entry_t *cfg_section_entry(cfg_t *st, cfg_char *section, cfg_char *key)
+cfg_entry_t *cfg_section_entry_get(cfg_t *st, cfg_char *section, cfg_char *key)
 {
 	cfg_uint32 section_hash, key_hash, i;
 	cfg_entry_t *entry;
@@ -226,15 +227,52 @@ cfg_entry_t *cfg_section_entry(cfg_t *st, cfg_char *section, cfg_char *key)
 	section_hash = section ? cfg_hash_get(section) : CFG_ROOT_SECTION_HASH;
 	key_hash = cfg_hash_get(key);
 
+	/* check for value in cache first */
+	if (st->cache_size > 0) {
+		i = 0;
+		while (i < st->cache_size) {
+			if (key_hash == st->cache_key_hash[i] &&
+			    section_hash == st->cache_section_hash[i])
+				return &st->entry[st->cache_index[i]];
+			i++;
+		}
+	}
+
 	i = 0;
 	while (i < st->nkeys) {
 		entry = &st->entry[i];
 		if (section_hash == entry->section_hash &&
-		    key_hash == entry->key_hash)
+		    key_hash == entry->key_hash) {
+		    cfg_cache_entry_add(st, entry);
 			return entry;
+		}
 		i++;
 	}
 	return NULL;
+}
+
+cfg_error_t cfg_cache_entry_add(cfg_t *st, cfg_entry_t *entry)
+{
+	if (!st || !entry)
+		return CFG_ERROR_INIT;
+
+	if (st->cache_size <= 0)
+		return CFG_ERROR_CRITICAL;
+
+	/* lets add to the cache */
+	if (st->cache_size > 1) {
+		memmove((void *)(st->cache_index + 1), (void *)st->cache_index,
+		        (st->cache_size - 1) * sizeof(cfg_uint32));
+		memmove((void *)(st->cache_key_hash + 1), (void *)st->cache_key_hash,
+		        (st->cache_size - 1) * sizeof(cfg_uint32));
+		memmove((void *)(st->cache_section_hash + 1), (void *)st->cache_section_hash,
+		        (st->cache_size - 1) * sizeof(cfg_uint32));
+	}
+	st->cache_index[0] = entry->index;
+	st->cache_key_hash[0] = entry->key_hash;
+	st->cache_section_hash[0] = entry->section_hash;
+
+	return CFG_ERROR_OK;
 }
 
 cfg_char *cfg_value_get(cfg_t *st, cfg_char *key)
@@ -250,8 +288,8 @@ cfg_char *cfg_value_get(cfg_t *st, cfg_char *key)
 	if (st->cache_size > 0) {
 		i = 0;
 		while (i < st->cache_size) {
-			if (hash == st->cache_keys_hash[i])
-				return st->entry[st->cache_keys_index[i]].value;
+			if (hash == st->cache_key_hash[i])
+				return st->entry[st->cache_index[i]].value;
 			i++;
 		}
 	}
@@ -260,17 +298,7 @@ cfg_char *cfg_value_get(cfg_t *st, cfg_char *key)
 	i = 0;
 	while (i < st->nkeys) {
 		if (hash == st->entry[i].key_hash) {
-			if (st->cache_size > 0) {
-				/* lets add to the cache */
-				if (st->cache_size > 1) {
-					memmove((void *)(st->cache_keys_hash + 1), (void *)st->cache_keys_hash,
-					        (st->cache_size - 1) * sizeof(cfg_uint32));
-					memmove((void *)(st->cache_keys_index + 1), (void *)st->cache_keys_index,
-					        (st->cache_size - 1) * sizeof(cfg_int));
-				}
-				st->cache_keys_hash[0] = hash;
-				st->cache_keys_index[0] = i;
-			}
+			cfg_cache_entry_add(st, &st->entry[i]);
 			return st->entry[i].value;
 		}
 		i++;
@@ -305,10 +333,10 @@ cfg_double cfg_value_get_double(cfg_t *st, cfg_char *key)
 
 cfg_error_t cfg_value_set(cfg_t *st, cfg_char *key, cfg_char *value)
 {
-	cfg_int i = 0;
+	cfg_uint32 i = 0;
 	cfg_uint32 hash_key;
-	cfg_entry_t *entry;
 	cfg_uint32 keys, sections;
+	cfg_entry_t *entry;
 
 	if (!value || !key || st->nkeys == 0)
 		return CFG_ERROR_CRITICAL;
@@ -334,7 +362,7 @@ cfg_error_t cfg_value_set(cfg_t *st, cfg_char *key, cfg_char *value)
 
 static cfg_error_t cfg_free_memory(cfg_t *st)
 {
-	cfg_int i = 0;
+	cfg_uint32 i = 0;
 
 	if (!st->entry && st->nkeys)
 		return CFG_ERROR_CRITICAL;
@@ -356,13 +384,13 @@ static cfg_error_t cfg_free_memory(cfg_t *st)
 	}
 	free(st->entry);
 	st->entry = NULL;
-	if (st->cache_keys_index) {
-		free(st->cache_keys_index);
-		st->cache_keys_index = NULL;
+	if (st->cache_index) {
+		free(st->cache_index);
+		st->cache_index = NULL;
 	}
-	if (st->cache_keys_hash) {
-		free(st->cache_keys_hash);
-		st->cache_keys_hash = NULL;
+	if (st->cache_key_hash) {
+		free(st->cache_key_hash);
+		st->cache_key_hash = NULL;
 	}
 	st->nkeys = 0;
 	return CFG_ERROR_OK;
@@ -370,7 +398,7 @@ static cfg_error_t cfg_free_memory(cfg_t *st)
 
 cfg_error_t cfg_free(cfg_t *st)
 {
-	cfg_int ret;
+	cfg_error_t ret;
 
 	if (st->init != CFG_TRUE)
 		return CFG_ERROR_INIT;
@@ -450,7 +478,7 @@ static cfg_error_t cfg_parse_buffer_keys(cfg_t *st)
 
 cfg_error_t cfg_parse_buffer(cfg_t *st, cfg_char *buf, cfg_uint32 sz)
 {
-	cfg_int ret;
+	cfg_error_t ret;
 	cfg_uint32 keys, sections;
 	(void)sz;
 
@@ -488,7 +516,7 @@ cfg_error_t cfg_parse_file(cfg_t *st, cfg_char *filename)
 	FILE *f;
 	cfg_char *buf;
 	cfg_uint32 sz = 0;
-	cfg_int ret;
+	cfg_error_t ret;
 
 	if (st->init != CFG_TRUE)
 		return CFG_ERROR_INIT;
