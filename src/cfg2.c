@@ -169,14 +169,14 @@ cfg_entry_t *cfg_entry_nth(cfg_t *st, cfg_int n)
 	return &(st->entry[n]);
 }
 
-cfg_char* cfg_key_nth(cfg_t *st, cfg_int n)
+cfg_char *cfg_key_nth(cfg_t *st, cfg_int n)
 {
 	if (!st || n < 0 || n > st->nkeys - 1 || !st->nkeys)
 		return NULL;
 	return st->entry[n].key;
 }
 
-cfg_char* cfg_value_nth(cfg_t *st, cfg_int n)
+cfg_char *cfg_value_nth(cfg_t *st, cfg_int n)
 {
 	if (!st || n < 0 || n > st->nkeys - 1 || !st->nkeys)
 		return NULL;
@@ -199,7 +199,7 @@ cfg_int cfg_key_get_index(cfg_t *st, cfg_char *key)
 	return -1;
 }
 
-cfg_char* cfg_key_get(cfg_t *st, cfg_char *value)
+cfg_char *cfg_key_get(cfg_t *st, cfg_char *value)
 {
 	cfg_int i = 0;
 	cfg_uint32 hash;
@@ -237,7 +237,7 @@ cfg_entry_t *cfg_section_entry(cfg_t *st, cfg_char *section, cfg_char *key)
 	return NULL;
 }
 
-cfg_char* cfg_value_get(cfg_t *st, cfg_char *key)
+cfg_char *cfg_value_get(cfg_t *st, cfg_char *key)
 {
 	cfg_uint32 i;
 	cfg_uint32 hash;
