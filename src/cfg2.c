@@ -220,10 +220,10 @@ cfg_entry_t *cfg_section_entry(cfg_t *st, cfg_char *section, cfg_char *key)
 	cfg_uint32 section_hash, key_hash, i;
 	cfg_entry_t *entry;
 
-	if (!st || !key || !section || !st->nkeys)
+	if (!st || !key || !st->nkeys)
 		return NULL;
 
-	section_hash = cfg_hash_get(section);
+	section_hash = section ? cfg_hash_get(section) : CFG_ROOT_SECTION_HASH;
 	key_hash = cfg_hash_get(key);
 
 	i = 0;
@@ -393,7 +393,7 @@ cfg_error_t cfg_free(cfg_t *st)
 static cfg_error_t cfg_parse_buffer_keys(cfg_t *st)
 {
 	cfg_uint32 nkeys = st->nkeys;
-	cfg_uint32 section_hash = 0;
+	cfg_uint32 section_hash = CFG_ROOT_SECTION_HASH;
 	cfg_char *buf = st->buf;
 
 	cfg_uint32 i;
