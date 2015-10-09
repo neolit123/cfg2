@@ -25,7 +25,7 @@
 #define CFG_VERSION_PATCH 0
 
 #ifdef _MSC_VER
-	typedef unsigned __int32 cfg_uint32t;
+	typedef unsigned __int32 cfg_uint32;
 #else
 	#include <stdint.h>
 	typedef uint32_t cfg_uint32;
