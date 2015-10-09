@@ -13,7 +13,13 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <time.h>
 #include "cfg2.h"
+
+#define VERBOSE        1
+#define PRINT_TESTS    1
+#define PRINT_CACHE    1
+
 /*
  * test parsing a file or a buffer directly. when calling a parsing method
  * the memory pointed by the cfg_t will be released automatically.
@@ -29,6 +35,12 @@ int main(void)
 "key2=value2\n" \
 "key3=value3\n" \
 "key4=value4\n\0";
+	char file[] = "test.cfg";
+
+	clock_t begin, end;
+	double time_spent;
+
+	(void)entry;
 
 	puts("[cfg2 test]");
 	puts("* init");
@@ -36,7 +48,7 @@ int main(void)
 	 * (and fast) entries will be cached at all times. */
 	err = cfg_init(&st, 0);
 	st.cache_size = 4;
-	st.verbose = 1;
+	st.verbose = VERBOSE;
 	if (err > 0) {
 		printf("cfg_init() ERROR: %d\n", err);
 		goto exit;
@@ -44,14 +56,25 @@ int main(void)
 	printf("* cache size: %d\n", st.cache_size);
 	puts("* parse");
 	err = cfg_parse_buffer(&st, buf, 0);
-	err = cfg_parse_file(&st, "test.cfg");
 
-	puts("");
-	puts("* actions");
+	begin = clock();
+	err = cfg_parse_file(&st, file);
+	end = clock();
+	time_spent = (double)(end - begin) / CLOCKS_PER_SEC;
+	printf("time spent parsing %s: %.4f sec\n", file, time_spent);
+	printf("nkeys: %d\n", st.nkeys);
+	printf("nsections: %d\n", st.nsections);
+
 	if (err > 0) {
 		printf("cfg_parse_file() ERROR: %d\n", err);
 		goto exit;
 	}
+#if (PRINT_TESTS == 1)
+	printf("press any key to continue...");
+	getchar();
+
+	puts("");
+	puts("* actions");
 
 	i = 0;
 	/* print all keys / values */
@@ -79,8 +102,6 @@ int main(void)
 	printf("get float (key6): %f\n", cfg_value_get_double(&st, "key6"));
 	printf("get hex (key7): %#lx\n", cfg_value_get_ulong(&st, "key7", 16));
 	printf("get hex (key=8): %#lx\n", cfg_value_get_ulong(&st, "key=8", 16));
-	printf("nkeys: %d\n", st.nkeys);
-	printf("nsections: %d\n", st.nsections);
 
 	/* test a section */
 	puts("");
@@ -97,7 +118,9 @@ int main(void)
 	entry = cfg_section_entry_get(&st, "section2", "key14");
 	if (entry)
 		cfg_entry_value_hex_to_char(&st, entry);
+#endif
 
+#if (PRINT_CACHE == 1)
 	/* dump the cache */
 	puts("");
 	puts("* cache");
@@ -111,12 +134,13 @@ int main(void)
 				st.cache[i]->value
 			);
 		} else {
-			printf("empty cache pointer at index %d", 0);
+			printf("empty cache pointer at index %d\n", 0);
 		}
 		i++;
 	}
+#endif
 
-	exit:
+exit:
 	puts("");
 	puts("* free");
 	cfg_free(&st);
