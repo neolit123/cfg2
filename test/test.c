@@ -41,10 +41,6 @@ int main(void)
 		printf("cfg_init() ERROR: %d\n", err);
 		goto exit;
 	}
-	if (err > 0) {
-		printf("cfg_cache_size_set() ERROR: %d\n", err);
-		goto exit;
-	}
 	printf("* cache size: %d\n", st.cache_size);
 	puts("* parse");
 	err = cfg_parse_buffer(&st, buf, 0);
