@@ -318,6 +318,28 @@ cfg_double cfg_value_get_double(cfg_t *st, cfg_char *key)
 	return 0.0;
 }
 
+/* same as the ones above except here you need to feed cfg_entry_t pointers */
+cfg_long cfg_entry_value_get_long(cfg_t *st, cfg_entry_t *entry, cfg_int base)
+{
+	if (!entry || !entry->value)
+		return 0;
+	return strtol(entry->value, NULL, base);
+}
+
+cfg_ulong cfg_entry_value_get_ulong(cfg_t *st, cfg_entry_t *entry, cfg_int base)
+{
+	if (!entry || !entry->value)
+		return 0;
+	return strtoul(entry->value, NULL, base);
+}
+
+cfg_double cfg_entry_value_get_double(cfg_t *st, cfg_entry_t *entry)
+{
+	if (!entry || !entry->value)
+		return 0.0;
+	return strtod(entry->value, NULL);
+}
+
 cfg_error_t cfg_value_set(cfg_t *st, cfg_char *key, cfg_char *value)
 {
 	cfg_uint32 i = 0;
