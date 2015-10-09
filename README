@@ -15,7 +15,7 @@ to retrieve each key/value from memory with optimal performance.
 
 overnight, cfg2 sprung out of annoyances from how badly designed
 gettext is (author's opinion). in terms of translation and localization
-of individual software products, Windows applications has been using INI
+of individual software products, Windows applications have been using INI
 configurations and this seems to be working quite well for a lot
 of developers. in comparison, while gettext provides the means to supposedly
 ease the whole process, in the long run it ends up being difficult to maintain,
@@ -32,7 +32,7 @@ but actually cfg2 is not an alternative to gettext!
 strongly designed, legacy games like quake2 have been using a very simple
 configuration file format in the lines of "key=value".
 
-format example:
+cfg2 format example:
 --------------------------------------------------------------------------------
 [section1]
 key1=value1
@@ -67,7 +67,8 @@ specified here:
 or a custom character using cfg_t's 'comment_char' field
 * the parser does not handle duplicates i.e. memory will be allocated for such;
 to separate duplicates use sections
-* the parser is not very strict, so not many errors will be thrown
+* the parser is not very strict, thus not many errors will be thrown if things
+go wrong
 
 ================================================================================
 WHY WRITE A NEW CONFIG LIBRARY?:
