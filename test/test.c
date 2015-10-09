@@ -88,9 +88,18 @@ int main(void)
 	printf("test entry from section: %f\n", (entry) ? cfg_get_double(entry->value) : -1.0);
 	entry = cfg_section_entry_get(&st, "section1", "key9");
 	printf("test entry from section: %s\n", (entry) ? entry->value : "not found");
+
+	/* test hex to char */
 	puts("");
+	entry = cfg_section_entry_get(&st, "section2", "key13");
+	if (entry)
+		cfg_entry_value_hex_to_char(&st, entry);
+	entry = cfg_section_entry_get(&st, "section2", "key14");
+	if (entry)
+		cfg_entry_value_hex_to_char(&st, entry);
 
 	/* dump the cache */
+	puts("");
 	puts("* cache");
 	i = 0;
 	while (i < st.cache_size) {

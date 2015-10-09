@@ -147,7 +147,7 @@ static void cfg_escape(cfg_t *st, cfg_char *buf, cfg_uint32 *keys, cfg_uint32 *s
 	}
 	*dst = '\0';
 	if (st->verbose > 0)
-		fprintf(stderr, "\n[cfg2] cfg_escape():\n%s\n[cfg2-end]\n", buf);
+		fprintf(stderr, "\n[cfg2] cfg_escape():\n%s\n", buf);
 }
 
 cfg_entry_t *cfg_entry_nth(cfg_t *st, cfg_uint32 n)
@@ -337,6 +337,87 @@ cfg_double cfg_get_double(cfg_char *value)
 	if (!value)
 		return 0.0;
 	return strtod(value, NULL);
+}
+
+/* the lookup table acts both as a toupper() converter and as a shifter of any
+ * [0x0 - 0xff] char in the [0x0 - 0x0f] range */
+static const cfg_char hex_to_char_lookup[] = {
+0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,
+0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,
+0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,
+1,   2,   3,   4,   5,   6,   7,   8,   9,  10,   0,   0,   0,   0,   0,   0,
+0,  11,  12,  13,  14,  15,  16,  17,  18,   0,   0,   0,   0,   0,   0,   0,
+0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,
+0,  11,  12,  13,  14,  15,  16,  17,  18,   0,   0,   0,   0,   0,   0,   0,
+0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,
+0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,
+0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,
+0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,
+0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,
+0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,
+0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,
+0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,
+0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0 };
+
+cfg_char *cfg_hex_to_char(cfg_t *st, cfg_char *value)
+{
+	const cfg_char *fname = "\n[cfg2] cfg_hex_to_char():";
+	cfg_uint32 len, len2, badchar_pos;
+	cfg_char *buf, *src_pos, *dst_pos;
+	cfg_char first, second;
+
+	if (!value)
+		return NULL;
+
+	if (st && st->verbose > 0)
+		fprintf(stderr, "%s input value: %s\n", fname, value);
+
+	len = strlen(value);
+	if (len % 2 || !len) {
+		if (st && st->verbose > 0)
+			fprintf(stderr, "%s input length is zero or not divisible by two!\n", fname);
+		return NULL;
+	}
+	len2 = len / 2;
+	buf = (cfg_char *)malloc(len2 + 1);
+	if (!buf) {
+		if (st->verbose > 0)
+			fprintf(stderr, "%s cannot allocate buffer of length %u!\n", fname, len);
+		return NULL;
+	}
+	for (src_pos = value, dst_pos = buf; *src_pos != '\0'; src_pos += 2, dst_pos++) {
+		first = hex_to_char_lookup[(cfg_uchar)*src_pos];
+		second = hex_to_char_lookup[(cfg_uchar)*(src_pos + 1)];
+		if (!first || !second) {
+			badchar_pos = src_pos - value;
+			goto error;
+		}
+		first--;
+		second--;
+		*dst_pos = (first << 4) + second;
+	}
+	buf[len2] = '\0';
+	if (st && st->verbose > 0)
+		fprintf(stderr, "%s result: %s\n", fname, buf);
+	return buf;
+error:
+	free(buf);
+	if (st && st->verbose > 0)
+		fprintf(stderr, "%s input has bad character at position %u!\n", fname, badchar_pos);
+	return NULL;
+}
+
+cfg_char *cfg_entry_value_hex_to_char(cfg_t *st, cfg_entry_t *entry)
+{
+	cfg_char *new_value;
+	if (!st || !entry)
+		return NULL;
+	new_value = cfg_hex_to_char(st, entry->value);
+	if (new_value) {
+		free(entry->value);
+		entry->value = new_value;
+	}
+	return new_value;
 }
 
 cfg_error_t cfg_value_set(cfg_t *st, cfg_char *key, cfg_char *value)

@@ -36,6 +36,7 @@ typedef float cfg_float;
 typedef double cfg_double;
 typedef int cfg_int;
 typedef long cfg_long;
+typedef unsigned char cfg_uchar;
 typedef unsigned int cfg_uint;
 typedef unsigned long cfg_ulong;
 
@@ -142,6 +143,12 @@ cfg_error_t cfg_value_set(cfg_t*, cfg_char*, cfg_char*);
 cfg_ulong cfg_get_ulong(cfg_char*, cfg_int);
 cfg_long cfg_get_long(cfg_char*, cfg_int);
 cfg_double cfg_get_double(cfg_char*);
+
+/* converts a HEX string to cfg_char* buffer; allocates memory! */
+cfg_char *cfg_hex_to_char(cfg_t*, cfg_char*);
+
+/* updates the HEX string value of an entry to a char array */
+cfg_char *cfg_entry_value_hex_to_char(cfg_t*, cfg_entry_t*);
 
 /* add an entry to the cache */
 cfg_error_t cfg_cache_entry_add(cfg_t*, cfg_entry_t*);
