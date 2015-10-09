@@ -130,6 +130,7 @@ static void cfg_escape(cfg_t *st, cfg_char *buf, cfg_uint32 *keys, cfg_uint32 *s
 			cfg_escape_special_char('v', '\v');
 			cfg_escape_special_char('b', '\b');
 			case '\n':
+			case '"':
 				continue;
 			}
 		/* handle key/value/section separators */
