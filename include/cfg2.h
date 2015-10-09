@@ -32,6 +32,7 @@
 #endif
 
 typedef char cfg_char;
+typedef char cfg_bool;
 typedef float cfg_float;
 typedef double cfg_double;
 typedef int cfg_int;
@@ -74,8 +75,8 @@ typedef struct {
 	cfg_char *buf;
 	FILE *file;
 
+	cfg_bool init;
 	cfg_uint32 verbose;
-	cfg_uint32 init;
 	cfg_uint32 nkeys;
 	cfg_uint32 nsections;
 	cfg_uint32 buf_size;
