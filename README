@@ -33,6 +33,7 @@ configuration file format in the lines of "key=value".
 
 format example:
 --------------------------------------------------------------------------------
+[section1]
 key1=value1
 key2=value2
 # a comment line
@@ -40,6 +41,7 @@ key3=value \t with some special \n characters
 key4=some value \
 on multiple lines
 
+[section2]
 # integer value
 key5=-12345678
 # floating point value
@@ -51,16 +53,14 @@ key7=0xfafafafa
 the above pretty much covers what the library can be used for.
 
 format notes:
-* the supported format is technically not INI. it's just a generic
-configuration format in the form: "key=value". sections and other INI
-specifics are not supported. think of it as INI without the extras.
-* the parser does not skip spaces near the '=' character, so these
-should be avoided. if there are spaces, they become part of the key/value
-strings.
-* the parser will skip empty lines or lines that do not contain '='
-* comment lines still can be defined starting with the # character
-* empty key values will be set to NULL
-* the parser does not handle duplicates i.e. memory will be allocated for such
+* UTF-8, LF is the file format! CRLF and CR are pretty much untested.
+* since 0.15.0 the supported format structure is close to the INI format
+specified here:
+    https://en.wikipedia.org/wiki/INI_file
+* comment lines still can be defined starting with the ';' character
+or a custom character using cfg_t's 'comment_char' field
+* the parser does not handle duplicates i.e. memory will be allocated for such;
+to separate duplicates use sections.
 
 ================================================================================
 WHY WRITE A NEW CONFIG LIBRARY?:
@@ -73,13 +73,16 @@ alternative.
 ================================================================================
 HOW IT WORKS:
 
-when reading a buffer with cfg2, first we find how many keys are there. after
-we have a number, we allocate lists of values (or pointers) with that size.
+when reading a buffer with cfg2, first we find how many keys and sections are
+there. after we have a number, we allocate lists of values (or pointers)
+with that size.
 
 then we go trough the buffer again and store the key values in string buffers
-and also calculate hash values for each one (using fnv-32). the is a common
-performance boost, since when we are looking for a value in the list we
-simply compare hash values (32bit integer) instead of complete strings.
+and also calculate hash values for each one (using fnv-32) and assign them
+to sections. the is a common performance boost, since when we are looking
+for a value in the list we simply compare hash values (32bit integer) instead
+of complete strings. this can be considered as a dictionary implementation
+yet the source code does not mention it.
 
 another present optimization is caching N values in a separate cache buffer and
 always checking this buffer first, instead of the main one (which can be huge).
@@ -87,12 +90,19 @@ this technique optimizes performance when a value is used multiple times.
 the cache buffer can be resized dynamically or disabled when its size is set to
 zero.
 
+arrays are used instead of linked lists for performance reasons.
+
+without cache support and all the helper functions the source code can
+be squeezed into 200loc of readable code.
+
 ================================================================================
 PERFORMANCE:
 
 the library should be pretty fast even without optimization flags. from tests
 it takes around 5 seconds to parse a 25MB text file with near 1.5*(10**6)
 keys on a modern dual core processor.
+
+NOTE: this test is oudated and at least 3 big optimizations came since 0.15.0
 
 ================================================================================
 API:
@@ -112,7 +122,7 @@ small usage example without error checking:
 char *k;
 cfg_t st; /* library object */
 
-cfg_init(&st, 16); /* init the library */
+cfg_init(&st, 0); /* init the library */
 cfg_parse_file(&st, some_file); /* parse a file */
 k = cfg_value_get(&st, "key1"); /* get c string value */
 puts(k); /* value1 */

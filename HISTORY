@@ -1,3 +1,11 @@
+0.15.0 - 09.10.2015
+- add section support!
+- support quoted keys and values to preserve whitespace
+- optimize the cache: the cache is now a simple list of cfg_entry_t pointers
+- ingore the cache_size argument in cfg_init(); the user should set it instead
+directly
+- coding style cleanup
+
 0.14.0 - 08.10.2015
 - greatly improve the parser
 - expose missing API function
