@@ -77,7 +77,7 @@ typedef struct {
 	cfg_uint32 init;
 	cfg_uint32 nkeys;
 	cfg_uint32 nsections;
-	cfg_uint32 buf_size;	
+	cfg_uint32 buf_size;
 	cfg_char key_value_separator;
 	cfg_char section_separator;
 	cfg_char comment_char;

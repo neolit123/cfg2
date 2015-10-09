@@ -216,9 +216,11 @@ cfg_entry_t *cfg_section_entry_get(cfg_t *st, cfg_char *section, cfg_char *key)
 	key_hash = cfg_hash_get(key);
 
 	/* check for value in cache first */
-	if (st->cache_size > 0 && st->cache[0]) {
+	if (st->cache_size > 0) {
 		i = 0;
 		while (i < st->cache_size) {
+			if (!st->cache[i])
+				break;
 			if (key_hash == st->cache[i]->key_hash &&
 			    section_hash == st->cache[i]->section_hash)
 				return st->cache[i];
@@ -267,9 +269,11 @@ cfg_char *cfg_value_get(cfg_t *st, cfg_char *key)
 	key_hash = cfg_hash_get(key);
 
 	/* check for value in cache first */
-	if (st->cache_size > 0 && st->cache[0]) {
+	if (st->cache_size > 0) {
 		i = 0;
 		while (i < st->cache_size) {
+			if (!st->cache[i])
+				break;
 			if (key_hash == st->cache[i]->key_hash)
 				return st->cache[i]->value;
 			i++;
