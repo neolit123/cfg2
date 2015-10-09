@@ -594,18 +594,12 @@ cfg_error_t cfg_parse_buffer(cfg_t *st, cfg_char *buf, cfg_uint32 unused)
 	return cfg_parse_buffer_keys(st);
 }
 
-cfg_error_t cfg_parse_file(cfg_t *st, cfg_char *filename)
+cfg_error_t cfg_parse_file_ptr(cfg_t *st, FILE *f, cfg_bool close)
 {
-	FILE *f;
 	cfg_char *buf;
 	cfg_uint32 sz = 0;
 	cfg_error_t ret;
 
-	if (st->init != CFG_TRUE)
-		return CFG_ERROR_INIT;
-
-	/* read file */
-	f = fopen(filename, "r");
 	if (!f)
 		return CFG_ERROR_FOPEN;
 	st->file = f;
@@ -617,15 +611,19 @@ cfg_error_t cfg_parse_file(cfg_t *st, cfg_char *filename)
 
 	buf = (cfg_char *)malloc((sz + 1) * sizeof(cfg_char));
 	if (!buf) {
-		fclose(f);
+		if (close)
+			fclose(f);
 		st->file = NULL;
 		return CFG_ERROR_ALLOC;
 	}
 	if (fread(buf, sizeof(cfg_char), sz, f) != sz) {
-		fclose(f);
+		if (close)
+			fclose(f);
+		free(buf);
 		return CFG_ERROR_FREAD;
 	}
-	fclose(f);
+	if (close)
+		fclose(f);
 	st->file = NULL;
 
 	buf[sz] = '\0';
@@ -633,4 +631,14 @@ cfg_error_t cfg_parse_file(cfg_t *st, cfg_char *filename)
 	free(st->buf);
 	st->buf = NULL;
 	return ret;
+}
+
+cfg_error_t cfg_parse_file(cfg_t *st, cfg_char *filename)
+{
+	FILE *f;
+	if (!st || st->init != CFG_TRUE)
+		return CFG_ERROR_INIT;
+	/* read file */
+	f = fopen(filename, "r");
+	return cfg_parse_file_ptr(st, f, CFG_TRUE);
 }
