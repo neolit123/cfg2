@@ -435,13 +435,13 @@ cfg_error_t cfg_value_set(cfg_t *st, cfg_char *key, cfg_char *value)
 	while (i < st->nkeys) {
 		entry = &st->entry[i];
 		if (hash_key == entry->key_hash) {
-			entry->value_hash = cfg_hash_get(value);
 			if (entry->value)
 				free(entry->value);
 			entry->value = strdup(value);
 			if (!entry->value)
 				return CFG_ERROR_ALLOC;
 			cfg_escape(st, entry->value, &keys, &sections);
+			entry->value_hash = cfg_hash_get(value);
 			return CFG_ERROR_OK;
 		}
 		i++;
