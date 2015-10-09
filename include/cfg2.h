@@ -94,7 +94,8 @@ cfg_error_t cfg_free(cfg_t*);
  * the third argument is size, but is redundant (deprecated). */
 cfg_error_t cfg_parse_buffer(cfg_t*, cfg_char*, cfg_uint32 unused);
 
-/* parse a file by name, passed as the 2nd parameter */
+/* parse a file by name, passed as the 2nd parameter. non-safe for Win32
+ * paths with special characters! use cfg_parse_buffer() instead. */
 cfg_error_t cfg_parse_file(cfg_t*, cfg_char*);
 
 /* set the size of the cache (2nd parameter). note that this also clears
