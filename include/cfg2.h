@@ -138,10 +138,10 @@ cfg_double cfg_value_get_double(cfg_t*, cfg_char*);
 /* set a value (3rd argument) for a specific key (2nd argument) */
 cfg_error_t cfg_value_set(cfg_t*, cfg_char*, cfg_char*);
 
-/* same as the ones above except here you need to feed cfg_entry_t pointers */
-cfg_ulong cfg_entry_value_get_ulong(cfg_t*, cfg_entry_t*, cfg_int);
-cfg_long cfg_entry_value_get_long(cfg_t*, cfg_entry_t*, cfg_int);
-cfg_double cfg_entry_value_get_double(cfg_t*, cfg_entry_t*);
+/* direct string -> number conversations; same as the ones above */
+cfg_ulong cfg_get_ulong(cfg_char*, cfg_int);
+cfg_long cfg_get_long(cfg_char*, cfg_int);
+cfg_double cfg_get_double(cfg_char*);
 
 /* add an entry to the cache */
 cfg_error_t cfg_cache_entry_add(cfg_t*, cfg_entry_t*);

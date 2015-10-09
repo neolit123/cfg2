@@ -84,9 +84,9 @@ int main(void)
 
 	/* test a section */
 	puts("");
-	entry = cfg_section_entry_get(&st, "section2", "key11");
-	printf("test entry from section: %s\n", (entry) ? entry->value : "not found");
-	entry = cfg_section_entry_get(&st, "section1", "key10");
+	entry = cfg_section_entry_get(&st, "section1", "key6");
+	printf("test entry from section: %f\n", (entry) ? cfg_get_double(entry->value) : -1.0);
+	entry = cfg_section_entry_get(&st, "section1", "key9");
 	printf("test entry from section: %s\n", (entry) ? entry->value : "not found");
 	puts("");
 
