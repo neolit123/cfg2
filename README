@@ -112,10 +112,8 @@ be squeezed into 200 lines of readable code.
 PERFORMANCE:
 
 the library should be pretty fast even without optimization flags. from tests
-it takes around 5 seconds to parse a 25MB text file with near 1.5*(10**6)
-keys on a modern dual core processor.
-
-NOTE: this test is oudated and at least 3 big optimizations came since 0.15.0
+it takes around 1.4 seconds to parse a 20MB text file with ~550,000 keys and
+~80,000 sections on a modern dual core processor.
 
 ================================================================================
 API:
