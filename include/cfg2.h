@@ -66,9 +66,8 @@ typedef struct cfg_entry cfg_entry_t;
 
 /* the main library object */
 typedef struct {
-	cfg_uint32 *cache_index;
-	cfg_uint32 *cache_key_hash;
-	cfg_uint32 *cache_section_hash;
+	cfg_entry_t **cache;
+	cfg_uint32 cache_size;
 
 	cfg_entry_t *entry;
 	cfg_char *buf;
@@ -78,24 +77,21 @@ typedef struct {
 	cfg_uint32 init;
 	cfg_uint32 nkeys;
 	cfg_uint32 nsections;
-	cfg_uint32 buf_size;
-	cfg_uint32 cache_size;
+	cfg_uint32 buf_size;	
 	cfg_char key_value_separator;
 	cfg_char section_separator;
 	cfg_char comment_char;
 } cfg_t;
 
-/* init the library object. must be called before everything else. the
- * second parameter is the size of the cache buffer. if set to a value less
- * than zero the default buffer size will be used - CFG_CACHE_SIZE */
-cfg_error_t cfg_init(cfg_t*, cfg_uint32);
+/* init the library object. must be called before everything else. */
+cfg_error_t cfg_init(cfg_t*, cfg_uint32 unused);
 
 /* free all memory allocated by the library for a cfg_t object */
 cfg_error_t cfg_free(cfg_t*);
 
 /* parse a NULL terminated char buffer.
  * the third argument is size, but is redundant (deprecated). */
-cfg_error_t cfg_parse_buffer(cfg_t*, cfg_char*, cfg_uint32);
+cfg_error_t cfg_parse_buffer(cfg_t*, cfg_char*, cfg_uint32 unused);
 
 /* parse a file by name, passed as the 2nd parameter */
 cfg_error_t cfg_parse_file(cfg_t*, cfg_char*);

@@ -34,7 +34,8 @@ int main(void)
 	puts("* init");
 	/* init the structure with cache buffer size of 4. this means that 4 unique
 	 * (and fast) entries will be cached at all times. */
-	err = cfg_init(&st, 4);
+	err = cfg_init(&st, 0);
+	st.cache_size = 4;
 	st.verbose = 1;
 	if (err > 0) {
 		printf("cfg_init() ERROR: %d\n", err);
@@ -97,12 +98,16 @@ int main(void)
 	puts("* cache");
 	i = 0;
 	while (i < st.cache_size) {
-		printf("%u, %08x, %08x, %s\n",
-			st.cache_index[i],
-			st.cache_key_hash[i],
-			st.cache_section_hash[i],
-			st.entry[st.cache_index[i]].value
-		);
+		if (st.cache[i]) {
+			printf("%u, %08x, %08x, %s\n",
+				st.cache[i]->index,
+				st.cache[i]->key_hash,
+				st.cache[i]->section_hash,
+				st.cache[i]->value
+			);
+		} else {
+			printf("empty cache pointer at index %d", 0);
+		}
 		i++;
 	}
 
