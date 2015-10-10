@@ -76,8 +76,8 @@ int main(void)
 	puts("");
 	puts("* actions");
 
-	i = 0;
 	/* print all keys / values */
+	i = 0;
 	while (i < st.nkeys) {
 		printf("%#08x, %s, %s, %#08x\n",
 			st.entry[i].key_hash,
@@ -87,6 +87,11 @@ int main(void)
 		);
 		i++;
 	}
+
+	/* list sections */
+	puts("\nlist sections:");
+	for (i = 0; i < st.nsections; i++)
+		printf("%d, %s\n", i, st.section[i]);
 
 	/* test setting a new value */
 	cfg_value_set(&st, "key1", "\tvalue1 value1");

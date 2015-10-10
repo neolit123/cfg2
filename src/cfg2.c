@@ -454,14 +454,14 @@ cfg_error_t cfg_value_set(cfg_t *st, cfg_char *key, cfg_char *value)
 
 static cfg_error_t cfg_free_memory(cfg_t *st)
 {
-	cfg_uint32 i = 0;
+	cfg_uint32 i;
 
 	if (!st->entry && st->nkeys)
 		return CFG_ERROR_CRITICAL;
 	if (!st->nkeys) /* nothing to do here */
 		return CFG_ERROR_OK;
 
-	while (i < st->nkeys) {
+	for (i = 0; i < st->nkeys; i++) {
 		if (!st->entry[i].key) {
 			return CFG_ERROR_NULL_KEY;
 		} else {
@@ -472,13 +472,22 @@ static cfg_error_t cfg_free_memory(cfg_t *st)
 			free(st->entry[i].value);
 			st->entry[i].value = NULL;
 		}
-		i++;
 	}
 	free(st->entry);
 	st->entry = NULL;
+	st->nkeys = 0;
+
+	for (i = 0; i < st->nsections; i++) {
+		free(st->section[i]);
+		st->section[i] = NULL;
+	}
+	free(st->section);
+	st->section = NULL;
+	st->nsections = 0;
+
 	free(st->cache);
 	st->cache = NULL;
-	st->nkeys = 0;
+
 	return CFG_ERROR_OK;
 }
 
@@ -506,17 +515,16 @@ cfg_error_t cfg_free(cfg_t *st)
 
 static cfg_error_t cfg_parse_buffer_keys(cfg_t *st)
 {
-	cfg_uint32 nkeys = st->nkeys;
 	cfg_uint32 section_hash = CFG_ROOT_SECTION_HASH;
-	cfg_char *buf = st->buf;
+	cfg_uint32 section_idx = 0;
 
 	cfg_uint32 i;
 	cfg_entry_t *entry;
 
 	cfg_char *p, *end;
-	p = buf;
+	p = st->buf;
 
-	for (i = 0; i < nkeys; i++) {
+	for (i = 0; i < st->nkeys; i++) {
 		entry = &st->entry[i];
 		entry->index = i;
 
@@ -527,11 +535,12 @@ static cfg_error_t cfg_parse_buffer_keys(cfg_t *st)
 			while (*end != st->section_separator)
 				end++;
 			*end = '\0';
+			st->section[section_idx] = cfg_strdup(p);
 			section_hash = cfg_hash_get(p);
 			*end = st->section_separator;
-			end++;
-			end++;
+			end += 2;
 			p = end;
+			section_idx++;
 		}
 		entry->section_hash = section_hash;
 
@@ -587,7 +596,8 @@ cfg_error_t cfg_parse_buffer(cfg_t *st, cfg_char *buf, cfg_uint32 unused)
 
 	/* allocate memory for the list */
 	st->entry = (cfg_entry_t *)malloc(keys * sizeof(cfg_entry_t));
-	if (!st->entry)
+	st->section = (cfg_char **)malloc(sections * sizeof(cfg_char *));
+	if (!st->entry || !st->section)
 		return CFG_ERROR_ALLOC;
 
 	st->nkeys = keys;

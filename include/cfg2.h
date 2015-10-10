@@ -69,6 +69,7 @@ typedef struct {
 	cfg_uint32 cache_size;
 
 	cfg_entry_t *entry;
+	cfg_char **section;
 	cfg_char *buf;
 	FILE *file;
 
