@@ -14,10 +14,13 @@
 #include <string.h>
 #include "cfg2.h"
 
-void cfg_cache_clear(cfg_t *st)
+cfg_error_t cfg_cache_clear(cfg_t *st)
 {
+	if (!st)
+		return CFG_ERROR_INIT;
 	if (st->cache_size && st->cache)
 		memset((void *)st->cache, 0, st->cache_size * sizeof(cfg_entry_t *));
+	return CFG_ERROR_OK;
 }
 
 cfg_error_t cfg_cache_size_set(cfg_t *st, cfg_uint32 size)

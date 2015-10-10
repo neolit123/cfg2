@@ -108,7 +108,7 @@ cfg_error_t cfg_parse_file_ptr(cfg_t *st, FILE *f, cfg_bool close);
 cfg_error_t cfg_cache_size_set(cfg_t *st, cfg_uint32 size);
 
 /* clear the cache */
-void cfg_cache_clear(cfg_t *st);
+cfg_error_t cfg_cache_clear(cfg_t *st);
 
 /* retrieve the nth entry */
 cfg_entry_t *cfg_entry_nth(cfg_t *st, cfg_uint32 n);
