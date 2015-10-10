@@ -86,75 +86,77 @@ typedef struct {
 } cfg_t;
 
 /* init the library object. must be called before everything else. */
-cfg_error_t cfg_init(cfg_t*, cfg_uint32 unused);
+cfg_error_t cfg_init(cfg_t *st, cfg_uint32 unused);
 
 /* free all memory allocated by the library for a cfg_t object */
-cfg_error_t cfg_free(cfg_t*);
+cfg_error_t cfg_free(cfg_t *st);
 
 /* parse a NULL terminated char buffer.
  * the third argument is size, but is redundant (deprecated). */
-cfg_error_t cfg_parse_buffer(cfg_t*, cfg_char*, cfg_uint32 unused);
+cfg_error_t cfg_parse_buffer(cfg_t *st, cfg_char *buf, cfg_uint32 unused);
 
-/* parse a file by name, passed as the 2nd parameter. non-safe for Win32'same
+/* parse a file by name, passed as the 2nd parameter. non-safe for Win32's
  * UTF-16 paths! use cfg_parse_buffer() or cfg_parse_file_ptr() instead. */
-cfg_error_t cfg_parse_file(cfg_t*, cfg_char*);
+cfg_error_t cfg_parse_file(cfg_t *st, cfg_char *filename);
 
 /* alternative to cfg_parse_file() that accepts FILE*;
  * third argument argument is optional close of the stream. */
-cfg_error_t cfg_parse_file_ptr(cfg_t*, FILE*, cfg_bool close);
+cfg_error_t cfg_parse_file_ptr(cfg_t *st, FILE *f, cfg_bool close);
 
 /* set the size of the cache (2nd parameter). note that this also clears
  * the cache */
-cfg_error_t cfg_cache_size_set(cfg_t*, cfg_uint32);
+cfg_error_t cfg_cache_size_set(cfg_t *st, cfg_uint32 size);
 
 /* clear the cache */
-void cfg_cache_clear(cfg_t*);
+void cfg_cache_clear(cfg_t *st);
 
 /* retrieve the nth entry */
-cfg_entry_t *cfg_entry_nth(cfg_t*, cfg_uint32);
+cfg_entry_t *cfg_entry_nth(cfg_t *st, cfg_uint32 n);
 
 /* return a value from section (2nd argument) and key (3rd argument) */
-cfg_entry_t *cfg_section_entry_get(cfg_t*, cfg_char*, cfg_char*);
+cfg_entry_t *cfg_section_entry_get(cfg_t *st, cfg_char *section, cfg_char *key);
 
 /* retrieve the nth key */
-cfg_char *cfg_key_nth(cfg_t*, cfg_uint32);
+cfg_char *cfg_key_nth(cfg_t *st, cfg_uint32 n);
 
 /* retrieve a key from key value */
-cfg_char *cfg_key_get(cfg_t*, cfg_char*);
+cfg_char *cfg_key_get(cfg_t *st, cfg_char *value);
 
 /* get the list index of a key */
-cfg_uint32 cfg_key_get_index(cfg_t*, cfg_char*);
+cfg_uint32 cfg_key_get_index(cfg_t *st, cfg_char *key);
 
 /* retrieve the nth value */
-cfg_char *cfg_value_nth(cfg_t*, cfg_uint32);
+cfg_char *cfg_value_nth(cfg_t *st, cfg_uint32 n);
 
 /* retrieve a specific value by key */
-cfg_char *cfg_value_get(cfg_t*, cfg_char*);
-
-/* retrieve a specific value by key as unsigned long integer.
- * third value is integer base (2, 10, 16 etc.) */
-cfg_ulong cfg_value_get_ulong(cfg_t*, cfg_char*, cfg_int);
+cfg_char *cfg_value_get(cfg_t *st, cfg_char *key);
 
 /* retrieve a specific value by key as signed long integer.
  * third value is integer base (2, 10, 16 etc.) */
-cfg_long cfg_value_get_long(cfg_t*, cfg_char*, cfg_int);
+cfg_long cfg_value_get_long(cfg_t *st, cfg_char *key, cfg_int base);
+
+/* retrieve a specific value by key as unsigned long integer.
+ * third value is integer base (2, 10, 16 etc.) */
+cfg_ulong cfg_value_get_ulong(cfg_t *st, cfg_char *key, cfg_int base);
 
 /* retrieve a specific value by key as double precision floating point. */
-cfg_double cfg_value_get_double(cfg_t*, cfg_char*);
+cfg_double cfg_value_get_double(cfg_t *st, cfg_char *key);
 
 /* set a value (3rd argument) for a specific key (2nd argument) */
-cfg_error_t cfg_value_set(cfg_t*, cfg_char*, cfg_char*);
+cfg_error_t cfg_value_set(cfg_t *st, cfg_char *key, cfg_char *value);
 
 /* direct string -> number conversations; same as the ones above */
-cfg_ulong cfg_get_ulong(cfg_char*, cfg_int);
-cfg_long cfg_get_long(cfg_char*, cfg_int);
-cfg_double cfg_get_double(cfg_char*);
+cfg_long cfg_get_long(cfg_char *value, cfg_int base);
+
+cfg_ulong cfg_get_ulong(cfg_char *value, cfg_int base);
+
+cfg_double cfg_get_double(cfg_char *value);
 
 /* converts a HEX string to cfg_char* buffer; allocates memory! */
-cfg_char *cfg_hex_to_char(cfg_t*, cfg_char*);
+cfg_char *cfg_hex_to_char(cfg_t *st, cfg_char *value);
 
 /* updates the HEX string value of an entry to a char array */
-cfg_char *cfg_entry_value_hex_to_char(cfg_t*, cfg_entry_t*);
+cfg_char *cfg_entry_value_hex_to_char(cfg_t *st, cfg_entry_t *entry);
 
 /* add an entry to the cache */
-cfg_error_t cfg_cache_entry_add(cfg_t*, cfg_entry_t*);
+cfg_error_t cfg_cache_entry_add(cfg_t *st, cfg_entry_t *entry);
