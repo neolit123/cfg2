@@ -55,15 +55,13 @@ typedef enum {
 } cfg_error_t;
 
 /* an entry pair of key / value */
-struct cfg_entry {
+typedef struct {
 	cfg_uint32 key_hash;
 	cfg_uint32 section_hash;
 	cfg_char *key;
 	cfg_char *value;
 	cfg_uint32 index;
-};
-
-typedef struct cfg_entry cfg_entry_t;
+} cfg_entry_t;
 
 /* the main library object */
 typedef struct {
