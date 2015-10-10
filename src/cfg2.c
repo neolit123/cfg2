@@ -207,22 +207,6 @@ cfg_uint32 cfg_key_get_index(cfg_t *st, cfg_char *key)
 	return -1;
 }
 
-cfg_char *cfg_key_get(cfg_t *st, cfg_char *value)
-{
-	cfg_uint32 i = 0;
-	cfg_uint32 hash;
-
-	if (!st || !value || !st->nkeys)
-		return NULL;
-	hash = cfg_hash_get(value);
-	while (i < st->nkeys) {
-		if (hash == st->entry[i].value_hash)
-			return st->entry[i].key;
-		i++;
-	}
-	return NULL;
-}
-
 cfg_entry_t *cfg_section_entry_get(cfg_t *st, cfg_char *section, cfg_char *key)
 {
 	cfg_uint32 section_hash, key_hash, i;
@@ -461,7 +445,6 @@ cfg_error_t cfg_value_set(cfg_t *st, cfg_char *key, cfg_char *value)
 			if (!entry->value)
 				return CFG_ERROR_ALLOC;
 			cfg_escape(st, entry->value, &keys, &sections);
-			entry->value_hash = cfg_hash_get(value);
 			return CFG_ERROR_OK;
 		}
 		i++;
@@ -572,8 +555,6 @@ static cfg_error_t cfg_parse_buffer_keys(cfg_t *st)
 		*end = st->key_value_separator;
 		end++;
 		p = end;
-
-		entry->value_hash = cfg_hash_get(entry->value);
 	}
 
 	return CFG_ERROR_OK;

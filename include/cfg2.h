@@ -57,7 +57,6 @@ typedef enum {
 /* an entry pair of key / value */
 struct cfg_entry {
 	cfg_uint32 key_hash;
-	cfg_uint32 value_hash;
 	cfg_uint32 section_hash;
 	cfg_char *key;
 	cfg_char *value;
@@ -118,9 +117,6 @@ cfg_entry_t *cfg_section_entry_get(cfg_t *st, cfg_char *section, cfg_char *key);
 
 /* retrieve the nth key */
 cfg_char *cfg_key_nth(cfg_t *st, cfg_uint32 n);
-
-/* retrieve a key from key value */
-cfg_char *cfg_key_get(cfg_t *st, cfg_char *value);
 
 /* get the list index of a key */
 cfg_uint32 cfg_key_get_index(cfg_t *st, cfg_char *key);

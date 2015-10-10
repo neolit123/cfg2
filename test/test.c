@@ -79,9 +79,8 @@ int main(void)
 	i = 0;
 	/* print all keys / values */
 	while (i < st.nkeys) {
-		printf("%#08x, %#08x, %s, %s, %#08x\n",
+		printf("%#08x, %s, %s, %#08x\n",
 			st.entry[i].key_hash,
-			st.entry[i].value_hash,
 			st.entry[i].key,
 			st.entry[i].value,
 			st.entry[i].section_hash
@@ -97,7 +96,6 @@ int main(void)
 	printf("find value by key (key1): %s\n", cfg_value_get(&st, "key1"));
 	printf("find value by key (key=8): %s\n", cfg_value_get(&st, "key=8"));
 	printf("find key index (key3): %d\n", cfg_key_get_index(&st, "key3"));
-	printf("find key by value (value3): %s\n", cfg_key_get(&st, "value3"));
 	printf("get int (key5): %ld\n", cfg_value_get_long(&st, "key5", 10));
 	printf("get float (key6): %f\n", cfg_value_get_double(&st, "key6"));
 	printf("get hex (key7): %#lx\n", cfg_value_get_ulong(&st, "key7", 16));
