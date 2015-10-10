@@ -27,7 +27,8 @@
  */
 int main(void)
 {
-	int i, err;
+	cfg_uint32 i;
+	cfg_error_t err;
 	cfg_t st;
 	cfg_entry_t *entry;
 	char buf[] =
@@ -77,15 +78,13 @@ int main(void)
 	puts("* actions");
 
 	/* print all keys / values */
-	i = 0;
-	while (i < st.nkeys) {
+	for (i = 0; i < st.nkeys; i++) {
 		printf("%#08x, %s, %s, %#08x\n",
 			st.entry[i].key_hash,
 			st.entry[i].key,
 			st.entry[i].value,
 			st.entry[i].section_hash
 		);
-		i++;
 	}
 
 	/* list sections */
@@ -127,8 +126,7 @@ int main(void)
 	/* dump the cache */
 	puts("");
 	puts("* cache");
-	i = 0;
-	while (i < st.cache_size) {
+	for (i = 0; i < st.cache_size; i++) {
 		if (st.cache[i]) {
 			printf("%u, %08x, %08x, %s\n",
 				st.cache[i]->index,
@@ -139,7 +137,6 @@ int main(void)
 		} else {
 			printf("empty cache pointer at index %d\n", 0);
 		}
-		i++;
 	}
 #endif
 

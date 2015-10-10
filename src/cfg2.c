@@ -193,16 +193,15 @@ cfg_char *cfg_value_nth(cfg_t *st, cfg_uint32 n)
 
 cfg_uint32 cfg_key_get_index(cfg_t *st, cfg_char *key)
 {
-	cfg_uint32 i = 0;
+	cfg_uint32 i;
 	cfg_uint32 hash;
 
 	if (!st || !key || !st->nkeys)
 		return -1;
 	hash = cfg_hash_get(key);
-	while (i < st->nkeys) {
+	for (i = 0; i < st->nkeys; i++) {
 		if (hash == st->entry[i].key_hash)
 			return i;
-		i++;
 	}
 	return -1;
 }
@@ -220,26 +219,22 @@ cfg_entry_t *cfg_section_entry_get(cfg_t *st, cfg_char *section, cfg_char *key)
 
 	/* check for value in cache first */
 	if (st->cache_size > 0) {
-		i = 0;
-		while (i < st->cache_size) {
+		for (i = 0; i < st->cache_size; i++) {
 			if (!st->cache[i])
 				break;
 			if (key_hash == st->cache[i]->key_hash &&
 			    section_hash == st->cache[i]->section_hash)
 				return st->cache[i];
-			i++;
 		}
 	}
 
-	i = 0;
-	while (i < st->nkeys) {
+	for (i = 0; i < st->nkeys; i++) {
 		entry = &st->entry[i];
 		if (section_hash == entry->section_hash &&
 		    key_hash == entry->key_hash) {
-		    cfg_cache_entry_add(st, entry);
+			cfg_cache_entry_add(st, entry);
 			return entry;
 		}
-		i++;
 	}
 	return NULL;
 }
@@ -273,25 +268,21 @@ cfg_char *cfg_value_get(cfg_t *st, cfg_char *key)
 
 	/* check for value in cache first */
 	if (st->cache_size > 0) {
-		i = 0;
-		while (i < st->cache_size) {
+		for (i = 0; i < st->cache_size; i++) {
 			if (!st->cache[i])
 				break;
 			if (key_hash == st->cache[i]->key_hash)
 				return st->cache[i]->value;
-			i++;
 		}
 	}
 
 	/* check for value in main list */
-	i = 0;
-	while (i < st->nkeys) {
+	for (i = 0; i < st->nkeys; i++) {
 		entry = &st->entry[i];
 		if (key_hash == entry->key_hash) {
 			cfg_cache_entry_add(st, entry);
 			return entry->value;
 		}
-		i++;
 	}
 	return NULL;
 }
@@ -426,7 +417,7 @@ cfg_char *cfg_entry_value_hex_to_char(cfg_t *st, cfg_entry_t *entry)
 
 cfg_error_t cfg_value_set(cfg_t *st, cfg_char *key, cfg_char *value)
 {
-	cfg_uint32 i = 0;
+	cfg_uint32 i;
 	cfg_uint32 hash_key;
 	cfg_uint32 keys, sections;
 	cfg_entry_t *entry;
@@ -436,7 +427,7 @@ cfg_error_t cfg_value_set(cfg_t *st, cfg_char *key, cfg_char *value)
 
 	hash_key = cfg_hash_get(key);
 
-	while (i < st->nkeys) {
+	for (i = 0; i < st->nkeys; i++) {
 		entry = &st->entry[i];
 		if (hash_key == entry->key_hash) {
 			if (entry->value)
@@ -447,7 +438,6 @@ cfg_error_t cfg_value_set(cfg_t *st, cfg_char *key, cfg_char *value)
 			cfg_escape(st, entry->value, &keys, &sections);
 			return CFG_ERROR_OK;
 		}
-		i++;
 	}
 	return CFG_ERROR_KEY_NOT_FOUND;
 }
