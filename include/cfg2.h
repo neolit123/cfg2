@@ -96,8 +96,8 @@ cfg_error_t cfg_parse_buffer(cfg_t *st, cfg_char *buf, cfg_uint32 unused);
  * UTF-16 paths! use cfg_parse_buffer() or cfg_parse_file_ptr() instead. */
 cfg_error_t cfg_parse_file(cfg_t *st, cfg_char *filename);
 
-/* alternative to cfg_parse_file() that accepts FILE*;
- * third argument argument is optional close of the stream. */
+/* alternative to cfg_parse_file() that accepts a FILE* stream;
+ * third argument is optional close of the stream. */
 cfg_error_t cfg_parse_file_ptr(cfg_t *st, FILE *f, cfg_bool close);
 
 /* set the size of the cache (2nd parameter). note that this also clears
@@ -146,7 +146,9 @@ cfg_ulong cfg_get_ulong(cfg_char *value, cfg_int base);
 
 cfg_double cfg_get_double(cfg_char *value);
 
-/* converts a HEX string to cfg_char* buffer; allocates memory! */
+/* converts a HEX string to cfg_char* buffer; allocates memory!
+ * you can pass NULL as the first argmuent to ignore the 'verbose' mode of
+ * cfg_t and not print anything to stderr. */
 cfg_char *cfg_hex_to_char(cfg_t *st, cfg_char *value);
 
 /* updates the HEX string value of an entry to a char array */
