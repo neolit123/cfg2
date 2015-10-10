@@ -1,3 +1,10 @@
+0.18.0 - 10.10.2015
+- deprecate cfg_key_get() as this requires hashing of values which can be
+expensive
+- expose cfg_hash_get() as an API function
+- add local implementation of strdup()
+- comment cleanup in the header
+
 0.17.0 - 10.10.2015
 - added a function to open FILE*
 - added the cfg_bool type
