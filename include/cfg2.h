@@ -141,10 +141,11 @@ cfg_error_t cfg_value_set(cfg_t *st, cfg_char *key, cfg_char *value);
 
 /* direct string -> number conversations; same as the ones above */
 cfg_long cfg_get_long(cfg_char *value, cfg_int base);
-
 cfg_ulong cfg_get_ulong(cfg_char *value, cfg_int base);
-
 cfg_double cfg_get_double(cfg_char *value);
+
+/* fast fnv-32 hash of a string */
+cfg_uint32 cfg_hash_get(cfg_char *str);
 
 /* converts a HEX string to cfg_char* buffer; allocates memory!
  * you can pass NULL as the first argmuent to ignore the 'verbose' mode of

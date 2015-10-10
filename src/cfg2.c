@@ -88,7 +88,7 @@ cfg_error_t cfg_init(cfg_t *st, cfg_uint32 unused)
 }
 
 /* fast fnv-32 hash */
-static cfg_uint32 cfg_hash_get(cfg_char *str)
+cfg_uint32 cfg_hash_get(cfg_char *str)
 {
 	cfg_uint32 hash = 0x811c9dc5;
 	if (!str)
