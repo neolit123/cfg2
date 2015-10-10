@@ -603,6 +603,9 @@ cfg_error_t cfg_parse_file_ptr(cfg_t *st, FILE *f, cfg_bool close)
 	cfg_uint32 sz = 0;
 	cfg_error_t ret;
 
+	if (!st || st->init != CFG_TRUE)
+		return CFG_ERROR_INIT;
+
 	if (!f)
 		return CFG_ERROR_FOPEN;
 	st->file = f;
