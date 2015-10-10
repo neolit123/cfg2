@@ -14,6 +14,23 @@
 #include <string.h>
 #include "cfg2.h"
 
+/* local implementation of strdup() if missing on a specific C89 target */
+static cfg_char *cfg_strdup(cfg_char *str)
+{
+	cfg_uint32 n;
+	cfg_char *copy;
+
+	if (!str)
+		return NULL;
+	n = strlen(str);
+	copy = (cfg_char *)malloc(n + 1);
+	if (copy) {
+		memcpy((void *)copy, (void *)str, n);
+		copy[n] = '\0';
+	}
+	return copy;
+}
+
 cfg_error_t cfg_cache_clear(cfg_t *st)
 {
 	if (!st)
@@ -440,7 +457,7 @@ cfg_error_t cfg_value_set(cfg_t *st, cfg_char *key, cfg_char *value)
 		if (hash_key == entry->key_hash) {
 			if (entry->value)
 				free(entry->value);
-			entry->value = strdup(value);
+			entry->value = cfg_strdup(value);
 			if (!entry->value)
 				return CFG_ERROR_ALLOC;
 			cfg_escape(st, entry->value, &keys, &sections);
@@ -540,7 +557,7 @@ static cfg_error_t cfg_parse_buffer_keys(cfg_t *st)
 		while (*end != st->key_value_separator)
 			end++;
 		*end = '\0';
-		entry->key = strdup(p);
+		entry->key = cfg_strdup(p);
 		*end = st->key_value_separator;
 		end++;
 		p = end;
@@ -551,7 +568,7 @@ static cfg_error_t cfg_parse_buffer_keys(cfg_t *st)
 		while (*end != st->key_value_separator)
 			end++;
 		*end = '\0';
-		entry->value = strdup(p);
+		entry->value = cfg_strdup(p);
 		*end = st->key_value_separator;
 		end++;
 		p = end;
