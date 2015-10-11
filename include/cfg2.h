@@ -84,7 +84,7 @@ typedef struct {
 } cfg_t;
 
 /* init the library object. must be called before everything else. */
-cfg_error_t cfg_init(cfg_t *st, cfg_uint32 unused);
+cfg_error_t cfg_init(cfg_t *st);
 
 /* free all memory allocated by the library for a cfg_t object */
 cfg_error_t cfg_free(cfg_t *st);

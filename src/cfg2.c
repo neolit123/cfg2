@@ -65,9 +65,8 @@ cfg_error_t cfg_cache_size_set(cfg_t *st, cfg_uint32 size)
 	return CFG_ERROR_OK;
 }
 
-cfg_error_t cfg_init(cfg_t *st, cfg_uint32 unused)
+cfg_error_t cfg_init(cfg_t *st)
 {
-	(void)unused;
 	if (!st)
 		return CFG_ERROR_INIT;
 
