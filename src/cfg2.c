@@ -106,14 +106,14 @@ cfg_uint32 cfg_hash_get(cfg_char *str)
 		continue
 
 /* escape all special characters (like \n) in a string */
-static void cfg_escape(cfg_t *st, cfg_char *buf, cfg_uint32 *keys, cfg_uint32 *sections)
+static void cfg_escape(cfg_t *st, cfg_char *buf, cfg_uint32 buf_sz, cfg_uint32 *keys, cfg_uint32 *sections)
 {
 	cfg_char *src, *dst;
 	int escape = 0;
 	*keys = 0;
 	*sections = 0;
 
-	for (src = dst = buf; *src != '\0'; src++) {
+	for (src = dst = buf; src < buf + buf_sz; src++) {
 		/* start of a line */
 		if ((src > buf && *(src - 1) == '\n') || src == buf) {
 			/* skip empty lines */
@@ -428,7 +428,7 @@ cfg_error_t cfg_value_set(cfg_t *st, cfg_char *key, cfg_char *value)
 			entry->value = cfg_strdup(value);
 			if (!entry->value)
 				return CFG_ERROR_ALLOC;
-			cfg_escape(st, entry->value, &keys, &sections);
+			cfg_escape(st, entry->value, strlen(entry->value), &keys, &sections);
 			return CFG_ERROR_OK;
 		}
 	}
@@ -552,17 +552,17 @@ static cfg_error_t cfg_parse_buffer_keys(cfg_t *st)
 	return CFG_ERROR_OK;
 }
 
-cfg_error_t cfg_parse_buffer(cfg_t *st, cfg_char *buf, cfg_uint32 unused)
+cfg_error_t cfg_parse_buffer(cfg_t *st, cfg_char *buf, cfg_uint32 sz)
 {
 	cfg_error_t ret;
 	cfg_uint32 keys, sections;
-	(void)unused;
 
 	if (st->init != CFG_TRUE)
 		return CFG_ERROR_INIT;
 
 	/* set buffer */
 	st->buf = buf;
+	st->buf_size = sz;
 
 	/* clear old keys */
 	ret = cfg_free_memory(st);
@@ -575,7 +575,7 @@ cfg_error_t cfg_parse_buffer(cfg_t *st, cfg_char *buf, cfg_uint32 unused)
 	if (ret > 0)
 		return ret;
 
-	cfg_escape(st, buf, &keys, &sections);
+	cfg_escape(st, buf, sz, &keys, &sections);
 
 	/* allocate memory for the list */
 	st->entry = (cfg_entry_t *)malloc(keys * sizeof(cfg_entry_t));
@@ -606,14 +606,14 @@ cfg_error_t cfg_parse_file_ptr(cfg_t *st, FILE *f, cfg_bool close)
 		sz++;
 	rewind(f);
 
-	buf = (cfg_char *)malloc((sz + 1) * sizeof(cfg_char));
+	buf = (cfg_char *)malloc(sz);
 	if (!buf) {
 		if (close)
 			fclose(f);
 		st->file = NULL;
 		return CFG_ERROR_ALLOC;
 	}
-	if (fread(buf, sizeof(cfg_char), sz, f) != sz) {
+	if (fread(buf, 1, sz, f) != sz) {
 		if (close)
 			fclose(f);
 		free(buf);
@@ -623,8 +623,7 @@ cfg_error_t cfg_parse_file_ptr(cfg_t *st, FILE *f, cfg_bool close)
 		fclose(f);
 	st->file = NULL;
 
-	buf[sz] = '\0';
-	ret = cfg_parse_buffer(st, buf, 0);
+	ret = cfg_parse_buffer(st, buf, sz);
 	free(st->buf);
 	st->buf = NULL;
 	return ret;

@@ -35,7 +35,7 @@ int main(void)
 "key1=\\tvalue1\n" \
 "key2=value2\n" \
 "key3=value3\n" \
-"key4=value4\n\0";
+"key4=value4\n";
 	char file[] = "test.cfg";
 
 	clock_t begin, end;
@@ -47,7 +47,7 @@ int main(void)
 	puts("* init");
 	/* init the structure with cache buffer size of 4. this means that 4 unique
 	 * (and fast) entries will be cached at all times. */
-	err = cfg_init(&st, 0);
+	err = cfg_init(&st);
 	st.cache_size = 4;
 	st.verbose = VERBOSE;
 	if (err > 0) {
@@ -56,7 +56,7 @@ int main(void)
 	}
 	printf("* cache size: %d\n", st.cache_size);
 	puts("* parse");
-	err = cfg_parse_buffer(&st, buf, 0);
+	err = cfg_parse_buffer(&st, buf, strlen(buf));
 
 	begin = clock();
 	err = cfg_parse_file(&st, file);

@@ -89,9 +89,8 @@ cfg_error_t cfg_init(cfg_t *st);
 /* free all memory allocated by the library for a cfg_t object */
 cfg_error_t cfg_free(cfg_t *st);
 
-/* parse a NULL terminated char buffer.
- * the third argument is size, but is redundant (deprecated). */
-cfg_error_t cfg_parse_buffer(cfg_t *st, cfg_char *buf, cfg_uint32 unused);
+/* parse a buffer (buf) of size (sz) */
+cfg_error_t cfg_parse_buffer(cfg_t *st, cfg_char *buf, cfg_uint32 sz);
 
 /* parse a file by name, passed as the 2nd parameter. non-safe for Win32's
  * UTF-16 paths! use cfg_parse_buffer() or cfg_parse_file_ptr() instead. */
