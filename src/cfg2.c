@@ -287,31 +287,6 @@ cfg_char *cfg_value_get(cfg_t *st, cfg_char *key)
 	return NULL;
 }
 
-cfg_long cfg_value_get_long(cfg_t *st, cfg_char *key, cfg_int base)
-{
-	cfg_char *value = cfg_value_get(st, key);
-	if (value)
-		return strtol(value, NULL, base);
-	return 0;
-}
-
-cfg_ulong cfg_value_get_ulong(cfg_t *st, cfg_char *key, cfg_int base)
-{
-	cfg_char *value = cfg_value_get(st, key);
-	if (value)
-		return strtoul(value, NULL, base);
-	return 0;
-}
-
-/* msvcr does not support strtof so we only use strtod for doubles */
-cfg_double cfg_value_get_double(cfg_t *st, cfg_char *key)
-{
-	cfg_char *value = cfg_value_get(st, key);
-	if (value)
-		return strtod(value, NULL);
-	return 0.0;
-}
-
 /* string -> number conversations */
 cfg_long cfg_get_long(cfg_char *value, cfg_int base)
 {
@@ -332,6 +307,25 @@ cfg_double cfg_get_double(cfg_char *value)
 	if (!value)
 		return 0.0;
 	return strtod(value, NULL);
+}
+
+cfg_long cfg_value_get_long(cfg_t *st, cfg_char *key, cfg_int base)
+{
+	cfg_char *value = cfg_value_get(st, key);
+	return cfg_get_long(value, base);
+}
+
+cfg_ulong cfg_value_get_ulong(cfg_t *st, cfg_char *key, cfg_int base)
+{
+	cfg_char *value = cfg_value_get(st, key);
+	return cfg_get_ulong(value, base);
+}
+
+/* msvcr does not support strtof so we only use strtod for doubles */
+cfg_double cfg_value_get_double(cfg_t *st, cfg_char *key)
+{
+	cfg_char *value = cfg_value_get(st, key);
+	return cfg_get_double(value);
 }
 
 /* the lookup table acts both as a toupper() converter and as a shifter of any
