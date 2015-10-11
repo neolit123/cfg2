@@ -158,3 +158,6 @@ cfg_char *cfg_entry_value_hex_to_char(cfg_t *st, cfg_entry_t *entry);
 
 /* add an entry to the cache */
 cfg_error_t cfg_cache_entry_add(cfg_t *st, cfg_entry_t *entry);
+
+/* a local strdup() implementation */
+cfg_char *cfg_strdup(cfg_char *str);

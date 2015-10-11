@@ -15,7 +15,7 @@
 #include "cfg2.h"
 
 /* local implementation of strdup() if missing on a specific C89 target */
-static cfg_char *cfg_strdup(cfg_char *str)
+cfg_char *cfg_strdup(cfg_char *str)
 {
 	cfg_uint32 n;
 	cfg_char *copy;
