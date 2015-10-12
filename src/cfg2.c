@@ -109,7 +109,7 @@ cfg_uint32 cfg_hash_get(cfg_char *str)
 static void cfg_escape(cfg_t *st, cfg_char *buf, cfg_uint32 buf_sz, cfg_uint32 *keys, cfg_uint32 *sections)
 {
 	cfg_char *src, *dst;
-	int escape = 0;
+	cfg_bool escape = CFG_FALSE;
 	*keys = 0;
 	*sections = 0;
 
@@ -157,9 +157,9 @@ static void cfg_escape(cfg_t *st, cfg_char *buf, cfg_uint32 buf_sz, cfg_uint32 *
 				continue;
 			}
 		}
-		escape = 0;
+		escape = CFG_FALSE;
 		if (*dst == '\\') {
-			escape = 1;
+			escape = CFG_TRUE;
 			continue;
 		}
 		dst++;
