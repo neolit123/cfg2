@@ -111,6 +111,7 @@ static void cfg_escape(cfg_t *st, cfg_char *buf, cfg_uint32 buf_sz, cfg_uint32 *
 {
 	cfg_char *src, *dst;
 	cfg_bool escape = CFG_FALSE;
+	cfg_bool quote = CFG_FALSE;
 	*keys = 0;
 	*sections = 0;
 
@@ -133,10 +134,11 @@ static void cfg_escape(cfg_t *st, cfg_char *buf, cfg_uint32 buf_sz, cfg_uint32 *
 				src++;
 			}
 		}
+
 		*dst = *src;
 		/* handle escaped characters */
 		if (escape) {
-			escape = 0;
+			escape = CFG_FALSE;
 			switch (*dst) {
 			cfg_escape_special_char('n', '\n');
 			cfg_escape_special_char('t', '\t');
@@ -144,24 +146,34 @@ static void cfg_escape(cfg_t *st, cfg_char *buf, cfg_uint32 buf_sz, cfg_uint32 *
 			cfg_escape_special_char('v', '\v');
 			cfg_escape_special_char('b', '\b');
 			case '\n':
-			case '"':
 				continue;
 			}
 		/* handle key/value/section separators */
 		} else {
 			switch (*dst) {
+			case ' ':
+			case '\t':
+				if (!quote)
+					continue;
+				break;
+			case '"':
+				quote = !quote;
+				continue;
 			case '=':
 				(*keys)++;
 			case '\n':
+				quote = CFG_FALSE;
 				*dst = st->key_value_separator;
 				dst++;
 				continue;
 			case '[':
+				quote = CFG_FALSE;
 				(*sections)++;
 				*dst = st->section_separator;
 				dst++;
 				continue;
 			case ']':
+				quote = CFG_FALSE;
 				*dst = st->section_separator;
 				dst++;
 				src++;

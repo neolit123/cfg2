@@ -102,7 +102,7 @@ int main(void)
 	printf("find key index (key3): %d\n", cfg_key_get_index(&st, "key3"));
 	printf("get int (key5): %ld\n", cfg_value_get_long(&st, "key5", 10));
 	printf("get float (key6): %f\n", cfg_value_get_double(&st, "key6"));
-	printf("get hex (key7): %#lx\n", cfg_value_get_ulong(&st, "key7", 16));
+	printf("get hex (key[7]): %#lx\n", cfg_value_get_ulong(&st, "key[7]", 16));
 	printf("get hex (key=8): %#lx\n", cfg_value_get_ulong(&st, "key=8", 16));
 
 	/* test a section */
