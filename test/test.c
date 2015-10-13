@@ -16,7 +16,7 @@
 #include <time.h>
 #include "cfg2.h"
 
-#define VERBOSE        1
+#define VERBOSE        2
 #define PRINT_TESTS    1
 #define PRINT_CACHE    1
 

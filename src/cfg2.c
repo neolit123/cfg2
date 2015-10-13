@@ -219,7 +219,7 @@ static void cfg_escape(cfg_t *st, cfg_char *buf, cfg_uint32 buf_sz, cfg_uint32 *
 		dst++;
 	}
 	*dst = '\0';
-	if (st->verbose > 0)
+	if (st->verbose > 1)
 		fprintf(stderr, "%s:\n%s\n", fname, buf);
 }
 
