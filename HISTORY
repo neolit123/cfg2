@@ -1,3 +1,9 @@
+0.21.0 - 13.10.2015
+- improve the parser to store sections even if empty
+- avoid allocating zero length entries and sections
+- swap the default key/value and section separator characters
+- convert separator characters to spaces if found in the input string
+
 0.20.0 - 11.10.2015
 - allow cfg_parse_buffer() to receive a sz argument
 - remove second argument of cfg_init()
