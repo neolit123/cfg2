@@ -108,7 +108,7 @@ cfg_uint32 cfg_hash_get(cfg_char *str)
 
 #define cfg_escape_check_quote() \
 	if (quote && st->verbose > 0) \
-		fprintf(stderr, "%s: quote on line %d not closed!\n", fname, line); \
+		fprintf(stderr, "%s: WARNING: quote not closed at line %d\n", fname, line); \
 	quote = CFG_FALSE;
 
 /* escape all special characters (like \n) in a string */
@@ -119,6 +119,8 @@ static void cfg_escape(cfg_t *st, cfg_char *buf, cfg_uint32 buf_sz, cfg_uint32 *
 	cfg_char *src, *dst;
 	cfg_bool escape = CFG_FALSE;
 	cfg_bool quote = CFG_FALSE;
+	cfg_bool line_eq_sign = CFG_FALSE;
+	cfg_bool multiline = CFG_FALSE;
 	*keys = 0;
 	*sections = 0;
 
@@ -132,15 +134,20 @@ static void cfg_escape(cfg_t *st, cfg_char *buf, cfg_uint32 buf_sz, cfg_uint32 *
 		/* start of a line */
 		if ((src > buf && *(src - 1) == '\n') || src == buf) {
 			line++;
+			if (!multiline)
+				line_eq_sign = CFG_FALSE;
 			/* skip empty lines */
 			while (*src == '\n' || *src == ' ' || *src == '\t') {
-				if (*src == '\n')
+				if (*src == '\n') {
 					line++;
+					line_eq_sign = CFG_FALSE;
+				}
 				src++;
 			}
 			/* skip comment lines */
 			if (*src == st->comment_char) {
 				line++;
+				line_eq_sign = CFG_FALSE;
 				while (*src != '\n')
 					src++;
 				src++;
@@ -157,7 +164,9 @@ static void cfg_escape(cfg_t *st, cfg_char *buf, cfg_uint32 buf_sz, cfg_uint32 *
 			cfg_escape_special_char('r', '\r');
 			cfg_escape_special_char('v', '\v');
 			cfg_escape_special_char('b', '\b');
+			case ' ':
 			case '\n':
+				multiline = CFG_TRUE;
 				continue;
 			}
 		/* handle key/value/section separators */
@@ -172,8 +181,18 @@ static void cfg_escape(cfg_t *st, cfg_char *buf, cfg_uint32 buf_sz, cfg_uint32 *
 				quote = !quote;
 				continue;
 			case '=':
+				cfg_escape_check_quote();
+				line_eq_sign = CFG_TRUE;
 				(*keys)++;
+				*dst = st->key_value_separator;
+				dst++;
+				continue;
 			case '\n':
+				multiline = CFG_FALSE;
+				if (!line_eq_sign && !quote) {
+					fprintf(stderr, "%s: WARNING: no equal sign at line %d\n", fname, line);
+					continue;
+				}
 				cfg_escape_check_quote();
 				*dst = st->key_value_separator;
 				dst++;
