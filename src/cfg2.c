@@ -158,9 +158,13 @@ static void cfg_escape(cfg_t *st, cfg_char *buf, cfg_uint32 buf_sz, cfg_uint32 *
 				continue;
 			case '[':
 				(*sections)++;
+				*dst = st->section_separator;
+				dst++;
+				continue;
 			case ']':
 				*dst = st->section_separator;
 				dst++;
+				src++;
 				continue;
 			}
 		}
@@ -507,17 +511,11 @@ static cfg_error_t cfg_parse_buffer_keys(cfg_t *st)
 {
 	cfg_uint32 section_hash = CFG_ROOT_SECTION_HASH;
 	cfg_uint32 section_idx = 0;
-
-	cfg_uint32 i;
+	cfg_uint32 key_idx = 0;
 	cfg_entry_t *entry;
-
 	cfg_char *p, *end;
-	p = st->buf;
 
-	for (i = 0; i < st->nkeys; i++) {
-		entry = &st->entry[i];
-		entry->index = i;
-
+	for (p = st->buf; p < st->buf + st->buf_size; p++) {
 		/* store current section hash */
 		if (*p == st->section_separator) {
 			p++;
@@ -526,19 +524,32 @@ static cfg_error_t cfg_parse_buffer_keys(cfg_t *st)
 				end++;
 			*end = '\0';
 			st->section[section_idx] = cfg_strdup(p);
+			section_idx++;
 			section_hash = cfg_hash_get(p);
 			*end = st->section_separator;
-			end += 2;
 			p = end;
-			section_idx++;
+			/* if next character is not a section start skip */
+			if (*(p + 1) != st->section_separator)
+				p++;
 		}
+
+		/* nkeys is reached skip */
+		if (key_idx == st->nkeys)
+			continue;
+
+		/* a new entry */
+		entry = &st->entry[key_idx];
+		entry->index = key_idx;
 		entry->section_hash = section_hash;
+		key_idx++;
 
 		/* parse key */
 		end = p;
+		end++;
 		while (*end != st->key_value_separator)
 			end++;
 		*end = '\0';
+
 		entry->key = cfg_strdup(p);
 		*end = st->key_value_separator;
 		end++;
@@ -552,7 +563,6 @@ static cfg_error_t cfg_parse_buffer_keys(cfg_t *st)
 		*end = '\0';
 		entry->value = cfg_strdup(p);
 		*end = st->key_value_separator;
-		end++;
 		p = end;
 	}
 
