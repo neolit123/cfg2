@@ -463,6 +463,17 @@ cfg_char *cfg_entry_value_hex_to_char(cfg_t *st, cfg_entry_t *entry)
 	return new_value;
 }
 
+cfg_error_t cfg_entry_value_set(cfg_t *st, cfg_entry_t *entry, cfg_char *value)
+{
+	if (!st || !entry)
+		return CFG_ERROR_ALLOC;
+	free(entry->value);
+	entry->value = cfg_strdup(value);
+	if (!entry->value)
+		return CFG_ERROR_ALLOC;
+	return CFG_ERROR_OK;
+}
+
 cfg_error_t cfg_value_set(cfg_t *st, cfg_char *key, cfg_char *value)
 {
 	cfg_uint32 i;
@@ -476,14 +487,8 @@ cfg_error_t cfg_value_set(cfg_t *st, cfg_char *key, cfg_char *value)
 
 	for (i = 0; i < st->nkeys; i++) {
 		entry = &st->entry[i];
-		if (hash_key == entry->key_hash) {
-			if (entry->value)
-				free(entry->value);
-			entry->value = cfg_strdup(value);
-			if (!entry->value)
-				return CFG_ERROR_ALLOC;
-			return CFG_ERROR_OK;
-		}
+		if (hash_key == entry->key_hash)
+			return cfg_entry_value_set(st, entry, value);
 	}
 	return CFG_ERROR_KEY_NOT_FOUND;
 }

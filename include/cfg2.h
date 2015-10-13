@@ -139,7 +139,7 @@ cfg_ulong cfg_value_get_ulong(cfg_t *st, cfg_char *key, cfg_int base);
 /* retrieve a specific value by key as double precision floating point. */
 cfg_double cfg_value_get_double(cfg_t *st, cfg_char *key);
 
-/* set a value (3rd argument) for a specific key (2nd argument) */
+/* set a value for a specific key */
 cfg_error_t cfg_value_set(cfg_t *st, cfg_char *key, cfg_char *value);
 
 /* direct string -> number conversations; same as the ones above */
@@ -154,6 +154,9 @@ cfg_uint32 cfg_hash_get(cfg_char *str);
  * you can pass NULL as the first argmuent to ignore the 'verbose' mode of
  * cfg_t and not print anything to stderr. */
 cfg_char *cfg_hex_to_char(cfg_t *st, cfg_char *value);
+
+/* set a value for an entry */
+cfg_error_t cfg_entry_value_set(cfg_t *st, cfg_entry_t *entry, cfg_char *value);
 
 /* updates the HEX string value of an entry to a char array */
 cfg_char *cfg_entry_value_hex_to_char(cfg_t *st, cfg_entry_t *entry);
