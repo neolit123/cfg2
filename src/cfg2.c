@@ -83,7 +83,8 @@ cfg_error_t cfg_init(cfg_t *st)
 	st->init = CFG_TRUE;
 	st->key_value_separator = CFG_KEY_VALUE_SEPARATOR;
 	st->section_separator = CFG_SECTION_SEPARATOR;
-	st->comment_char = CFG_COMMENT_CHAR;
+	st->comment_char1 = CFG_COMMENT_CHAR1;
+	st->comment_char2 = CFG_COMMENT_CHAR2;
 	return CFG_ERROR_OK;
 }
 
@@ -145,7 +146,7 @@ static void cfg_escape(cfg_t *st, cfg_char *buf, cfg_uint32 buf_sz, cfg_uint32 *
 				src++;
 			}
 			/* skip comment lines */
-			if (*src == st->comment_char) {
+			if (*src == st->comment_char1 || *src == st->comment_char2) {
 				line++;
 				line_eq_sign = CFG_FALSE;
 				while (*src != '\n')

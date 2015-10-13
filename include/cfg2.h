@@ -16,7 +16,8 @@
 #define CFG_CACHE_SIZE 32
 #define CFG_SECTION_SEPARATOR 0x01
 #define CFG_KEY_VALUE_SEPARATOR 0x02
-#define CFG_COMMENT_CHAR ';'
+#define CFG_COMMENT_CHAR1 ';'
+#define CFG_COMMENT_CHAR2 '#'
 #define CFG_ROOT_SECTION NULL
 #define CFG_ROOT_SECTION_HASH 0
 
@@ -81,7 +82,8 @@ typedef struct {
 	cfg_uint32 buf_size;
 	cfg_char section_separator;
 	cfg_char key_value_separator;
-	cfg_char comment_char;
+	cfg_char comment_char1;
+	cfg_char comment_char2;
 } cfg_t;
 
 /* init the library object. must be called before everything else. */
