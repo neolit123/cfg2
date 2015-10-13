@@ -578,10 +578,16 @@ cfg_error_t cfg_parse_buffer(cfg_t *st, cfg_char *buf, cfg_uint32 sz)
 	cfg_escape(st, buf, sz, &keys, &sections);
 
 	/* allocate memory for the list */
-	st->entry = (cfg_entry_t *)malloc(keys * sizeof(cfg_entry_t));
-	st->section = (cfg_char **)malloc(sections * sizeof(cfg_char *));
-	if (!st->entry || !st->section)
-		return CFG_ERROR_ALLOC;
+	if (keys) {
+		st->entry = (cfg_entry_t *)malloc(keys * sizeof(cfg_entry_t));
+		if (!st->entry)
+			return CFG_ERROR_ALLOC;
+	}
+	if (sections) {
+		st->section = (cfg_char **)malloc(sections * sizeof(cfg_char *));
+		if (!st->section)
+			return CFG_ERROR_ALLOC;
+	}
 
 	st->nkeys = keys;
 	st->nsections = sections;
