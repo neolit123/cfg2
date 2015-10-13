@@ -106,9 +106,16 @@ cfg_uint32 cfg_hash_get(cfg_char *str)
 		dst++; \
 		continue
 
+#define cfg_escape_check_quote() \
+	if (quote && st->verbose > 0) \
+		fprintf(stderr, "%s: quote on line %d not closed!\n", fname, line); \
+	quote = CFG_FALSE;
+
 /* escape all special characters (like \n) in a string */
 static void cfg_escape(cfg_t *st, cfg_char *buf, cfg_uint32 buf_sz, cfg_uint32 *keys, cfg_uint32 *sections)
 {
+	const cfg_char *fname = "[cfg2] cfg_escape()";
+	cfg_uint32 line = 0;
 	cfg_char *src, *dst;
 	cfg_bool escape = CFG_FALSE;
 	cfg_bool quote = CFG_FALSE;
@@ -124,11 +131,16 @@ static void cfg_escape(cfg_t *st, cfg_char *buf, cfg_uint32 buf_sz, cfg_uint32 *
 
 		/* start of a line */
 		if ((src > buf && *(src - 1) == '\n') || src == buf) {
+			line++;
 			/* skip empty lines */
-			while (*src == '\n' || *src == ' ' || *src == '\t')
+			while (*src == '\n' || *src == ' ' || *src == '\t') {
+				if (*src == '\n')
+					line++;
 				src++;
+			}
 			/* skip comment lines */
 			if (*src == st->comment_char) {
+				line++;
 				while (*src != '\n')
 					src++;
 				src++;
@@ -162,18 +174,18 @@ static void cfg_escape(cfg_t *st, cfg_char *buf, cfg_uint32 buf_sz, cfg_uint32 *
 			case '=':
 				(*keys)++;
 			case '\n':
-				quote = CFG_FALSE;
+				cfg_escape_check_quote();
 				*dst = st->key_value_separator;
 				dst++;
 				continue;
 			case '[':
-				quote = CFG_FALSE;
+				cfg_escape_check_quote();
 				(*sections)++;
 				*dst = st->section_separator;
 				dst++;
 				continue;
 			case ']':
-				quote = CFG_FALSE;
+				cfg_escape_check_quote();
 				*dst = st->section_separator;
 				dst++;
 				src++;
@@ -189,7 +201,7 @@ static void cfg_escape(cfg_t *st, cfg_char *buf, cfg_uint32 buf_sz, cfg_uint32 *
 	}
 	*dst = '\0';
 	if (st->verbose > 0)
-		fprintf(stderr, "\n[cfg2] cfg_escape():\n%s\n", buf);
+		fprintf(stderr, "%s:\n%s\n", fname, buf);
 }
 
 cfg_entry_t *cfg_entry_nth(cfg_t *st, cfg_uint32 n)
