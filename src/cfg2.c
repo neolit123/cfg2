@@ -467,7 +467,6 @@ cfg_error_t cfg_value_set(cfg_t *st, cfg_char *key, cfg_char *value)
 {
 	cfg_uint32 i;
 	cfg_uint32 hash_key;
-	cfg_uint32 keys, sections;
 	cfg_entry_t *entry;
 
 	if (!value || !key || st->nkeys == 0)
