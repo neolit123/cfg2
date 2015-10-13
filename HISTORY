@@ -1,3 +1,12 @@
+0.22.0 - 14.10.2015
+- much safer parser; but there are still some ways to trick it into
+allocating bad key/values
+- unescaped quotes now preserve whitespace instead of escaped ones
+- allow the parser to warn about unclosed quotes
+- allow the parser to warn about missing equal signs on lines
+- cleanup and more test cases in test.cfg
+- support both # and ; comment characters
+
 0.21.0 - 13.10.2015
 - improve the parser to store sections even if empty
 - avoid allocating zero length entries and sections

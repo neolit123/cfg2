@@ -1,8 +1,8 @@
-cfg2 0.21.0 README
+cfg2 0.22.0 README
 a simplistic configuration parser for INI like syntax in ANSI C
 
 last revisited:
-	13.10.2015
+	14.10.2015
 author:
 	lubomir i. ivanov (neolit123 at gmail)
 
@@ -38,9 +38,9 @@ cfg2 format example:
 key1=value1
 key2=value2
 ; a comment line
-key3=value \t with some special \n characters
-key4=some value \
-on multiple lines
+key3="value \t with some special \n characters"
+key4="some value \
+on multiple lines"
 
 [section2]
 ; integer value
@@ -50,7 +50,7 @@ key6=12345678.312
 ; hex value
 key7=0xfafafafa
 ; key/value with whitespace
-\"    key8  \"=\"   value8  \"
+"    key8  "   =   "   value8  "
 ; HelloWorld as a case-insensitive hex value (needs extra parsing)
 key9=48656c6c6f576f726c64
 
