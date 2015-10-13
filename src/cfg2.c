@@ -483,7 +483,6 @@ cfg_error_t cfg_value_set(cfg_t *st, cfg_char *key, cfg_char *value)
 			entry->value = cfg_strdup(value);
 			if (!entry->value)
 				return CFG_ERROR_ALLOC;
-			cfg_escape(st, entry->value, strlen(entry->value), &keys, &sections);
 			return CFG_ERROR_OK;
 		}
 	}
