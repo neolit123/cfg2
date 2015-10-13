@@ -51,7 +51,8 @@ typedef enum {
 	/* 5  */ CFG_ERROR_FREAD,
 	/* 6  */ CFG_ERROR_FOPEN,
 	/* 7  */ CFG_ERROR_INIT,
-	/* 8  */ CFG_ERROR_KEY_NOT_FOUND
+	/* 8  */ CFG_ERROR_KEY_NOT_FOUND,
+	/* 9  */ CFG_ERROR_PARSE
 } cfg_error_t;
 
 /* an entry pair of key / value */
