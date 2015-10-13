@@ -115,6 +115,12 @@ static void cfg_escape(cfg_t *st, cfg_char *buf, cfg_uint32 buf_sz, cfg_uint32 *
 	*sections = 0;
 
 	for (src = dst = buf; src < buf + buf_sz; src++) {
+		/* convert separators to spaces, if found */
+		if (*src == st->section_separator || *src == st->key_value_separator) {
+			*src = ' ';
+			continue;
+		}
+
 		/* start of a line */
 		if ((src > buf && *(src - 1) == '\n') || src == buf) {
 			/* skip empty lines */
