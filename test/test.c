@@ -93,7 +93,12 @@ int main(void)
 		printf("%d, %s\n", i, st.section[i]);
 
 	/* test setting a new value */
-	cfg_value_set(&st, "key1", "\tvalue1 value1");
+	puts("\nattempting to set value...");
+	err = cfg_value_set(&st, "key2", "\tnew value1");
+	if (!err)
+		printf("new value: %s\n", cfg_value_get(&st, "key1"));
+	else
+		printf("setting value error: %d\n", err);
 
 	/* print some values */
 	puts("");
