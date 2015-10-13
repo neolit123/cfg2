@@ -71,6 +71,7 @@ cfg_error_t cfg_init(cfg_t *st)
 		return CFG_ERROR_INIT;
 
 	st->entry = NULL;
+	st->section = NULL;
 	st->buf = NULL;
 	st->file = NULL;
 	st->verbose = 0;
@@ -480,7 +481,7 @@ cfg_error_t cfg_free(cfg_t *st)
 
 	if (st->init != CFG_TRUE)
 		return CFG_ERROR_INIT;
-	if (st->nkeys) {
+	if (st->nkeys || st->nsections) {
 		ret = cfg_free_memory(st);
 		if (ret > 0)
 			return ret;
