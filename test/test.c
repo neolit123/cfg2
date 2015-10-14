@@ -94,7 +94,7 @@ int main(void)
 
 	/* test setting a new value */
 	puts("\nattempting to set value...");
-	err = cfg_value_set(&st, "key2", "\tnew value1");
+	err = cfg_value_set(&st, "key1", "\tnew value1");
 	if (!err)
 		printf("new value: %s\n", cfg_value_get(&st, "key1"));
 	else
