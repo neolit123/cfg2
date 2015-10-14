@@ -134,11 +134,11 @@ small usage example without error checking:
 char *k;
 cfg_t st; /* library object */
 
-cfg_init(&st, 0); /* init the library */
+cfg_init(&st); /* init the library */
 cfg_parse_file(&st, some_file); /* parse a file */
 k = cfg_value_get(&st, "key1"); /* get c string value */
 puts(k); /* value1 */
-cfg_free(&st);
+cfg_free(&st, CFG_FALSE); /* second argument = don't free 'st' itself */
 
 ================================================================================
 COMPILATION:
