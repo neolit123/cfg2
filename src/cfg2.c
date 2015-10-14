@@ -473,6 +473,13 @@ cfg_char *cfg_entry_value_hex_to_char(cfg_t *st, cfg_entry_t *entry)
 	return new_value;
 }
 
+cfg_char *cfg_entry_value_get(cfg_t *st, cfg_entry_t *entry)
+{
+	if (!st || !entry)
+		return NULL;
+	return entry->value;
+}
+
 cfg_error_t cfg_entry_value_set(cfg_t *st, cfg_entry_t *entry, cfg_char *value)
 {
 	if (!st || !entry)

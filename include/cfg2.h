@@ -160,6 +160,9 @@ cfg_uint32 cfg_hash_get(cfg_char *str);
  * cfg_t and not print anything to stderr. */
 cfg_char *cfg_hex_to_char(cfg_t *st, cfg_char *value);
 
+/* get the value for an entry */
+cfg_char *cfg_entry_value_get(cfg_t *st, cfg_entry_t *entry);
+
 /* set a value for an entry */
 cfg_error_t cfg_entry_value_set(cfg_t *st, cfg_entry_t *entry, cfg_char *value);
 
