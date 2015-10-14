@@ -9,28 +9,12 @@ author:
 ================================================================================
 INTRODUCTION:
 
-not being related to other libcfg* projects, cfg2 is a library that can read
-a simple configuration format (from file or buffer) and then be used
-to retrieve each key/value from memory with optimal performance.
+cfg2 is simple library for parsing a configuration file format very similar to
+the INI file format. it's not related to any projects such as libcfg*.
+it can be used for very fast parsing of application configurations and even
+translations.
 
-overnight, cfg2 sprung out of annoyances from how badly designed
-gettext is (author's opinion). in terms of translation and localization
-of individual software products, Windows applications have been using INI
-configurations and this seems to be working quite well for a lot
-of developers. in comparison, while gettext provides the means to supposedly
-ease the whole process, in the long run it ends up being difficult to maintain,
-according to a decent amount of people.
-
-example areas are:
-	1) .po -> .mo conversations
-	2) requires translation tweaks based on source code changes (ouch?)
-	3) speed - there are some report that the library is not the most
-	efficient
-
-but actually cfg2 is not an alternative to gettext!
-
-strongly designed, legacy games like quake2 have been using a very simple
-configuration file format in the lines of "key=value".
+public domain code - see LICENSE!
 
 cfg2 format example:
 --------------------------------------------------------------------------------
@@ -53,7 +37,6 @@ key7=0xfafafafa
 "    key8  "   =   "   value8  "
 ; HelloWorld as a case-insensitive hex value (needs extra parsing)
 key9=48656c6c6f576f726c64
-
 --------------------------------------------------------------------------------
 
 the above pretty much covers what the library can be used for.
