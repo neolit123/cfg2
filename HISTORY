@@ -1,3 +1,10 @@
+0.23.0 - 14.10.2015
+- don't escape user values from C
+- add optional argument to cfg_free()
+- add cfg_entry_value_get()
+- add cfg_alloc()
+- fix some typos and context in README
+
 0.22.0 - 14.10.2015
 - much safer parser; but there are still some ways to trick it into
 allocating bad key/values
