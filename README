@@ -52,6 +52,9 @@ or custom characters using cfg_t's 'comment_char[1/2]' fields
 to separate duplicates use sections!
 * the parser is not very strict, thus not many errors will be thrown if things
 go wrong, just warnings if cfg_t's 'verbose' field is more than 0
+* \x??[??] sequences are not supported as they take way too much space.
+use direct hex strings (e.g. key9) and parse them explicitly with
+cfg_hex_to_char().
 
 ================================================================================
 WHY WRITE A NEW CONFIG LIBRARY?:
