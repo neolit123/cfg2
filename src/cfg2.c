@@ -88,6 +88,16 @@ cfg_error_t cfg_init(cfg_t *st)
 	return CFG_ERROR_OK;
 }
 
+cfg_t *cfg_alloc(cfg_bool init)
+{
+	cfg_t *st = (cfg_t *)calloc(sizeof(cfg_t), 1);
+	if (!st)
+		return st;
+	if (init)
+		cfg_init(st);
+	return st;
+}
+
 /* fast fnv-32 hash */
 cfg_uint32 cfg_hash_get(cfg_char *str)
 {
@@ -532,9 +542,12 @@ static cfg_error_t cfg_free_memory(cfg_t *st)
 	return CFG_ERROR_OK;
 }
 
-cfg_error_t cfg_free(cfg_t *st)
+cfg_error_t cfg_free(cfg_t *st, cfg_bool free_ptr)
 {
 	cfg_error_t ret;
+
+	if (!st)
+		return CFG_ERROR_ALLOC;
 
 	if (st->init != CFG_TRUE)
 		return CFG_ERROR_INIT;
@@ -551,6 +564,9 @@ cfg_error_t cfg_free(cfg_t *st)
 	}
 	memset((void *)st, 0, sizeof(st));
 	st->init = CFG_FALSE; /* not needed if CFG_FALSE is zero */
+
+	if (free_ptr)
+		free(st);
 	return CFG_ERROR_OK;
 }
 

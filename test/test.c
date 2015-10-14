@@ -148,7 +148,7 @@ int main(void)
 exit:
 	puts("");
 	puts("* free");
-	cfg_free(&st);
+	cfg_free(&st, CFG_FALSE);
 	puts("* end");
 	return 0;
 }

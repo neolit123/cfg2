@@ -86,11 +86,16 @@ typedef struct {
 	cfg_char comment_char2;
 } cfg_t;
 
+/* allocates a new cfg_t object; if 'init' == CFG_TRUE, cfg_init() will also be
+ * called */
+cfg_t *cfg_alloc(cfg_bool init);
+
 /* init the library object. must be called before everything else. */
 cfg_error_t cfg_init(cfg_t *st);
 
-/* free all memory allocated by the library for a cfg_t object */
-cfg_error_t cfg_free(cfg_t *st);
+/* free all memory allocated by the library for a cfg_t object,
+ * if you pass 'free_ptr' == CFG_TRUE then 'st' will be freed as well! */
+cfg_error_t cfg_free(cfg_t *st, cfg_bool free_ptr);
 
 /* parse a buffer (buf) of size (sz) */
 cfg_error_t cfg_parse_buffer(cfg_t *st, cfg_char *buf, cfg_uint32 sz);
