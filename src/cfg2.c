@@ -68,7 +68,7 @@ cfg_error_t cfg_cache_size_set(cfg_t *st, cfg_uint32 size)
 cfg_error_t cfg_init(cfg_t *st)
 {
 	if (!st)
-		return CFG_ERROR_INIT;
+		return CFG_ERROR_ALLOC;
 
 	st->entry = NULL;
 	st->section = NULL;
