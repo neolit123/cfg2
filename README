@@ -9,8 +9,8 @@ author:
 ================================================================================
 INTRODUCTION:
 
-cfg2 is simple library for parsing a configuration file format very similar to
-the INI file format. it's not related to any projects such as libcfg*.
+cfg2 is a simple library for parsing a configuration file format very similar
+to the INI file format. it's not related to any projects such as libcfg*.
 it can be used for very fast parsing of application configurations and even
 translations.
 
@@ -42,16 +42,16 @@ key9=48656c6c6f576f726c64
 the above pretty much covers what the library can be used for.
 
 format notes:
-* UTF-8, LF is the file format! CRLF and CR are pretty much untested.
+* the required file format is UTF-8, LF! CRLF and CR are pretty much untested.
 * since 0.15.0 the supported format structure is close to the INI format
 specified here:
     https://en.wikipedia.org/wiki/INI_file
-* comment lines still can be defined starting with the ';' character
-or a custom character using cfg_t's 'comment_char' field
-* the parser does not handle duplicates i.e. memory will be allocated for such;
-to separate duplicates use sections
+* comment lines still can be defined starting with the ';' or '#' characters
+or custom characters using cfg_t's 'comment_char[1/2]' fields
+* the parser does not handle duplicates i.e. memory will be allocated for such.
+to separate duplicates use sections!
 * the parser is not very strict, thus not many errors will be thrown if things
-go wrong
+go wrong, just warnings if cfg_t's 'verbose' field is more than 0
 
 ================================================================================
 WHY WRITE A NEW CONFIG LIBRARY?:
