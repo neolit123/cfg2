@@ -70,9 +70,9 @@ with that size.
 
 then we go trough the buffer again and store the key values in string buffers
 and also calculate hash values for each one (using fnv-32) and assign them
-to sections. the is a common performance boost, since when we are looking
-for a value in the list we simply compare hash values (32bit integer) instead
-of complete strings. this can be considered as a dictionary implementation
+to sections. this is a common performance boost, since when we are looking
+for a value in the list we simply compare key hashes (32bit integer) instead
+of key strings. this can be considered as a dictionary implementation,
 yet the source code does not mention it.
 
 the parser uses a trick with special characters to separate sections, keys
@@ -102,7 +102,7 @@ it takes around 1.4 seconds to parse a 20MB text file with ~550,000 keys and
 ================================================================================
 API:
 
-the API is pretty simple. it uses naming scheme for functions similar to GLib
+the API is pretty simple. it uses a naming scheme for functions similar to GLib
 and the usage logic is quite common as well:
 	create a library object
 	init/allocate object
@@ -114,13 +114,13 @@ in "cfg2.h". also a better usage example can be found in "test.c".
 
 small usage example without error checking:
 --------------------------------------------------------------------------------
-char *k;
+char *v;
 cfg_t st; /* library object */
 
 cfg_init(&st); /* init the library */
 cfg_parse_file(&st, some_file); /* parse a file */
-k = cfg_value_get(&st, "key1"); /* get c string value */
-puts(k); /* value1 */
+v = cfg_value_get(&st, "key1"); /* get c string value */
+puts(v); /* value1 */
 cfg_free(&st, CFG_FALSE); /* second argument = don't free 'st' itself */
 
 ================================================================================
@@ -137,8 +137,8 @@ make test
 to run the example write:
 make run
 
-at the moment the library makefile can only be used with gcc as
-the compiler/linker, but the library is compatible with msvc as well.
-to compile with msvc use your prefered toolset (e.g. CL/LINK).
+at the moment the library makefile can only be used with GCC as
+the compiler/linker, but the library is compatible with MSVC as well.
+to compile with MSVC use the appropriate toolset (e.g. CL/LINK).
 
 ================================================================================
