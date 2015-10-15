@@ -1,3 +1,7 @@
+0.24.0 - 16.10.2015
+- stdio.h include location fix
+- add verbosity check for equal sign warnings
+
 0.23.0 - 14.10.2015
 - don't escape user values from C
 - add optional argument to cfg_free()
