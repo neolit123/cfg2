@@ -201,7 +201,8 @@ static void cfg_escape(cfg_t *st, cfg_char *buf, cfg_uint32 buf_sz, cfg_uint32 *
 			case '\n':
 				multiline = CFG_FALSE;
 				if (!line_eq_sign && !quote) {
-					fprintf(stderr, "%s: WARNING: no equal sign at line %d\n", fname, line);
+					if (st->verbose > 0)
+						fprintf(stderr, "%s: WARNING: no equal sign at line %d\n", fname, line);
 					continue;
 				}
 				cfg_escape_check_quote();
