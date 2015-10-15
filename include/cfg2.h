@@ -10,6 +10,9 @@
  *	this is the library header
  */
 
+#ifndef CFG2_H
+#define CFG2_H
+
 #include <stdio.h>
 
 /* preprocessor definitions and macros */
@@ -176,3 +179,5 @@ cfg_error_t cfg_cache_entry_add(cfg_t *st, cfg_entry_t *entry);
 
 /* a local strdup() implementation */
 cfg_char *cfg_strdup(cfg_char *str);
+
+#endif /* CFG2_H */
