@@ -9,7 +9,7 @@
  * cfg2.c:
  *	this file holds the library definitions
  */
-#include <stdio.h>
+
 #include <stdlib.h>
 #include <string.h>
 #include "cfg2.h"

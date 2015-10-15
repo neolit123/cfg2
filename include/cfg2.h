@@ -10,6 +10,8 @@
  *	this is the library header
  */
 
+#include <stdio.h>
+
 /* preprocessor definitions and macros */
 #define CFG_TRUE 1
 #define CFG_FALSE 0
