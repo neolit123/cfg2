@@ -32,7 +32,7 @@ extern "C" {
 
 #define CFG_VERSION_MAJOR 0
 #define CFG_VERSION_MINOR 24
-#define CFG_VERSION_PATCH 0
+#define CFG_VERSION_PATCH 1
 
 #ifdef _MSC_VER
 	typedef unsigned __int32 cfg_uint32;

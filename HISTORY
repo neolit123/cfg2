@@ -1,3 +1,6 @@
+0.24.1 - 03.11.2015
+- disable c++ name mangling in the header 
+
 0.24.0 - 16.10.2015
 - stdio.h include location fix
 - add verbosity check for equal sign warnings
