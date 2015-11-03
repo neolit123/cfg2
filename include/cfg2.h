@@ -13,6 +13,10 @@
 #ifndef CFG2_H
 #define CFG2_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <stdio.h>
 
 /* preprocessor definitions and macros */
@@ -179,5 +183,9 @@ cfg_error_t cfg_cache_entry_add(cfg_t *st, cfg_entry_t *entry);
 
 /* a local strdup() implementation */
 cfg_char *cfg_strdup(cfg_char *str);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* CFG2_H */
