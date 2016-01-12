@@ -435,7 +435,7 @@ cfg_char *cfg_hex_to_char(cfg_t *st, cfg_char *value)
 	len2 = len / 2;
 	buf = (cfg_char *)malloc(len2 + 1);
 	if (!buf) {
-		if (st->verbose > 0)
+		if (st && st->verbose > 0)
 			fprintf(stderr, "%s cannot allocate buffer of length %u!\n", fname, len);
 		return NULL;
 	}
