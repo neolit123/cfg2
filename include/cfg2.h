@@ -165,7 +165,7 @@ cfg_double cfg_get_double(cfg_char *value);
 cfg_uint32 cfg_hash_get(cfg_char *str);
 
 /* converts a HEX string to cfg_char* buffer; allocates memory!
- * you can pass NULL as the first argmuent to ignore the 'verbose' mode of
+ * you can pass NULL as the first argument to ignore the 'verbose' mode of
  * cfg_t and not print anything to stderr. */
 cfg_char *cfg_hex_to_char(cfg_t *st, cfg_char *value);
 
