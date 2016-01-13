@@ -127,7 +127,7 @@ cfg_error_t cfg_cache_clear(cfg_t *st);
 /* retrieve the nth entry */
 cfg_entry_t *cfg_entry_nth(cfg_t *st, cfg_uint32 n);
 
-/* return a value from section (2nd argument) and key (3rd argument) */
+/* return an entry from section (2nd argument) and key (3rd argument) */
 cfg_entry_t *cfg_section_entry_get(cfg_t *st, cfg_char *section, cfg_char *key);
 
 /* retrieve the nth key */
