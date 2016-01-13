@@ -1,3 +1,8 @@
+0.25.0 - 13.01.2016
+- add cfg_section_value_set()
+- cfg_value_set() now has an extra argument 'add'
+- fix some typos and context in comments
+
 0.24.1 - 03.11.2015
 - disable c++ name mangling in the header 
 
