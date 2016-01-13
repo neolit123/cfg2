@@ -279,7 +279,8 @@ cfg_entry_t *cfg_section_entry_get(cfg_t *st, cfg_char *section, cfg_char *key)
 	if (!st || !key || !st->nkeys)
 		return NULL;
 
-	section_hash = section ? cfg_hash_get(section) : CFG_ROOT_SECTION_HASH;
+	section_hash = section == CFG_ROOT_SECTION ? CFG_ROOT_SECTION_HASH :
+		cfg_hash_get(section);
 	key_hash = cfg_hash_get(key);
 
 	/* check for value in cache first */
