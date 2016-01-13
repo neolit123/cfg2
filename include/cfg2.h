@@ -19,6 +19,11 @@ extern "C" {
 
 #include <stdio.h>
 
+/* version macros */
+#define CFG_VERSION_MAJOR 0
+#define CFG_VERSION_MINOR 25
+#define CFG_VERSION_PATCH 0
+
 /* preprocessor definitions and macros */
 #define CFG_TRUE 1
 #define CFG_FALSE 0
@@ -29,10 +34,6 @@ extern "C" {
 #define CFG_COMMENT_CHAR2 '#'
 #define CFG_ROOT_SECTION NULL
 #define CFG_ROOT_SECTION_HASH 0
-
-#define CFG_VERSION_MAJOR 0
-#define CFG_VERSION_MINOR 24
-#define CFG_VERSION_PATCH 1
 
 #ifdef _MSC_VER
 	typedef unsigned __int32 cfg_uint32;
