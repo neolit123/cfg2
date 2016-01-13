@@ -510,8 +510,12 @@ static cfg_error_t cfg_section_key_add(cfg_t *st, cfg_char *section, cfg_char *k
 	st->nkeys++;
 
 	/* handle new section creation */
-	entry->section_hash = section == CFG_ROOT_SECTION ? CFG_ROOT_SECTION_HASH :
-		cfg_hash_get(section);
+	if(section == CFG_ROOT_SECTION)	{
+		entry->section_hash = CFG_ROOT_SECTION_HASH;
+		return CFG_ERROR_OK;
+	} else {
+		entry->section_hash = cfg_hash_get(section);
+	}
 	for (i = 0; i < st->nsections; i++) {
 		if (entry->section_hash == cfg_hash_get(st->section[i]))
 			return CFG_ERROR_OK;
