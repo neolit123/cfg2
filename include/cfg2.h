@@ -158,7 +158,7 @@ cfg_double cfg_value_get_double(cfg_t *st, cfg_char *key);
 /* set a value for a specific key; add the key if missing. */
 cfg_error_t cfg_value_set(cfg_t *st, cfg_char *key, cfg_char *value, cfg_bool add);
 
-/* set a value for a specific key in a seection; add the key if missing. */
+/* set a value for a specific key in a section; add the key if missing. */
 cfg_error_t cfg_section_value_set(cfg_t *st, cfg_char *section, cfg_char *key, cfg_char *value, cfg_bool add);
 
 /* direct string -> number conversations; same as the ones above */
