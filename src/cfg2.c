@@ -382,25 +382,6 @@ cfg_double cfg_get_double(cfg_char *value)
 	return strtod(value, NULL);
 }
 
-cfg_long cfg_value_get_long(cfg_t *st, cfg_char *key, cfg_int base)
-{
-	cfg_char *value = cfg_value_get(st, key);
-	return cfg_get_long(value, base);
-}
-
-cfg_ulong cfg_value_get_ulong(cfg_t *st, cfg_char *key, cfg_int base)
-{
-	cfg_char *value = cfg_value_get(st, key);
-	return cfg_get_ulong(value, base);
-}
-
-/* msvcr does not support strtof so we only use strtod for doubles */
-cfg_double cfg_value_get_double(cfg_t *st, cfg_char *key)
-{
-	cfg_char *value = cfg_value_get(st, key);
-	return cfg_get_double(value);
-}
-
 /* the lookup table acts both as a toupper() converter and as a shifter of any
  * [0x0 - 0xff] char in the [0x0 - 0x0f] range */
 static const cfg_char hex_to_char_lookup[] = {

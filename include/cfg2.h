@@ -147,17 +147,6 @@ cfg_char *cfg_value_get(cfg_t *st, cfg_char *key);
 /* retrieve a specific value by section and key */
 cfg_char *cfg_section_value_get(cfg_t *st, cfg_char *section, cfg_char *key);
 
-/* retrieve a specific value by key as signed long integer.
- * third value is integer base (2, 10, 16 etc.) */
-cfg_long cfg_value_get_long(cfg_t *st, cfg_char *key, cfg_int base);
-
-/* retrieve a specific value by key as unsigned long integer.
- * third value is integer base (2, 10, 16 etc.) */
-cfg_ulong cfg_value_get_ulong(cfg_t *st, cfg_char *key, cfg_int base);
-
-/* retrieve a specific value by key as double precision floating point. */
-cfg_double cfg_value_get_double(cfg_t *st, cfg_char *key);
-
 /* set a value for a specific key; add the key if missing. */
 cfg_error_t cfg_value_set(cfg_t *st, cfg_char *key, cfg_char *value, cfg_bool add);
 
