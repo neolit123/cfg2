@@ -144,6 +144,9 @@ cfg_char *cfg_value_nth(cfg_t *st, cfg_uint32 n);
 /* retrieve a specific value by key */
 cfg_char *cfg_value_get(cfg_t *st, cfg_char *key);
 
+/* retrieve a specific value by section and key */
+cfg_char *cfg_section_value_get(cfg_t *st, cfg_char *section, cfg_char *key);
+
 /* retrieve a specific value by key as signed long integer.
  * third value is integer base (2, 10, 16 etc.) */
 cfg_long cfg_value_get_long(cfg_t *st, cfg_char *key, cfg_int base);

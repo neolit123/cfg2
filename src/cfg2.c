@@ -322,35 +322,42 @@ cfg_error_t cfg_cache_entry_add(cfg_t *st, cfg_entry_t *entry)
 	return CFG_ERROR_OK;
 }
 
-cfg_char *cfg_value_get(cfg_t *st, cfg_char *key)
+cfg_char *cfg_section_value_get(cfg_t *st, cfg_char *section, cfg_char *key)
 {
 	cfg_uint32 i;
-	cfg_uint32 key_hash;
+	cfg_uint32 key_hash, section_hash;
 	cfg_entry_t *entry;
 
 	if (!st || !key || !st->nkeys)
 		return NULL;
 	key_hash = cfg_hash_get(key);
+	section_hash = section == CFG_ROOT_SECTION ? CFG_ROOT_SECTION_HASH : cfg_hash_get(section);
 
 	/* check for value in cache first */
 	if (st->cache_size > 0) {
 		for (i = 0; i < st->cache_size; i++) {
 			if (!st->cache[i])
 				break;
-			if (key_hash == st->cache[i]->key_hash)
-				return st->cache[i]->value;
+			entry = st->cache[i];
+			if (key_hash == entry->key_hash && section_hash == entry->section_hash)
+				return entry->value;
 		}
 	}
 
 	/* check for value in main list */
 	for (i = 0; i < st->nkeys; i++) {
 		entry = &st->entry[i];
-		if (key_hash == entry->key_hash) {
+		if (key_hash == entry->key_hash && section_hash == entry->section_hash) {
 			cfg_cache_entry_add(st, entry);
 			return entry->value;
 		}
 	}
 	return NULL;
+}
+
+cfg_char *cfg_value_get(cfg_t *st, cfg_char *key)
+{
+	return cfg_section_value_get(st, CFG_ROOT_SECTION, key);
 }
 
 /* string -> number conversations */
@@ -528,20 +535,21 @@ static cfg_error_t cfg_section_key_add(cfg_t *st, cfg_char *section, cfg_char *k
 	return CFG_ERROR_OK;
 }
 
-cfg_error_t cfg_section_value_set(cfg_t *st,  cfg_char *section, cfg_char *key, cfg_char *value, cfg_bool add)
+cfg_error_t cfg_section_value_set(cfg_t *st, cfg_char *section, cfg_char *key, cfg_char *value, cfg_bool add)
 {
 	cfg_uint32 i;
-	cfg_uint32 hash_key;
+	cfg_uint32 key_hash, section_hash;
 	cfg_entry_t *entry;
 
 	if (!value || !key || st->nkeys == 0)
 		return CFG_ERROR_CRITICAL;
 
-	hash_key = cfg_hash_get(key);
+	key_hash = cfg_hash_get(key);
+	section_hash = section == CFG_ROOT_SECTION ? CFG_ROOT_SECTION_HASH : cfg_hash_get(section);
 
 	for (i = 0; i < st->nkeys; i++) {
 		entry = &st->entry[i];
-		if (hash_key == entry->key_hash)
+		if (key_hash == entry->key_hash && section_hash == entry->section_hash)
 			return cfg_entry_value_set(st, entry, value);
 	}
 
