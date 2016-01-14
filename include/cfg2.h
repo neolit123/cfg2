@@ -141,13 +141,13 @@ cfg_uint32 cfg_key_get_index(cfg_t *st, cfg_char *key);
 /* retrieve the nth value */
 cfg_char *cfg_value_nth(cfg_t *st, cfg_uint32 n);
 
-/* retrieve a specific value by key */
+/* retrieve a specific value by key in the root section */
 cfg_char *cfg_value_get(cfg_t *st, cfg_char *key);
 
 /* retrieve a specific value by section and key */
 cfg_char *cfg_section_value_get(cfg_t *st, cfg_char *section, cfg_char *key);
 
-/* set a value for a specific key; add the key if missing. */
+/* set a value for a specific key in the root section; add the key if missing. */
 cfg_error_t cfg_value_set(cfg_t *st, cfg_char *key, cfg_char *value, cfg_bool add);
 
 /* set a value for a specific key in a section; add the key if missing. */

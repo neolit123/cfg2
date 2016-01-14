@@ -105,8 +105,9 @@ it takes around 1.4 seconds to parse a 20MB text file with ~550,000 keys and
 ================================================================================
 API:
 
-the API is pretty simple. it uses a naming scheme for functions similar to GLib
-and the usage logic is quite common as well:
+the API is pretty simple, but mind that it might change here and there until
+a "major" version is released. it uses a naming scheme for functions
+similar to GLib and the usage logic is quite common as well:
 	create a library object
 	init/allocate object
 	work with object
@@ -122,7 +123,7 @@ cfg_t st; /* library object */
 
 cfg_init(&st); /* init the library */
 cfg_parse_file(&st, some_file); /* parse a file */
-v = cfg_value_get(&st, "key1"); /* get c string value */
+v = cfg_section_value_get(&st, "section1", "key1"); /* get a key's value */
 puts(v); /* value1 */
 cfg_free(&st, CFG_FALSE); /* second argument = don't free 'st' itself */
 
