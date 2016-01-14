@@ -1,3 +1,7 @@
+0.26.0 - 14.01.2016
+- remove the cfg_value_get_* functions
+- make cfg_value_set/get() use the root section by default
+
 0.25.0 - 13.01.2016
 - add cfg_section_value_set()
 - cfg_value_set() now has an extra argument 'add'
