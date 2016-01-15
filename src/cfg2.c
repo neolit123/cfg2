@@ -111,12 +111,6 @@ cfg_uint32 cfg_hash_get(cfg_char *str)
 	return hash;
 }
 
-#define cfg_escape_special_char(char1, char2) \
-	case char1: \
-		*dst = char2; \
-		dst++; \
-		continue
-
 #define cfg_escape_check_quote() \
 	if (quote && st->verbose > 0) \
 		fprintf(stderr, "%s: WARNING: quote not closed at line %d\n", fname, line); \
@@ -170,11 +164,13 @@ static void cfg_escape(cfg_t *st, cfg_char *buf, cfg_uint32 buf_sz, cfg_uint32 *
 		if (escape) {
 			escape = CFG_FALSE;
 			switch (*dst) {
-			cfg_escape_special_char('n', '\n');
-			cfg_escape_special_char('t', '\t');
-			cfg_escape_special_char('r', '\r');
-			cfg_escape_special_char('v', '\v');
-			cfg_escape_special_char('b', '\b');
+			case 'n':
+				*dst = '\n';
+				dst++;
+				continue;
+			case '\\':
+				dst++;
+				continue;
 			case ' ':
 			case '\n':
 				multiline = CFG_TRUE;

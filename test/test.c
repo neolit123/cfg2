@@ -32,7 +32,7 @@ int main(void)
 	cfg_t st;
 	cfg_entry_t *entry;
 	char buf[] =
-"key1=\\tvalue1\n" \
+"key1=value1\n" \
 "key2=value2\n" \
 "key3=value3\n" \
 "key4=value4\n";
