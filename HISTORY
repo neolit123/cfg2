@@ -1,3 +1,8 @@
+0.27.0 - 15.01.2016
+- remove cfg_entry_value_hex_to_char()
+- simplify cfg_section_value_get()
+- don't require explicit /t, /r, /b, etc in the input buffer
+
 0.26.0 - 14.01.2016
 - remove the cfg_value_get_* functions
 - make cfg_value_set/get() use the root section by default
@@ -8,7 +13,7 @@
 - fix some typos and context in comments
 
 0.24.1 - 03.11.2015
-- disable c++ name mangling in the header 
+- disable c++ name mangling in the header
 
 0.24.0 - 16.10.2015
 - stdio.h include location fix
