@@ -423,19 +423,6 @@ error:
 	return NULL;
 }
 
-cfg_char *cfg_entry_value_hex_to_char(cfg_t *st, cfg_entry_t *entry)
-{
-	cfg_char *new_value;
-	if (!st || !entry)
-		return NULL;
-	new_value = cfg_hex_to_char(st, entry->value);
-	if (new_value) {
-		free(entry->value);
-		entry->value = new_value;
-	}
-	return new_value;
-}
-
 cfg_char *cfg_entry_value_get(cfg_t *st, cfg_entry_t *entry)
 {
 	if (!st || !entry)

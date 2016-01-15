@@ -172,9 +172,6 @@ cfg_char *cfg_entry_value_get(cfg_t *st, cfg_entry_t *entry);
 /* set a value for an entry */
 cfg_error_t cfg_entry_value_set(cfg_t *st, cfg_entry_t *entry, cfg_char *value);
 
-/* updates the HEX string value of an entry to a char array */
-cfg_char *cfg_entry_value_hex_to_char(cfg_t *st, cfg_entry_t *entry);
-
 /* add an entry to the cache */
 cfg_error_t cfg_cache_entry_add(cfg_t *st, cfg_entry_t *entry);
 

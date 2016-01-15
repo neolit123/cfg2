@@ -116,11 +116,7 @@ int main(void)
 	/* test hex to char */
 	puts("");
 	entry = cfg_section_entry_get(&st, "section2", "key13");
-	if (entry)
-		cfg_entry_value_hex_to_char(&st, entry);
-	entry = cfg_section_entry_get(&st, "section2", "key14");
-	if (entry)
-		cfg_entry_value_hex_to_char(&st, entry);
+	puts(cfg_hex_to_char(&st, entry->value));
 #endif
 
 #if (PRINT_CACHE == 1)
