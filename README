@@ -2,7 +2,7 @@ cfg2 0.26.0 README
 a simplistic configuration parser for INI like syntax in ANSI C
 
 last revisited:
-	14.01.2016
+	15.01.2016
 author:
 	lubomir i. ivanov (neolit123 at gmail)
 
@@ -22,7 +22,7 @@ cfg2 format example:
 key1=value1
 key2=value2
 ; a comment line
-key3="value \t with some special \n characters"
+key3="value with some special \n characters"
 key4="some value \
 on multiple lines"
 
