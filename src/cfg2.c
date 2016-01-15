@@ -324,35 +324,8 @@ cfg_error_t cfg_cache_entry_add(cfg_t *st, cfg_entry_t *entry)
 
 cfg_char *cfg_section_value_get(cfg_t *st, cfg_char *section, cfg_char *key)
 {
-	cfg_uint32 i;
-	cfg_uint32 key_hash, section_hash;
-	cfg_entry_t *entry;
-
-	if (!st || !key || !st->nkeys)
-		return NULL;
-	key_hash = cfg_hash_get(key);
-	section_hash = section == CFG_ROOT_SECTION ? CFG_ROOT_SECTION_HASH : cfg_hash_get(section);
-
-	/* check for value in cache first */
-	if (st->cache_size > 0) {
-		for (i = 0; i < st->cache_size; i++) {
-			if (!st->cache[i])
-				break;
-			entry = st->cache[i];
-			if (key_hash == entry->key_hash && section_hash == entry->section_hash)
-				return entry->value;
-		}
-	}
-
-	/* check for value in main list */
-	for (i = 0; i < st->nkeys; i++) {
-		entry = &st->entry[i];
-		if (key_hash == entry->key_hash && section_hash == entry->section_hash) {
-			cfg_cache_entry_add(st, entry);
-			return entry->value;
-		}
-	}
-	return NULL;
+	cfg_entry_t *entry = cfg_section_entry_get(st, section, key);
+	return entry ? entry->value : NULL;
 }
 
 cfg_char *cfg_value_get(cfg_t *st, cfg_char *key)
