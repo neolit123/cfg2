@@ -94,9 +94,9 @@ int main(void)
 
 	/* test setting a new value */
 	puts("\nattempting to set value...");
-	err = cfg_value_set(&st, "key1", "\tnew value1", CFG_FALSE);
+	err = cfg_section_value_set(&st, "section1", "key1", "\tnew value1", CFG_FALSE);
 	if (!err)
-		printf("new value: %s\n", cfg_value_get(&st, "key1"));
+		printf("new value: %s\n", cfg_section_value_get(&st, "section1", "key1"));
 	else
 		printf("setting value error: %d\n", err);
 
