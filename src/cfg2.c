@@ -722,3 +722,83 @@ cfg_error_t cfg_parse_file(cfg_t *st, cfg_char *filename)
 	f = fopen(filename, "r");
 	return cfg_parse_file_ptr(st, f, CFG_TRUE);
 }
+
+/* characters to escape: '[', ']', '=', '"', '\', '\n' */
+static cfg_char *cfg_escape(cfg_char *str, cfg_uint32 *len)
+{
+	cfg_uint32 n;
+	cfg_char *src = str, *dest, *buf;
+
+	if (!src)
+		return NULL;
+	n = strlen(src);
+	if (!n)
+		return "";
+	buf = (cfg_char *)malloc(n * 2);
+	dest = buf;
+
+	while (*src) {
+		switch (*src) {
+		case '[':
+		case ']':
+		case '=':
+		case '"':
+			*dest = '\\';
+			dest++;
+			*dest = *src;
+			break;
+		case '\n':
+			*dest = '\\';
+			dest++;
+			*dest = 'n';
+			break;
+		default:
+			*dest = *src;
+		}
+		dest++;
+		src++;
+	}
+	*dest = '\0';
+	if (len)
+		*len = dest - buf;
+	return buf;
+}
+
+cfg_error_t cfg_write_buffer(cfg_t *st, cfg_char **out, cfg_uint32 *len)
+{
+	cfg_uint32 i, nsec, n;
+	cfg_char *ptr, *str;
+	cfg_char **sec_buf;
+	cfg_uint32 *sec_hash;
+
+	if (!st || st->init != CFG_TRUE)
+		return CFG_ERROR_INIT;
+	if (!out || !len)
+		return CFG_ERROR_NULL_PTR;
+
+	*out = NULL;
+	*len = 0;
+
+	nsec = st->nsections + 1;
+	sec_hash = (cfg_uint32 *)malloc(nsec * sizeof(cfg_uint32));
+	sec_buf = (cfg_char **)malloc(nsec * sizeof(cfg_char *));
+	sec_hash[0] = CFG_ROOT_SECTION_HASH;
+	sec_buf[0] = cfg_strdup("\n");
+
+	for (i = 0; i < st->nsections; i++) {
+		sec_hash[i + 1] = cfg_hash_get(st->section[i]);
+
+		str = cfg_escape(st->section[i], &n);
+		n += 4; /* [, ], \n, \0 */
+
+		sec_buf[i + 1] = (cfg_char *)malloc(n);
+		ptr = sec_buf[i + 1];
+		ptr[0] = '\0';
+		strcat(ptr, "[");
+		strcat(ptr, str);
+		strcat(ptr, "]\n");
+		free(str);
+	}
+
+	return CFG_ERROR_OK;
+}

@@ -37,6 +37,8 @@ int main(void)
 "key3=value3\n" \
 "key4=value4\n";
 	char file[] = "test.cfg";
+	cfg_char *write_buf;
+	cfg_uint32 write_len;
 
 	clock_t begin, end;
 	double time_spent;
@@ -136,6 +138,14 @@ int main(void)
 		}
 	}
 #endif
+
+	err = cfg_write_buffer(&st, &write_buf, &write_len);
+	puts("");
+	printf("write buf (%d):\n", write_len);
+	if (write_buf) {
+		puts(write_buf);
+		free(write_buf);
+	}
 
 exit:
 	puts("");

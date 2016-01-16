@@ -119,6 +119,10 @@ cfg_error_t cfg_parse_file(cfg_t *st, cfg_char *filename);
  * third argument is optional close of the stream. */
 cfg_error_t cfg_parse_file_ptr(cfg_t *st, FILE *f, cfg_bool close);
 
+/* write all the sections and keys to a string buffer; allocates memory at
+ * the 'out' pointer and stores the length in 'len'. */
+cfg_error_t cfg_write_buffer(cfg_t *st, cfg_char **out, cfg_uint32 *len);
+
 /* set the size of the cache (2nd parameter). note that this also clears
  * the cache */
 cfg_error_t cfg_cache_size_set(cfg_t *st, cfg_uint32 size);
