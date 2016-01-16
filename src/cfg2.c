@@ -111,15 +111,15 @@ cfg_uint32 cfg_hash_get(cfg_char *str)
 	return hash;
 }
 
-#define cfg_escape_check_quote() \
+#define cfg_unescape_check_quote() \
 	if (quote && st->verbose > 0) \
 		fprintf(stderr, "%s: WARNING: quote not closed at line %d\n", fname, line); \
 	quote = CFG_FALSE;
 
 /* escape all special characters (like \n) in a string */
-static void cfg_escape(cfg_t *st, cfg_char *buf, cfg_uint32 buf_sz, cfg_uint32 *keys, cfg_uint32 *sections)
+static void cfg_unescape(cfg_t *st, cfg_char *buf, cfg_uint32 buf_sz, cfg_uint32 *keys, cfg_uint32 *sections)
 {
-	const cfg_char *fname = "[cfg2] cfg_escape()";
+	const cfg_char *fname = "[cfg2] cfg_unescape()";
 	cfg_uint32 line = 0;
 	cfg_char *src, *dst;
 	cfg_bool escape = CFG_FALSE;
@@ -188,7 +188,7 @@ static void cfg_escape(cfg_t *st, cfg_char *buf, cfg_uint32 buf_sz, cfg_uint32 *
 				quote = !quote;
 				continue;
 			case '=':
-				cfg_escape_check_quote();
+				cfg_unescape_check_quote();
 				line_eq_sign = CFG_TRUE;
 				(*keys)++;
 				*dst = st->key_value_separator;
@@ -201,18 +201,18 @@ static void cfg_escape(cfg_t *st, cfg_char *buf, cfg_uint32 buf_sz, cfg_uint32 *
 						fprintf(stderr, "%s: WARNING: no equal sign at line %d\n", fname, line);
 					continue;
 				}
-				cfg_escape_check_quote();
+				cfg_unescape_check_quote();
 				*dst = st->key_value_separator;
 				dst++;
 				continue;
 			case '[':
-				cfg_escape_check_quote();
+				cfg_unescape_check_quote();
 				(*sections)++;
 				*dst = st->section_separator;
 				dst++;
 				continue;
 			case ']':
-				cfg_escape_check_quote();
+				cfg_unescape_check_quote();
 				*dst = st->section_separator;
 				dst++;
 				src++;
@@ -653,7 +653,7 @@ cfg_error_t cfg_parse_buffer(cfg_t *st, cfg_char *buf, cfg_uint32 sz)
 	if (ret > 0)
 		return ret;
 
-	cfg_escape(st, buf, sz, &keys, &sections);
+	cfg_unescape(st, buf, sz, &keys, &sections);
 
 	/* allocate memory for the list */
 	if (keys) {
