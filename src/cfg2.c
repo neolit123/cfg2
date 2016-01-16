@@ -169,8 +169,6 @@ static void cfg_unescape(cfg_t *st, cfg_char *buf, cfg_uint32 buf_sz, cfg_uint32
 			switch (*dst) {
 			case 'n':
 				*dst = '\n';
-				dst++;
-				continue;
 			case '\\':
 				dst++;
 				continue;
