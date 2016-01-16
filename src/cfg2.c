@@ -128,7 +128,6 @@ static void cfg_unescape(cfg_t *st, cfg_char *buf, cfg_uint32 buf_sz, cfg_uint32
 	cfg_bool multiline = CFG_FALSE;
 	*keys = 0;
 	*sections = 0;
-
 	for (src = dst = buf; src < buf + buf_sz; src++) {
 		/* convert separators to spaces, if found */
 		if (*src == st->section_separator || *src == st->key_value_separator) {
@@ -150,7 +149,7 @@ static void cfg_unescape(cfg_t *st, cfg_char *buf, cfg_uint32 buf_sz, cfg_uint32
 				src++;
 			}
 			/* skip comment lines */
-			if (*src == st->comment_char1 || *src == st->comment_char2) {
+			while (*src == st->comment_char1 || *src == st->comment_char2) {
 				line++;
 				line_eq_sign = CFG_FALSE;
 				while (*src != '\n')
