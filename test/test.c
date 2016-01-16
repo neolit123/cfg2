@@ -18,7 +18,7 @@
 
 #define VERBOSE        2
 #define PRINT_TESTS    1
-#define PRINT_CACHE    1
+#define PRINT_CACHE    0
 
 /*
  * test parsing a file or a buffer directly. when calling a parsing method
@@ -143,7 +143,7 @@ int main(void)
 	puts("");
 	printf("write buf (%d):\n", write_len);
 	if (write_buf) {
-		puts(write_buf);
+		printf(write_buf);
 		free(write_buf);
 	}
 

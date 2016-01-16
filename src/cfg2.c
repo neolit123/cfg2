@@ -729,12 +729,13 @@ static cfg_char *cfg_escape(cfg_char *str, cfg_uint32 *len)
 	cfg_uint32 n;
 	cfg_char *src = str, *dest, *buf;
 
+	*len = 0;
 	if (!src)
-		return NULL;
+		return "";
 	n = strlen(src);
 	if (!n)
 		return "";
-	buf = (cfg_char *)malloc(n * 2);
+	buf = (cfg_char *)malloc(n * 2 + 1);
 	dest = buf;
 
 	while (*src) {
@@ -759,39 +760,74 @@ static cfg_char *cfg_escape(cfg_char *str, cfg_uint32 *len)
 		src++;
 	}
 	*dest = '\0';
-	if (len)
-		*len = dest - buf;
+	*len = dest - buf;
+	return buf;
+}
+
+static cfg_char* cfg_entry_string(cfg_entry_t *entry, cfg_uint32 *len)
+{
+	cfg_char *buf, *key, *value;
+	cfg_uint32 key_len, value_len;
+
+	if (!entry)
+		return NULL;
+	key = cfg_escape(entry->key, &key_len);
+	value = cfg_escape(entry->value, &value_len);
+
+	*len = key_len + value_len + 6;  /* 4x '"', '=', '\n' */
+	buf = (cfg_char *)malloc(*len + 1);
+	if (!buf)
+		return NULL;
+
+	buf[0] = '\0';
+	strcat(buf, "\"");
+	strcat(buf, key);
+	strcat(buf, "\"=\"");
+	strcat(buf, value);
+	strcat(buf, "\"\n");
+
+	if (key_len)
+		free(key);
+	if (value_len)
+		free(value);
 	return buf;
 }
 
 cfg_error_t cfg_write_buffer(cfg_t *st, cfg_char **out, cfg_uint32 *len)
 {
-	cfg_uint32 i, nsec, n;
+	const cfg_char *fname = "\n[cfg2] cfg_write_buffer():";
+
+	cfg_uint32 i, j, nsec, n;
 	cfg_char *ptr, *str;
 	cfg_char **sec_buf;
 	cfg_uint32 *sec_hash;
+	cfg_uint32 *sec_len;
+	cfg_entry_t *entry;
 
 	if (!st || st->init != CFG_TRUE)
 		return CFG_ERROR_INIT;
 	if (!out || !len)
 		return CFG_ERROR_NULL_PTR;
 
-	*out = NULL;
-	*len = 0;
-
 	nsec = st->nsections + 1;
 	sec_hash = (cfg_uint32 *)malloc(nsec * sizeof(cfg_uint32));
+	sec_len = (cfg_uint32 *)malloc(nsec * sizeof(cfg_uint32));
 	sec_buf = (cfg_char **)malloc(nsec * sizeof(cfg_char *));
+	sec_buf[0] = (cfg_char *)malloc(1);
+	sec_buf[0][0] = '\0';
 	sec_hash[0] = CFG_ROOT_SECTION_HASH;
-	sec_buf[0] = cfg_strdup("\n");
+	sec_len[0] = 0;
+
+	if (st->verbose > 0)
+		fprintf(stderr, "%s allocating sections...\n", fname);
 
 	for (i = 0; i < st->nsections; i++) {
 		sec_hash[i + 1] = cfg_hash_get(st->section[i]);
 
 		str = cfg_escape(st->section[i], &n);
-		n += 4; /* [, ], \n, \0 */
-
-		sec_buf[i + 1] = (cfg_char *)malloc(n);
+		n += 3; /* [, ], \n */
+		sec_len[i + 1] = n;
+		sec_buf[i + 1] = (cfg_char *)malloc(n + 1);
 		ptr = sec_buf[i + 1];
 		ptr[0] = '\0';
 		strcat(ptr, "[");
@@ -799,6 +835,43 @@ cfg_error_t cfg_write_buffer(cfg_t *st, cfg_char **out, cfg_uint32 *len)
 		strcat(ptr, "]\n");
 		free(str);
 	}
+
+	if (st->verbose > 0)
+		fprintf(stderr, "%s allocating entries per section...\n", fname);
+
+	for (i = 0; i < st->nkeys; i++) {
+		entry = &st->entry[i];
+		for (j = 0; j < nsec; j++) {
+			if (sec_hash[j] == entry->section_hash)
+				break;
+		}
+		str = cfg_entry_string(entry, &n);
+		sec_buf[j] = realloc(sec_buf[j], sec_len[j] + n + 1);
+		sec_len[j] += n;
+		strcat(sec_buf[j], str);
+		free(str);
+	}
+
+	if (st->verbose > 0)
+		fprintf(stderr, "%s combining sections...\n", fname);
+
+	*out = NULL;
+	*len = 0;
+	for (i = 0; i < nsec; i++)
+		*len += sec_len[i] + 1;
+	*out = (cfg_char *)malloc(*len + 1);
+	*out[0] = '\0';
+	for (i = 0; i < nsec; i++) {
+		strcat(*out, sec_buf[i]);
+		strcat(*out, "\n");
+		free(sec_buf[i]);
+	}
+	free(sec_buf);
+	free(sec_len);
+	free(sec_hash);
+
+	if (st->verbose > 0)
+		fprintf(stderr, "%s done!\n", fname);
 
 	return CFG_ERROR_OK;
 }
