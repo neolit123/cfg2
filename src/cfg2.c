@@ -135,6 +135,10 @@ static void cfg_unescape(cfg_t *st, cfg_char *buf, cfg_uint32 buf_sz, cfg_uint32
 			continue;
 		}
 
+		/* convert CR to LF */
+		if (*src == '\r')
+			*src = '\n';
+
 		/* start of a line */
 		if ((src > buf && *(src - 1) == '\n') || src == buf) {
 			line++;
