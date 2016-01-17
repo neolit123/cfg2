@@ -1,3 +1,10 @@
+0.29.0 - 18.01.2016
+- conceptual rename of 'error' to 'status' - i.e. cfg_error_t is
+now cfg_status_t
+- make it possible to store and retrieve the last status in the library object
+- better error reporting
+- remove some redundant fields in the library object
+
 0.28.0 - 17.01.2016
 - implement buffer / file writing methods (this makes the library R/W)
 - major re-arrange and rename of most methods in the header
