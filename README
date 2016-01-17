@@ -1,18 +1,18 @@
-cfg2 0.27.0 README
+cfg2 0.28.0 README
 a simplistic configuration parser for INI like syntax in ANSI C
 
 last revisited:
-	15.01.2016
+	17.01.2016
 author:
 	lubomir i. ivanov (neolit123 at gmail)
 
 ================================================================================
 INTRODUCTION:
 
-cfg2 is a simple library for parsing a configuration file format very similar
-to the INI file format. it's not related to any projects such as libcfg*.
-it can be used for very fast parsing of application configurations and even
-translations.
+cfg2 is a simple library for parsing and writing a configuration file format
+very similar to the INI file format. it's not related to any projects such as
+libcfg*. it can be used for very fast processing of application configurations
+and even translations.
 
 public domain code - see LICENSE!
 

@@ -1,3 +1,11 @@
+0.28.0 - 17.01.2016
+- implement buffer / file writing methods (this makes the library R/W)
+- major re-arrange and rename of most methods in the header
+- fix for a odd bug where the last processed character was not well captured
+- more improvements in cfg_unescape()
+- add functions to convert a number to string
+- use the hash generator seed for the root section hash macro
+
 0.27.0 - 15.01.2016
 - remove cfg_entry_value_hex_to_char()
 - simplify cfg_section_value_get()
