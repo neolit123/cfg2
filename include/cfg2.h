@@ -149,6 +149,9 @@ cfg_entry_t *cfg_entry_nth(cfg_t *st, cfg_uint32 n);
  * key (3rd argument) */
 cfg_entry_t *cfg_entry_get(cfg_t *st, cfg_char *section, cfg_char *key);
 
+/* return an entry from the root section */
+cfg_entry_t *cfg_root_entry_get(cfg_t *st, cfg_char *key);
+
 /* get the value for an entry */
 cfg_char *cfg_entry_value_get(cfg_t *st, cfg_entry_t *entry);
 

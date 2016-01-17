@@ -275,6 +275,11 @@ cfg_entry_t *cfg_entry_get(cfg_t *st, cfg_char *section, cfg_char *key)
 	return NULL;
 }
 
+cfg_entry_t *cfg_root_entry_get(cfg_t *st, cfg_char *key)
+{
+	return cfg_entry_get(st, CFG_ROOT_SECTION, key);
+}
+
 cfg_error_t cfg_cache_entry_add(cfg_t *st, cfg_entry_t *entry)
 {
 	if (!st || !entry)
