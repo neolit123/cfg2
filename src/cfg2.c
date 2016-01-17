@@ -124,7 +124,7 @@ cfg_uint32 cfg_hash_get(cfg_char *str)
 	return hash;
 }
 
-#define cfg_unescape_check_quote() \
+#define CFG_UNESCAPE_CHECK_QUOTE() \
 	if (quote && st->verbose > 0) \
 		fprintf(stderr, "%s: WARNING: quote not closed at line %d\n", fname, line); \
 	quote = CFG_FALSE;
@@ -205,7 +205,7 @@ static void cfg_unescape(cfg_t *st, cfg_char *buf, cfg_uint32 buf_sz, cfg_uint32
 				quote = !quote;
 				continue;
 			case '=':
-				cfg_unescape_check_quote();
+				CFG_UNESCAPE_CHECK_QUOTE();
 				line_eq_sign = CFG_TRUE;
 				(*keys)++;
 				*dest = st->separator_key_value;
@@ -219,7 +219,7 @@ static void cfg_unescape(cfg_t *st, cfg_char *buf, cfg_uint32 buf_sz, cfg_uint32
 							fprintf(stderr, "%s: WARNING: no equal sign at line %d\n", fname, line);
 						continue;
 					}
-					cfg_unescape_check_quote();
+					CFG_UNESCAPE_CHECK_QUOTE();
 					*dest = st->separator_key_value;
 					dest++;
 				}
@@ -229,7 +229,7 @@ static void cfg_unescape(cfg_t *st, cfg_char *buf, cfg_uint32 buf_sz, cfg_uint32
 				section_line = CFG_TRUE;
 				(*sections)++;
 			case ']':
-				cfg_unescape_check_quote();
+				CFG_UNESCAPE_CHECK_QUOTE();
 				*dest = st->separator_section;
 				dest++;
 				continue;
