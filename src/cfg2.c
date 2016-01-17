@@ -116,7 +116,7 @@ cfg_uint32 cfg_hash_get(cfg_char *str)
 		fprintf(stderr, "%s: WARNING: quote not closed at line %d\n", fname, line); \
 	quote = CFG_FALSE;
 
-/* escape all special characters (like \n) in a string */
+/* unescape all special characters (like \n) in a string */
 static void cfg_unescape(cfg_t *st, cfg_char *buf, cfg_uint32 buf_sz, cfg_uint32 *keys, cfg_uint32 *sections)
 {
 	const cfg_char *fname = "[cfg2] cfg_unescape()";
