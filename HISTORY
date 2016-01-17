@@ -5,6 +5,7 @@
 - more improvements in cfg_unescape()
 - add functions to convert a number to string
 - use the hash generator seed for the root section hash macro
+- implement cfg_char_to_hex() (the reverse of cfg_hex_to_char())
 
 0.27.0 - 15.01.2016
 - remove cfg_entry_value_hex_to_char()
