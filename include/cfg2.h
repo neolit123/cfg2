@@ -17,6 +17,8 @@
 extern "C" {
 #endif
 
+/* -------------------------------------------------------------------------- */
+
 #include <stdio.h>
 
 /* version macros */
@@ -24,7 +26,7 @@ extern "C" {
 #define CFG_VERSION_MINOR 28
 #define CFG_VERSION_PATCH 0
 
-/* preprocessor definitions and macros */
+/* preprocessor definitions */
 #define CFG_TRUE 1
 #define CFG_FALSE 0
 #define CFG_CACHE_SIZE 32
@@ -36,6 +38,7 @@ extern "C" {
 #define CFG_ROOT_SECTION NULL
 #define CFG_ROOT_SECTION_HASH CFG_HASH_SEED
 
+/* typedefs */
 #ifdef _MSC_VER
 	typedef unsigned __int32 cfg_uint32;
 #else
@@ -53,7 +56,11 @@ typedef unsigned char cfg_uchar;
 typedef unsigned int cfg_uint;
 typedef unsigned long cfg_ulong;
 
-/* list of different error types */
+/* -----------------------------------------------------------------------------
+ * error enumeration; if a function returns something other than CFG_ERROR_OK,
+ * an error has occured.
+*/
+
 typedef enum {
 	/* 0  */ CFG_ERROR_OK,
 	/* 1  */ CFG_ERROR_NULL_KEY,
@@ -69,7 +76,10 @@ typedef enum {
 	/* 11 */ CFG_ERROR_NO_KEYS
 } cfg_error_t;
 
-/* an entry pair of key / value */
+/* -----------------------------------------------------------------------------
+ * the library object entry. holds a pair of key / value.
+*/
+
 typedef struct {
 	cfg_uint32 key_hash;
 	cfg_uint32 section_hash;
@@ -78,7 +88,10 @@ typedef struct {
 	cfg_uint32 index;
 } cfg_entry_t;
 
-/* the main library object */
+/* -----------------------------------------------------------------------------
+ * the main library object
+*/
+
 typedef struct {
 	cfg_entry_t **cache;
 	cfg_uint32 cache_size;
@@ -98,6 +111,10 @@ typedef struct {
 	cfg_char comment_char1;
 	cfg_char comment_char2;
 } cfg_t;
+
+/* -----------------------------------------------------------------------------
+ * buffer & file I/O
+*/
 
 /* allocates a new cfg_t object; if 'init' == CFG_TRUE, cfg_init() will also be
  * called */
@@ -132,7 +149,7 @@ cfg_error_t cfg_write_file(cfg_t *st, cfg_char *filename);
  * when done. */
 cfg_error_t cfg_write_file_ptr(cfg_t *st, FILE *f, cfg_bool close);
 
-/* --------------------------------------------------------------------------
+/* -----------------------------------------------------------------------------
  * cache
 */
 
@@ -146,7 +163,7 @@ cfg_error_t cfg_cache_clear(cfg_t *st);
 /* add an entry to the cache */
 cfg_error_t cfg_cache_entry_add(cfg_t *st, cfg_entry_t *entry);
 
-/* --------------------------------------------------------------------------
+/* -----------------------------------------------------------------------------
  * entries
 */
 
@@ -178,7 +195,7 @@ cfg_error_t cfg_value_set(cfg_t *st, cfg_char *section, cfg_char *key, cfg_char 
 /* set a value for a specific key in the root section; add the key if missing. */
 cfg_error_t cfg_root_value_set(cfg_t *st, cfg_char *key, cfg_char *value, cfg_bool add);
 
-/* --------------------------------------------------------------------------
+/* -----------------------------------------------------------------------------
  * utilities
 */
 
@@ -205,6 +222,8 @@ cfg_char *cfg_char_to_hex(cfg_t *st, cfg_char *value);
 
 /* a local strdup() implementation */
 cfg_char *cfg_strdup(cfg_char *str);
+
+/* -------------------------------------------------------------------------- */
 
 #ifdef __cplusplus
 }
