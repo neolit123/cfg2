@@ -58,7 +58,7 @@ int main(void)
 	}
 	printf("* cache size: %d\n", st.cache_size);
 	puts("* parse");
-	err = cfg_parse_buffer(&st, buf, strlen(buf));
+	err = cfg_parse_buffer(&st, buf, strlen(buf), CFG_TRUE);
 
 	begin = clock();
 	err = cfg_parse_file(&st, file);

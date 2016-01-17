@@ -108,8 +108,8 @@ cfg_error_t cfg_init(cfg_t *st);
  * if you pass 'free_ptr' == CFG_TRUE then 'st' will be freed as well! */
 cfg_error_t cfg_free(cfg_t *st, cfg_bool free_ptr);
 
-/* parse a buffer (buf) of size (sz) */
-cfg_error_t cfg_parse_buffer(cfg_t *st, cfg_char *buf, cfg_uint32 sz);
+/* parse a buffer (buf) of size (sz); optional copy (copy) or work in place. */
+cfg_error_t cfg_parse_buffer(cfg_t *st, cfg_char *buf, cfg_uint32 sz, cfg_bool copy);
 
 /* parse a file by name, passed as the 2nd parameter. non-safe for Win32's
  * UTF-16 paths! use cfg_parse_buffer() or cfg_parse_file_ptr() instead. */

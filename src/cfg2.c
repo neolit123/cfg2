@@ -631,7 +631,7 @@ static cfg_error_t cfg_parse_buffer_keys(cfg_t *st)
 	return CFG_ERROR_OK;
 }
 
-cfg_error_t cfg_parse_buffer(cfg_t *st, cfg_char *buf, cfg_uint32 sz)
+cfg_error_t cfg_parse_buffer(cfg_t *st, cfg_char *buf, cfg_uint32 sz, cfg_bool copy)
 {
 	cfg_error_t ret;
 	cfg_uint32 keys, sections;
@@ -640,7 +640,7 @@ cfg_error_t cfg_parse_buffer(cfg_t *st, cfg_char *buf, cfg_uint32 sz)
 		return CFG_ERROR_INIT;
 
 	/* set buffer */
-	st->buf = buf;
+	st->buf = copy ? cfg_strdup(buf) : buf;
 	st->buf_size = sz;
 
 	/* clear old keys */
@@ -654,7 +654,7 @@ cfg_error_t cfg_parse_buffer(cfg_t *st, cfg_char *buf, cfg_uint32 sz)
 	if (ret > 0)
 		return ret;
 
-	cfg_unescape(st, buf, sz, &keys, &sections);
+	cfg_unescape(st, st->buf, sz, &keys, &sections);
 
 	/* allocate memory for the list */
 	if (keys) {
@@ -670,7 +670,17 @@ cfg_error_t cfg_parse_buffer(cfg_t *st, cfg_char *buf, cfg_uint32 sz)
 
 	st->nkeys = keys;
 	st->nsections = sections;
-	return cfg_parse_buffer_keys(st);
+	ret = cfg_parse_buffer_keys(st);
+	if (dup)
+		free(st->buf);
+	st->buf = NULL;
+	st->buf_size = 0;
+	return ret;
+}
+
+cfg_error_t cfg_parse_buffer(cfg_t *st, cfg_char *buf, cfg_uint32 sz)
+{
+	return cfg_parse_buffer_local(st, buf, sz, CFG_TRUE);
 }
 
 cfg_error_t cfg_parse_file_ptr(cfg_t *st, FILE *f, cfg_bool close)
@@ -708,7 +718,7 @@ cfg_error_t cfg_parse_file_ptr(cfg_t *st, FILE *f, cfg_bool close)
 		fclose(f);
 	st->file = NULL;
 
-	ret = cfg_parse_buffer(st, buf, sz);
+	ret = cfg_parse_buffer(st, buf, sz, CFG_FALSE);
 	free(st->buf);
 	st->buf = NULL;
 	return ret;
