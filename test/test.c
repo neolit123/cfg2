@@ -107,7 +107,6 @@ int main(void)
 	puts("");
 	printf("find value by key (key1): %s\n", cfg_section_value_get(&st, "section1", "key1"));
 	printf("find value by key (key=8): %s\n", cfg_section_value_get(&st, "section1", "key=8"));
-	printf("find key index (key3): %d\n", cfg_key_get_index(&st, "key3"));
 
 	/* test a section */
 	puts("");

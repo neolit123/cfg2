@@ -137,15 +137,6 @@ cfg_entry_t *cfg_entry_nth(cfg_t *st, cfg_uint32 n);
  * key (3rd argument) */
 cfg_entry_t *cfg_section_entry_get(cfg_t *st, cfg_char *section, cfg_char *key);
 
-/* retrieve the nth key */
-cfg_char *cfg_key_nth(cfg_t *st, cfg_uint32 n);
-
-/* get the list index of a key */
-cfg_uint32 cfg_key_get_index(cfg_t *st, cfg_char *key);
-
-/* retrieve the nth value */
-cfg_char *cfg_value_nth(cfg_t *st, cfg_uint32 n);
-
 /* retrieve a specific value by key in the root section */
 cfg_char *cfg_value_get(cfg_t *st, cfg_char *key);
 

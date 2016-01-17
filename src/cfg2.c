@@ -241,35 +241,6 @@ cfg_entry_t *cfg_entry_nth(cfg_t *st, cfg_uint32 n)
 	return &(st->entry[n]);
 }
 
-cfg_char *cfg_key_nth(cfg_t *st, cfg_uint32 n)
-{
-	if (!st || n > st->nkeys - 1 || !st->nkeys)
-		return NULL;
-	return st->entry[n].key;
-}
-
-cfg_char *cfg_value_nth(cfg_t *st, cfg_uint32 n)
-{
-	if (!st || n > st->nkeys - 1 || !st->nkeys)
-		return NULL;
-	return st->entry[n].value;
-}
-
-cfg_uint32 cfg_key_get_index(cfg_t *st, cfg_char *key)
-{
-	cfg_uint32 i;
-	cfg_uint32 hash;
-
-	if (!st || !key || !st->nkeys)
-		return -1;
-	hash = cfg_hash_get(key);
-	for (i = 0; i < st->nkeys; i++) {
-		if (hash == st->entry[i].key_hash)
-			return i;
-	}
-	return -1;
-}
-
 cfg_entry_t *cfg_section_entry_get(cfg_t *st, cfg_char *section, cfg_char *key)
 {
 	cfg_uint32 section_hash, key_hash, i;
