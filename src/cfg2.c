@@ -77,6 +77,7 @@ cfg_status_t cfg_init(cfg_t *st)
 	st->entry = NULL;
 	st->section = NULL;
 	st->verbose = 0;
+	st->status = CFG_STATUS_OK;
 	st->nentries = 0;
 	st->nsections = 0;
 	st->cache = NULL;
@@ -87,6 +88,15 @@ cfg_status_t cfg_init(cfg_t *st)
 	st->comment_char1 = CFG_COMMENT_CHAR1;
 	st->comment_char2 = CFG_COMMENT_CHAR2;
 	CFG_SET_RETURN_STATUS(st, CFG_STATUS_OK);
+}
+
+cfg_status_t cfg_status_get(cfg_t *st)
+{
+	if (!st) {
+		fprintf(stderr, "[cfg] cfg_status_get(): input is a NULL pointer!\n");
+		return CFG_ERROR_NULL_PTR;
+	}
+	return st->status;
 }
 
 cfg_t *cfg_alloc(cfg_bool init)
