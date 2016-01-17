@@ -90,7 +90,7 @@ cfg_error_t cfg_init(cfg_t *st)
 
 cfg_t *cfg_alloc(cfg_bool init)
 {
-	cfg_t *st = (cfg_t *)calloc(sizeof(cfg_t), 1);
+	cfg_t *st = (cfg_t *)calloc(1, sizeof(cfg_t));
 	if (!st)
 		return st;
 	if (init)
