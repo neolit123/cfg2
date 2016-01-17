@@ -310,7 +310,7 @@ cfg_char *cfg_root_value_get(cfg_t *st, cfg_char *key)
 cfg_bool cfg_value_to_bool(cfg_char *value)
 {
 	if (!value)
-		return 0;
+		return CFG_FALSE;
 	return strtoul(value, NULL, 2);
 }
 
