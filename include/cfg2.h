@@ -32,8 +32,9 @@ extern "C" {
 #define CFG_KEY_VALUE_SEPARATOR 0x02
 #define CFG_COMMENT_CHAR1 ';'
 #define CFG_COMMENT_CHAR2 '#'
+#define CFG_HASH_SEED 0x811c9dc5
 #define CFG_ROOT_SECTION NULL
-#define CFG_ROOT_SECTION_HASH 0
+#define CFG_ROOT_SECTION_HASH CFG_HASH_SEED
 
 #ifdef _MSC_VER
 	typedef unsigned __int32 cfg_uint32;

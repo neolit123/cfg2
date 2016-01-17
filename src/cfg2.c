@@ -101,7 +101,7 @@ cfg_t *cfg_alloc(cfg_bool init)
 /* fast fnv-32 hash */
 cfg_uint32 cfg_hash_get(cfg_char *str)
 {
-	cfg_uint32 hash = 0x811c9dc5;
+	cfg_uint32 hash = CFG_HASH_SEED;
 	if (!str)
 		return hash;
 	while (*str) {
