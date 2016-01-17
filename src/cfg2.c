@@ -72,12 +72,10 @@ cfg_status_t cfg_init(cfg_t *st)
 
 	st->entry = NULL;
 	st->section = NULL;
-	st->buf = NULL;
 	st->file = NULL;
 	st->verbose = 0;
 	st->nentries = 0;
 	st->nsections = 0;
-	st->buf_size = 0;
 	st->cache = NULL;
 	st->cache_size = CFG_CACHE_SIZE;
 	st->init = CFG_TRUE;
@@ -642,8 +640,6 @@ cfg_status_t cfg_free(cfg_t *st, cfg_bool free_ptr)
 		if (ret > 0)
 			return ret;
 
-		st->buf = NULL;
-
 		if (st->file)
 			fclose(st->file);
 		st->file = NULL;
@@ -656,7 +652,7 @@ cfg_status_t cfg_free(cfg_t *st, cfg_bool free_ptr)
 	return CFG_STATUS_OK;
 }
 
-static cfg_status_t cfg_parse_buffer_keys(cfg_t *st)
+static cfg_status_t cfg_parse_buffer_keys(cfg_t *st, cfg_char *buf, cfg_uint32 sz)
 {
 	cfg_uint32 section_hash = CFG_ROOT_SECTION_HASH;
 	cfg_uint32 section_idx = 0;
@@ -664,7 +660,7 @@ static cfg_status_t cfg_parse_buffer_keys(cfg_t *st)
 	cfg_entry_t *entry;
 	cfg_char *p, *end;
 
-	for (p = st->buf; p < st->buf + st->buf_size; p++) {
+	for (p = buf; p < buf + sz; p++) {
 		/* store current section hash */
 		if (*p == st->section_separator) {
 			p++;
@@ -721,14 +717,22 @@ static cfg_status_t cfg_parse_buffer_keys(cfg_t *st)
 cfg_status_t cfg_parse_buffer(cfg_t *st, cfg_char *buf, cfg_uint32 sz, cfg_bool copy)
 {
 	cfg_status_t ret;
+	cfg_char *newbuf;
 	cfg_uint32 keys, sections;
 
 	if (st->init != CFG_TRUE)
 		return CFG_ERROR_INIT;
 
 	/* set buffer */
-	st->buf = copy ? cfg_strdup(buf) : buf;
-	st->buf_size = sz;
+	if (copy) {
+		newbuf = (cfg_char *)malloc(sz + 1);
+		if (!newbuf)
+			return CFG_ERROR_ALLOC;
+		memcpy(newbuf, buf, sz);
+		newbuf[sz] = '\0';
+	} else {
+		newbuf = buf;
+	}
 
 	/* clear old keys */
 	ret = cfg_free_memory(st);
@@ -741,7 +745,7 @@ cfg_status_t cfg_parse_buffer(cfg_t *st, cfg_char *buf, cfg_uint32 sz, cfg_bool 
 	if (ret > 0)
 		return ret;
 
-	cfg_unescape(st, st->buf, sz, &keys, &sections);
+	cfg_unescape(st, newbuf, sz, &keys, &sections);
 
 	/* allocate memory for the list */
 	if (keys) {
@@ -757,11 +761,9 @@ cfg_status_t cfg_parse_buffer(cfg_t *st, cfg_char *buf, cfg_uint32 sz, cfg_bool 
 
 	st->nentries = keys;
 	st->nsections = sections;
-	ret = cfg_parse_buffer_keys(st);
+	ret = cfg_parse_buffer_keys(st, newbuf, sz);
 	if (copy)
-		free(st->buf);
-	st->buf = NULL;
-	st->buf_size = 0;
+		free(newbuf);
 	return ret;
 }
 
@@ -801,8 +803,7 @@ cfg_status_t cfg_parse_file_ptr(cfg_t *st, FILE *f, cfg_bool close)
 	st->file = NULL;
 
 	ret = cfg_parse_buffer(st, buf, sz, CFG_FALSE);
-	free(st->buf);
-	st->buf = NULL;
+	free(buf);
 	return ret;
 }
 

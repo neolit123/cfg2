@@ -98,14 +98,12 @@ typedef struct {
 
 	cfg_entry_t *entry;
 	cfg_char **section;
-	cfg_char *buf;
 	FILE *file;
 
 	cfg_bool init;
 	cfg_uint32 verbose;
 	cfg_uint32 nentries;
 	cfg_uint32 nsections;
-	cfg_uint32 buf_size;
 	cfg_char section_separator;
 	cfg_char key_value_separator;
 	cfg_char comment_char1;
