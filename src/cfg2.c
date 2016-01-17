@@ -474,7 +474,7 @@ static const cfg_char char_to_hex_lookup[] = {
 
 cfg_char *cfg_char_to_hex(cfg_t *st, cfg_char *value)
 {
-	const cfg_char *fname = "[cfg2] char_to_hex():";
+	const cfg_char *fname = "[cfg2] cfg_char_to_hex():";
 	cfg_uint32 len, first, second;
 	cfg_uchar in_char;
 	cfg_char *out, *ptr;
