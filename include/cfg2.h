@@ -78,6 +78,7 @@ typedef enum {
 
 /* -----------------------------------------------------------------------------
  * the library object entry. holds a pair of key / value.
+ * NOTE: please, mind that this struct can become opaque at some point!
 */
 
 typedef struct {
@@ -90,6 +91,7 @@ typedef struct {
 
 /* -----------------------------------------------------------------------------
  * the main library object
+ * NOTE: please, mind that this struct can become opaque at some point!
 */
 
 typedef struct {
