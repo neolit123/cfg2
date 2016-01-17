@@ -671,16 +671,11 @@ cfg_error_t cfg_parse_buffer(cfg_t *st, cfg_char *buf, cfg_uint32 sz, cfg_bool c
 	st->nkeys = keys;
 	st->nsections = sections;
 	ret = cfg_parse_buffer_keys(st);
-	if (dup)
+	if (copy)
 		free(st->buf);
 	st->buf = NULL;
 	st->buf_size = 0;
 	return ret;
-}
-
-cfg_error_t cfg_parse_buffer(cfg_t *st, cfg_char *buf, cfg_uint32 sz)
-{
-	return cfg_parse_buffer_local(st, buf, sz, CFG_TRUE);
 }
 
 cfg_error_t cfg_parse_file_ptr(cfg_t *st, FILE *f, cfg_bool close)
