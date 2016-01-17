@@ -61,11 +61,12 @@ typedef enum {
 	/* 3  */ CFG_ERROR_ALLOC,
 	/* 4  */ CFG_ERROR_CRITICAL,
 	/* 5  */ CFG_ERROR_FREAD,
-	/* 6  */ CFG_ERROR_FOPEN,
-	/* 7  */ CFG_ERROR_INIT,
-	/* 8  */ CFG_ERROR_KEY_NOT_FOUND,
-	/* 9  */ CFG_ERROR_PARSE,
-	/* 10 */ CFG_ERROR_NO_KEYS
+	/* 6  */ CFG_ERROR_FWRITE,
+	/* 7  */ CFG_ERROR_FOPEN,
+	/* 8  */ CFG_ERROR_INIT,
+	/* 9  */ CFG_ERROR_KEY_NOT_FOUND,
+	/* 10  */ CFG_ERROR_PARSE,
+	/* 11 */ CFG_ERROR_NO_KEYS
 } cfg_error_t;
 
 /* an entry pair of key / value */
@@ -123,6 +124,13 @@ cfg_error_t cfg_parse_file_ptr(cfg_t *st, FILE *f, cfg_bool close);
 /* write all the sections and keys to a string buffer; allocates memory at
  * the 'out' pointer and stores the length in 'len'. */
 cfg_error_t cfg_write_buffer(cfg_t *st, cfg_char **out, cfg_uint32 *len);
+
+/* write all the sections and keys to a file */
+cfg_error_t cfg_write_file(cfg_t *st, cfg_char *filename);
+
+/* write all the sections and keys to a FILE pointer with optional close
+ * when done. */
+cfg_error_t cfg_write_file_ptr(cfg_t *st, FILE *f, cfg_bool close);
 
 /* --------------------------------------------------------------------------
  * cache

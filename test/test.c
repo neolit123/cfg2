@@ -151,6 +151,8 @@ int main(void)
 		free(write_buf);
 	}
 
+	printf("write_file() status: %d\n", cfg_write_file(&st, "out.cfg"));
+
 exit:
 	puts("");
 	puts("* free");

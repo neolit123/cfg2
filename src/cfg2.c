@@ -918,3 +918,42 @@ cfg_error_t cfg_write_buffer(cfg_t *st, cfg_char **out, cfg_uint32 *len)
 
 	return CFG_ERROR_OK;
 }
+
+cfg_error_t cfg_write_file_ptr(cfg_t *st, FILE *f, cfg_bool close)
+{
+	cfg_char *buf;
+	cfg_uint32 sz = 0, sz_write = 0;
+	cfg_error_t ret;
+
+	if (!st || st->init != CFG_TRUE)
+		return CFG_ERROR_INIT;
+	if (!f)
+		return CFG_ERROR_FOPEN;
+
+	ret = cfg_write_buffer(st, &buf, &sz);
+	if (ret != CFG_ERROR_OK || !buf || !sz) {
+		if (close)
+			fclose(f);
+		return ret;
+	}
+
+	rewind(f);
+	sz_write = fwrite(buf, 1, sz, f);
+	free(buf);
+
+	if (sz_write != sz)
+		return CFG_ERROR_FWRITE;
+	if (close)
+		fclose(f);
+	return ret;
+}
+
+cfg_error_t cfg_write_file(cfg_t *st, cfg_char *filename)
+{
+	FILE *f;
+	if (!st || st->init != CFG_TRUE)
+		return CFG_ERROR_INIT;
+	/* read file */
+	f = fopen(filename, "w");
+	return cfg_write_file_ptr(st, f, CFG_TRUE);
+}
