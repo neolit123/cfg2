@@ -30,8 +30,8 @@ extern "C" {
 #define CFG_TRUE 1
 #define CFG_FALSE 0
 #define CFG_CACHE_SIZE 32
-#define CFG_SECTION_SEPARATOR 0x01
-#define CFG_KEY_VALUE_SEPARATOR 0x02
+#define CFG_SEPARATOR_SECTION 0x01
+#define CFG_SEPARATOR_KEY_VALUE 0x02
 #define CFG_COMMENT_CHAR1 ';'
 #define CFG_COMMENT_CHAR2 '#'
 #define CFG_HASH_SEED 0x811c9dc5
@@ -104,8 +104,8 @@ typedef struct {
 	cfg_uint32 verbose;
 	cfg_uint32 nentries;
 	cfg_uint32 nsections;
-	cfg_char section_separator;
-	cfg_char key_value_separator;
+	cfg_char separator_section;
+	cfg_char separator_key_value;
 	cfg_char comment_char1;
 	cfg_char comment_char2;
 } cfg_t;

@@ -79,8 +79,8 @@ cfg_status_t cfg_init(cfg_t *st)
 	st->cache = NULL;
 	st->cache_size = CFG_CACHE_SIZE;
 	st->init = CFG_TRUE;
-	st->key_value_separator = CFG_KEY_VALUE_SEPARATOR;
-	st->section_separator = CFG_SECTION_SEPARATOR;
+	st->separator_key_value = CFG_SEPARATOR_KEY_VALUE;
+	st->separator_section = CFG_SEPARATOR_SECTION;
 	st->comment_char1 = CFG_COMMENT_CHAR1;
 	st->comment_char2 = CFG_COMMENT_CHAR2;
 	return CFG_STATUS_OK;
@@ -130,7 +130,7 @@ static void cfg_unescape(cfg_t *st, cfg_char *buf, cfg_uint32 buf_sz, cfg_uint32
 
 	for (src = dest = buf; src < buf + buf_sz; src++) {
 		/* convert separators to spaces, if found */
-		if (*src == st->section_separator || *src == st->key_value_separator) {
+		if (*src == st->separator_section || *src == st->separator_key_value) {
 			*src = ' ';
 			continue;
 		}
@@ -193,7 +193,7 @@ static void cfg_unescape(cfg_t *st, cfg_char *buf, cfg_uint32 buf_sz, cfg_uint32
 				cfg_unescape_check_quote();
 				line_eq_sign = CFG_TRUE;
 				(*keys)++;
-				*dest = st->key_value_separator;
+				*dest = st->separator_key_value;
 				dest++;
 				continue;
 			case '\n':
@@ -205,7 +205,7 @@ static void cfg_unescape(cfg_t *st, cfg_char *buf, cfg_uint32 buf_sz, cfg_uint32
 						continue;
 					}
 					cfg_unescape_check_quote();
-					*dest = st->key_value_separator;
+					*dest = st->separator_key_value;
 					dest++;
 				}
 				section_line = CFG_FALSE;
@@ -215,7 +215,7 @@ static void cfg_unescape(cfg_t *st, cfg_char *buf, cfg_uint32 buf_sz, cfg_uint32
 				(*sections)++;
 			case ']':
 				cfg_unescape_check_quote();
-				*dest = st->section_separator;
+				*dest = st->separator_section;
 				dest++;
 				continue;
 			}
@@ -662,19 +662,19 @@ static cfg_status_t cfg_parse_buffer_keys(cfg_t *st, cfg_char *buf, cfg_uint32 s
 
 	for (p = buf; p < buf + sz; p++) {
 		/* store current section hash */
-		if (*p == st->section_separator) {
+		if (*p == st->separator_section) {
 			p++;
 			end = p;
-			while (*end != st->section_separator)
+			while (*end != st->separator_section)
 				end++;
 			*end = '\0';
 			st->section[section_idx] = cfg_strdup(p);
 			section_idx++;
 			section_hash = cfg_hash_get(p);
-			*end = st->section_separator;
+			*end = st->separator_section;
 			p = end;
 			/* if next character is not a section start skip */
-			if (*(p + 1) != st->section_separator)
+			if (*(p + 1) != st->separator_section)
 				p++;
 		}
 
@@ -691,23 +691,23 @@ static cfg_status_t cfg_parse_buffer_keys(cfg_t *st, cfg_char *buf, cfg_uint32 s
 		/* parse key */
 		end = p;
 		end++;
-		while (*end != st->key_value_separator)
+		while (*end != st->separator_key_value)
 			end++;
 		*end = '\0';
 
 		entry->key = cfg_strdup(p);
-		*end = st->key_value_separator;
+		*end = st->separator_key_value;
 		end++;
 		p = end;
 
 		entry->key_hash = cfg_hash_get(entry->key);
 
 		/* parse value */
-		while (*end != st->key_value_separator)
+		while (*end != st->separator_key_value)
 			end++;
 		*end = '\0';
 		entry->value = cfg_strdup(p);
-		*end = st->key_value_separator;
+		*end = st->separator_key_value;
 		p = end;
 	}
 
