@@ -64,16 +64,16 @@ typedef unsigned long cfg_ulong;
 typedef enum {
 	/* 0  */ CFG_STATUS_OK,
 	/* 1  */ CFG_ERROR_NULL_KEY,
-	/* 2  */ CFG_ERROR_NULL_PTR,
-	/* 3  */ CFG_ERROR_ALLOC,
-	/* 4  */ CFG_ERROR_CRITICAL,
+	/* 2  */ CFG_ERROR_NULL_ENTRY,
+	/* 3  */ CFG_ERROR_NULL_PTR,
+	/* 4  */ CFG_ERROR_ALLOC,
 	/* 5  */ CFG_ERROR_FREAD,
 	/* 6  */ CFG_ERROR_FWRITE,
-	/* 7  */ CFG_ERROR_FOPEN,
+	/* 7  */ CFG_ERROR_FILE,
 	/* 8  */ CFG_ERROR_INIT,
-	/* 9  */ CFG_ERROR_KEY_NOT_FOUND,
-	/* 10 */ CFG_ERROR_PARSE,
-	/* 11 */ CFG_ERROR_NO_KEYS
+	/* 9  */ CFG_ERROR_ENTRY_NOT_FOUND,
+	/* 10 */ CFG_ERROR_NO_ENTRIES,
+	/* 11 */ CFG_ERROR_CACHE_SIZE
 } cfg_status_t;
 
 /* -----------------------------------------------------------------------------
@@ -98,9 +98,9 @@ typedef struct {
 
 	cfg_entry_t *entry;
 	cfg_char **section;
-	FILE *file;
 
 	cfg_bool init;
+	cfg_status_t status;
 	cfg_uint32 verbose;
 	cfg_uint32 nentries;
 	cfg_uint32 nsections;

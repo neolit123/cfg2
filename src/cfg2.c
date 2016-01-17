@@ -14,6 +14,12 @@
 #include <string.h>
 #include "cfg2.h"
 
+#define CFG_SET_RETURN_STATUS(st, _status) \
+	{ st->status = _status; return _status; }
+
+#define CFG_SET_STATUS(st, _status) \
+	{ st->status = _status; }
+
 /* local implementation of strdup() if missing on a specific C89 target */
 cfg_char *cfg_strdup(cfg_char *str)
 {
@@ -34,19 +40,17 @@ cfg_char *cfg_strdup(cfg_char *str)
 cfg_status_t cfg_cache_clear(cfg_t *st)
 {
 	if (!st)
-		return CFG_ERROR_INIT;
+		CFG_SET_RETURN_STATUS(st, CFG_ERROR_NULL_PTR);
 	if (st->cache_size && st->cache)
 		memset((void *)st->cache, 0, st->cache_size * sizeof(cfg_entry_t *));
-	return CFG_STATUS_OK;
+	CFG_SET_RETURN_STATUS(st, CFG_STATUS_OK);
 }
 
 cfg_status_t cfg_cache_size_set(cfg_t *st, cfg_uint32 size)
 {
 	int diff;
 	if (!st || st->init != CFG_TRUE)
-		return CFG_ERROR_INIT;
-	if (size < 0)
-		return CFG_ERROR_CRITICAL;
+		CFG_SET_RETURN_STATUS(st, CFG_ERROR_INIT);
 	/* check if we are setting the buffers to zero length */
 	if (size == 0) {
 		free(st->cache);
@@ -54,7 +58,7 @@ cfg_status_t cfg_cache_size_set(cfg_t *st, cfg_uint32 size)
 	} else {
 		st->cache = (cfg_entry_t **)realloc(st->cache, size * sizeof(cfg_entry_t *));
 		if (!st->cache)
-			return CFG_ERROR_ALLOC;
+			CFG_SET_RETURN_STATUS(st, CFG_ERROR_ALLOC);
 		/* if the new buffers are larger, lets fill the extra indexes with zeroes */
 		if (size > st->cache_size) {
 			diff = size - st->cache_size;
@@ -62,17 +66,16 @@ cfg_status_t cfg_cache_size_set(cfg_t *st, cfg_uint32 size)
 		}
 	}
 	st->cache_size = size;
-	return CFG_STATUS_OK;
+	CFG_SET_RETURN_STATUS(st, CFG_STATUS_OK);
 }
 
 cfg_status_t cfg_init(cfg_t *st)
 {
 	if (!st)
-		return CFG_ERROR_ALLOC;
+		CFG_SET_RETURN_STATUS(st, CFG_ERROR_NULL_PTR);
 
 	st->entry = NULL;
 	st->section = NULL;
-	st->file = NULL;
 	st->verbose = 0;
 	st->nentries = 0;
 	st->nsections = 0;
@@ -83,14 +86,16 @@ cfg_status_t cfg_init(cfg_t *st)
 	st->separator_section = CFG_SEPARATOR_SECTION;
 	st->comment_char1 = CFG_COMMENT_CHAR1;
 	st->comment_char2 = CFG_COMMENT_CHAR2;
-	return CFG_STATUS_OK;
+	CFG_SET_RETURN_STATUS(st, CFG_STATUS_OK);
 }
 
 cfg_t *cfg_alloc(cfg_bool init)
 {
 	cfg_t *st = (cfg_t *)calloc(1, sizeof(cfg_t));
-	if (!st)
-		return st;
+	if (!st) {
+		CFG_SET_STATUS(st, CFG_ERROR_ALLOC);
+		return NULL;
+	}
 	if (init)
 		cfg_init(st);
 	return st;
@@ -234,8 +239,14 @@ static void cfg_unescape(cfg_t *st, cfg_char *buf, cfg_uint32 buf_sz, cfg_uint32
 
 cfg_entry_t *cfg_entry_nth(cfg_t *st, cfg_uint32 n)
 {
-	if (!st || n > st->nentries - 1 || !st->nentries)
+	if (!st) {
+		CFG_SET_STATUS(st, CFG_ERROR_NULL_PTR);
 		return NULL;
+	}
+	if (n > st->nentries - 1 || !st->nentries) {
+		CFG_SET_STATUS(st, CFG_ERROR_ENTRY_NOT_FOUND);
+		return NULL;
+	}
 	return &(st->entry[n]);
 }
 
@@ -244,8 +255,18 @@ cfg_entry_t *cfg_entry_get(cfg_t *st, cfg_char *section, cfg_char *key)
 	cfg_uint32 section_hash, key_hash, i;
 	cfg_entry_t *entry;
 
-	if (!st || !key || !st->nentries)
+	if (!st) {
+		CFG_SET_STATUS(st, CFG_ERROR_NULL_PTR);
 		return NULL;
+	}
+	if (!key) {
+		CFG_SET_STATUS(st, CFG_ERROR_NULL_KEY);
+		return NULL;
+	}
+	if (!st->nentries) {
+		CFG_SET_STATUS(st, CFG_ERROR_NO_ENTRIES);
+		return NULL;
+	}
 
 	section_hash = section == CFG_ROOT_SECTION ? CFG_ROOT_SECTION_HASH :
 		cfg_hash_get(section);
@@ -256,9 +277,10 @@ cfg_entry_t *cfg_entry_get(cfg_t *st, cfg_char *section, cfg_char *key)
 		for (i = 0; i < st->cache_size; i++) {
 			if (!st->cache[i])
 				break;
-			if (key_hash == st->cache[i]->key_hash &&
-			    section_hash == st->cache[i]->section_hash)
+			if (key_hash == st->cache[i]->key_hash && section_hash == st->cache[i]->section_hash) {
+			    CFG_SET_STATUS(st, CFG_STATUS_OK);
 				return st->cache[i];
+			}
 		}
 	}
 
@@ -267,9 +289,11 @@ cfg_entry_t *cfg_entry_get(cfg_t *st, cfg_char *section, cfg_char *key)
 		if (section_hash == entry->section_hash &&
 		    key_hash == entry->key_hash) {
 			cfg_cache_entry_add(st, entry);
+			CFG_SET_STATUS(st, CFG_STATUS_OK);
 			return entry;
 		}
 	}
+	CFG_SET_STATUS(st, CFG_ERROR_ENTRY_NOT_FOUND);
 	return NULL;
 }
 
@@ -280,11 +304,12 @@ cfg_entry_t *cfg_root_entry_get(cfg_t *st, cfg_char *key)
 
 cfg_status_t cfg_cache_entry_add(cfg_t *st, cfg_entry_t *entry)
 {
-	if (!st || !entry)
-		return CFG_ERROR_INIT;
-
+	if (!st)
+		CFG_SET_RETURN_STATUS(st, CFG_ERROR_NULL_PTR);
+	if (!entry)
+		CFG_SET_RETURN_STATUS(st, CFG_ERROR_NULL_ENTRY);
 	if (!st->cache_size)
-		return CFG_ERROR_CRITICAL;
+		CFG_SET_RETURN_STATUS(st, CFG_ERROR_CACHE_SIZE);
 
 	/* lets add to the cache */
 	if (st->cache_size > 1) {
@@ -292,7 +317,7 @@ cfg_status_t cfg_cache_entry_add(cfg_t *st, cfg_entry_t *entry)
 		        (st->cache_size - 1) * sizeof(cfg_entry_t *));
 	}
 	st->cache[0] = entry;
-	return CFG_STATUS_OK;
+	CFG_SET_RETURN_STATUS(st, CFG_STATUS_OK);
 }
 
 cfg_char *cfg_value_get(cfg_t *st, cfg_char *section, cfg_char *key)
@@ -514,13 +539,15 @@ cfg_char *cfg_char_to_hex(cfg_t *st, cfg_char *value)
 
 cfg_status_t cfg_entry_value_set(cfg_t *st, cfg_entry_t *entry, cfg_char *value)
 {
-	if (!st || !entry)
-		return CFG_ERROR_ALLOC;
+	if (!st)
+		CFG_SET_RETURN_STATUS(st, CFG_ERROR_NULL_PTR);
+	if (!entry || !value)
+		CFG_SET_RETURN_STATUS(st, CFG_ERROR_NULL_PTR);
 	free(entry->value);
 	entry->value = cfg_strdup(value);
 	if (!entry->value)
-		return CFG_ERROR_ALLOC;
-	return CFG_STATUS_OK;
+		CFG_SET_RETURN_STATUS(st, CFG_ERROR_ALLOC);
+	CFG_SET_RETURN_STATUS(st, CFG_STATUS_OK);
 }
 
 /* should be only called if a key is really missing */
@@ -531,7 +558,7 @@ static cfg_status_t cfg_key_add(cfg_t *st, cfg_char *section, cfg_char *key, cfg
 
 	st->entry = (cfg_entry_t *)realloc(st->entry, (st->nentries + 1) * sizeof(cfg_entry_t));
 	if (!st->entry)
-		return CFG_ERROR_ALLOC;
+		CFG_SET_RETURN_STATUS(st, CFG_ERROR_ALLOC);
 	entry = &st->entry[st->nentries];
 	entry->index = st->nentries;
 	entry->key = cfg_strdup(key);
@@ -542,20 +569,20 @@ static cfg_status_t cfg_key_add(cfg_t *st, cfg_char *section, cfg_char *key, cfg
 	/* handle new section creation */
 	if(section == CFG_ROOT_SECTION)	{
 		entry->section_hash = CFG_ROOT_SECTION_HASH;
-		return CFG_STATUS_OK;
+		CFG_SET_RETURN_STATUS(st, CFG_STATUS_OK);
 	} else {
 		entry->section_hash = cfg_hash_get(section);
 	}
 	for (i = 0; i < st->nsections; i++) {
 		if (entry->section_hash == cfg_hash_get(st->section[i]))
-			return CFG_STATUS_OK;
+			CFG_SET_RETURN_STATUS(st, CFG_STATUS_OK);
 	}
 	st->section = (cfg_char **)realloc(st->section, (st->nsections + 1) * sizeof(cfg_char *));
 	if (!st->section)
-		return CFG_ERROR_ALLOC;
+		CFG_SET_RETURN_STATUS(st, CFG_ERROR_ALLOC);
 	st->section[st->nsections] = cfg_strdup(section);
 	st->nsections++;
-	return CFG_STATUS_OK;
+	CFG_SET_RETURN_STATUS(st, CFG_STATUS_OK);
 }
 
 cfg_status_t cfg_value_set(cfg_t *st, cfg_char *section, cfg_char *key, cfg_char *value, cfg_bool add)
@@ -564,8 +591,14 @@ cfg_status_t cfg_value_set(cfg_t *st, cfg_char *section, cfg_char *key, cfg_char
 	cfg_uint32 key_hash, section_hash;
 	cfg_entry_t *entry;
 
-	if (!value || !key || st->nentries == 0)
-		return CFG_ERROR_CRITICAL;
+	if (!value || !key)
+		CFG_SET_RETURN_STATUS(st, CFG_ERROR_NO_ENTRIES);
+
+	if (!value || !key)
+		CFG_SET_RETURN_STATUS(st, CFG_ERROR_NO_ENTRIES);
+
+	if (st->nentries == 0)
+		CFG_SET_RETURN_STATUS(st, CFG_ERROR_NO_ENTRIES);
 
 	key_hash = cfg_hash_get(key);
 	section_hash = section == CFG_ROOT_SECTION ? CFG_ROOT_SECTION_HASH : cfg_hash_get(section);
@@ -579,7 +612,7 @@ cfg_status_t cfg_value_set(cfg_t *st, cfg_char *section, cfg_char *key, cfg_char
 	/* key is missing. create it */
 	if (add)
 		return cfg_key_add(st, section, key, value);
-	return CFG_ERROR_KEY_NOT_FOUND;
+	CFG_SET_RETURN_STATUS(st, CFG_ERROR_ENTRY_NOT_FOUND);
 }
 
 cfg_status_t cfg_root_value_set(cfg_t *st, cfg_char *key, cfg_char *value, cfg_bool add)
@@ -592,13 +625,11 @@ static cfg_status_t cfg_free_memory(cfg_t *st)
 	cfg_uint32 i;
 
 	if (!st->entry && st->nentries)
-		return CFG_ERROR_CRITICAL;
-	if (!st->nentries) /* nothing to do here */
-		return CFG_STATUS_OK;
+		CFG_SET_RETURN_STATUS(st, CFG_ERROR_NO_ENTRIES);
 
 	for (i = 0; i < st->nentries; i++) {
 		if (!st->entry[i].key) {
-			return CFG_ERROR_NULL_KEY;
+			CFG_SET_RETURN_STATUS(st, CFG_ERROR_NULL_KEY);
 		} else {
 			free(st->entry[i].key);
 			st->entry[i].key = NULL;
@@ -623,7 +654,7 @@ static cfg_status_t cfg_free_memory(cfg_t *st)
 	free(st->cache);
 	st->cache = NULL;
 
-	return CFG_STATUS_OK;
+	CFG_SET_RETURN_STATUS(st, CFG_STATUS_OK);
 }
 
 cfg_status_t cfg_free(cfg_t *st, cfg_bool free_ptr)
@@ -631,25 +662,21 @@ cfg_status_t cfg_free(cfg_t *st, cfg_bool free_ptr)
 	cfg_status_t ret;
 
 	if (!st)
-		return CFG_ERROR_ALLOC;
+		CFG_SET_RETURN_STATUS(st, CFG_ERROR_NULL_PTR);
 
 	if (st->init != CFG_TRUE)
-		return CFG_ERROR_INIT;
+		CFG_SET_RETURN_STATUS(st, CFG_ERROR_INIT);
 	if (st->nentries || st->nsections) {
 		ret = cfg_free_memory(st);
 		if (ret > 0)
 			return ret;
-
-		if (st->file)
-			fclose(st->file);
-		st->file = NULL;
 	}
 	memset((void *)st, 0, sizeof(st));
 	st->init = CFG_FALSE; /* not needed if CFG_FALSE is zero */
 
 	if (free_ptr)
 		free(st);
-	return CFG_STATUS_OK;
+	CFG_SET_RETURN_STATUS(st, CFG_STATUS_OK);
 }
 
 static cfg_status_t cfg_parse_buffer_keys(cfg_t *st, cfg_char *buf, cfg_uint32 sz)
@@ -711,7 +738,7 @@ static cfg_status_t cfg_parse_buffer_keys(cfg_t *st, cfg_char *buf, cfg_uint32 s
 		p = end;
 	}
 
-	return CFG_STATUS_OK;
+	CFG_SET_RETURN_STATUS(st, CFG_STATUS_OK);
 }
 
 cfg_status_t cfg_parse_buffer(cfg_t *st, cfg_char *buf, cfg_uint32 sz, cfg_bool copy)
@@ -721,13 +748,13 @@ cfg_status_t cfg_parse_buffer(cfg_t *st, cfg_char *buf, cfg_uint32 sz, cfg_bool 
 	cfg_uint32 keys, sections;
 
 	if (st->init != CFG_TRUE)
-		return CFG_ERROR_INIT;
+		CFG_SET_RETURN_STATUS(st, CFG_ERROR_INIT);
 
 	/* set buffer */
 	if (copy) {
 		newbuf = (cfg_char *)malloc(sz + 1);
 		if (!newbuf)
-			return CFG_ERROR_ALLOC;
+			CFG_SET_RETURN_STATUS(st, CFG_ERROR_ALLOC);
 		memcpy(newbuf, buf, sz);
 		newbuf[sz] = '\0';
 	} else {
@@ -736,14 +763,14 @@ cfg_status_t cfg_parse_buffer(cfg_t *st, cfg_char *buf, cfg_uint32 sz, cfg_bool 
 
 	/* clear old keys */
 	ret = cfg_free_memory(st);
-	if (ret > 0)
-		return ret;
+	if (ret != CFG_STATUS_OK)
+		CFG_SET_RETURN_STATUS(st, ret);
 	ret = cfg_cache_size_set(st, st->cache_size);
-	if (ret > 0)
-		return ret;
+	if (ret != CFG_STATUS_OK)
+		CFG_SET_RETURN_STATUS(st, ret);
 	cfg_cache_clear(st);
-	if (ret > 0)
-		return ret;
+	if (ret != CFG_STATUS_OK)
+		CFG_SET_RETURN_STATUS(st, ret);
 
 	cfg_unescape(st, newbuf, sz, &keys, &sections);
 
@@ -751,12 +778,12 @@ cfg_status_t cfg_parse_buffer(cfg_t *st, cfg_char *buf, cfg_uint32 sz, cfg_bool 
 	if (keys) {
 		st->entry = (cfg_entry_t *)malloc(keys * sizeof(cfg_entry_t));
 		if (!st->entry)
-			return CFG_ERROR_ALLOC;
+			CFG_SET_RETURN_STATUS(st, CFG_ERROR_ALLOC);
 	}
 	if (sections) {
 		st->section = (cfg_char **)malloc(sections * sizeof(cfg_char *));
 		if (!st->section)
-			return CFG_ERROR_ALLOC;
+			CFG_SET_RETURN_STATUS(st, CFG_ERROR_ALLOC);
 	}
 
 	st->nentries = keys;
@@ -764,7 +791,7 @@ cfg_status_t cfg_parse_buffer(cfg_t *st, cfg_char *buf, cfg_uint32 sz, cfg_bool 
 	ret = cfg_parse_buffer_keys(st, newbuf, sz);
 	if (copy)
 		free(newbuf);
-	return ret;
+	CFG_SET_RETURN_STATUS(st, ret);
 }
 
 cfg_status_t cfg_parse_file_ptr(cfg_t *st, FILE *f, cfg_bool close)
@@ -773,12 +800,12 @@ cfg_status_t cfg_parse_file_ptr(cfg_t *st, FILE *f, cfg_bool close)
 	cfg_uint32 sz = 0;
 	cfg_status_t ret;
 
-	if (!st || st->init != CFG_TRUE)
-		return CFG_ERROR_INIT;
-
+	if (!st)
+		CFG_SET_RETURN_STATUS(st, CFG_ERROR_NULL_PTR);
 	if (!f)
-		return CFG_ERROR_FOPEN;
-	st->file = f;
+		CFG_SET_RETURN_STATUS(st, CFG_ERROR_FILE);
+	if (st->init != CFG_TRUE)
+		CFG_SET_RETURN_STATUS(st, CFG_ERROR_INIT);
 
 	/* get file size */
 	while (fgetc(f) != EOF)
@@ -789,18 +816,16 @@ cfg_status_t cfg_parse_file_ptr(cfg_t *st, FILE *f, cfg_bool close)
 	if (!buf) {
 		if (close)
 			fclose(f);
-		st->file = NULL;
-		return CFG_ERROR_ALLOC;
+		CFG_SET_RETURN_STATUS(st, CFG_ERROR_ALLOC);
 	}
 	if (fread(buf, 1, sz, f) != sz) {
 		if (close)
 			fclose(f);
 		free(buf);
-		return CFG_ERROR_FREAD;
+		CFG_SET_RETURN_STATUS(st, CFG_ERROR_FREAD);
 	}
 	if (close)
 		fclose(f);
-	st->file = NULL;
 
 	ret = cfg_parse_buffer(st, buf, sz, CFG_FALSE);
 	free(buf);
@@ -863,8 +888,6 @@ static cfg_char* cfg_entry_string(cfg_entry_t *entry, cfg_uint32 *len)
 	cfg_char *buf, *key, *value;
 	cfg_uint32 key_len, value_len;
 
-	if (!entry)
-		return NULL;
 	key = cfg_escape(entry->key, &key_len);
 	value = cfg_escape(entry->value, &value_len);
 
@@ -908,6 +931,10 @@ cfg_status_t cfg_write_buffer(cfg_t *st, cfg_char **out, cfg_uint32 *len)
 	sec_len = (cfg_uint32 *)malloc(nsec * sizeof(cfg_uint32));
 	sec_buf = (cfg_char **)malloc(nsec * sizeof(cfg_char *));
 	sec_buf[0] = (cfg_char *)malloc(1);
+
+	if (!sec_hash || !sec_len || !sec_buf || !sec_buf[0])
+		CFG_SET_RETURN_STATUS(st, CFG_ERROR_ALLOC);
+
 	sec_buf[0][0] = '\0';
 	sec_hash[0] = CFG_ROOT_SECTION_HASH;
 	sec_len[0] = 0;
@@ -922,6 +949,8 @@ cfg_status_t cfg_write_buffer(cfg_t *st, cfg_char **out, cfg_uint32 *len)
 		n += 3; /* [, ], \n */
 		sec_len[i + 1] = n;
 		sec_buf[i + 1] = (cfg_char *)malloc(n + 1);
+		if (!sec_buf[i + 1])
+			CFG_SET_RETURN_STATUS(st, CFG_ERROR_ALLOC);
 		ptr = sec_buf[i + 1];
 		ptr[0] = '\0';
 		strcat(ptr, "[");
@@ -935,12 +964,18 @@ cfg_status_t cfg_write_buffer(cfg_t *st, cfg_char **out, cfg_uint32 *len)
 
 	for (i = 0; i < st->nentries; i++) {
 		entry = &st->entry[i];
+		if (!entry)
+			CFG_SET_RETURN_STATUS(st, CFG_ERROR_NULL_PTR);
 		for (j = 0; j < nsec; j++) {
 			if (sec_hash[j] == entry->section_hash)
 				break;
 		}
 		str = cfg_entry_string(entry, &n);
+		if (!str)
+			CFG_SET_RETURN_STATUS(st, CFG_ERROR_ALLOC);
 		sec_buf[j] = realloc(sec_buf[j], sec_len[j] + n + 1);
+		if (!sec_buf[j])
+			CFG_SET_RETURN_STATUS(st, CFG_ERROR_ALLOC);
 		sec_len[j] += n;
 		strcat(sec_buf[j], str);
 		free(str);
@@ -954,6 +989,8 @@ cfg_status_t cfg_write_buffer(cfg_t *st, cfg_char **out, cfg_uint32 *len)
 	for (i = 0; i < nsec; i++)
 		*len += sec_len[i] + 1;
 	*out = (cfg_char *)malloc(*len + 1);
+	if (!*out)
+		CFG_SET_RETURN_STATUS(st, CFG_ERROR_ALLOC);
 	*out[0] = '\0';
 	for (i = 0; i < nsec; i++) {
 		strcat(*out, sec_buf[i]);
@@ -967,7 +1004,7 @@ cfg_status_t cfg_write_buffer(cfg_t *st, cfg_char **out, cfg_uint32 *len)
 	if (st->verbose > 0)
 		fprintf(stderr, "%s done!\n", fname);
 
-	return CFG_STATUS_OK;
+	CFG_SET_RETURN_STATUS(st, CFG_STATUS_OK);
 }
 
 cfg_status_t cfg_write_file_ptr(cfg_t *st, FILE *f, cfg_bool close)
@@ -976,10 +1013,12 @@ cfg_status_t cfg_write_file_ptr(cfg_t *st, FILE *f, cfg_bool close)
 	cfg_uint32 sz = 0, sz_write = 0;
 	cfg_status_t ret;
 
-	if (!st || st->init != CFG_TRUE)
-		return CFG_ERROR_INIT;
+	if (!st)
+		CFG_SET_RETURN_STATUS(st, CFG_ERROR_NULL_PTR);
+	if (st->init != CFG_TRUE)
+		CFG_SET_RETURN_STATUS(st, CFG_ERROR_INIT);
 	if (!f)
-		return CFG_ERROR_FOPEN;
+		CFG_SET_RETURN_STATUS(st, CFG_ERROR_FILE);
 
 	ret = cfg_write_buffer(st, &buf, &sz);
 	if (ret != CFG_STATUS_OK || !buf || !sz) {
@@ -993,17 +1032,19 @@ cfg_status_t cfg_write_file_ptr(cfg_t *st, FILE *f, cfg_bool close)
 	free(buf);
 
 	if (sz_write != sz)
-		return CFG_ERROR_FWRITE;
+		CFG_SET_RETURN_STATUS(st, CFG_ERROR_FWRITE);
 	if (close)
 		fclose(f);
-	return ret;
+	CFG_SET_RETURN_STATUS(st, CFG_STATUS_OK);
 }
 
 cfg_status_t cfg_write_file(cfg_t *st, cfg_char *filename)
 {
 	FILE *f;
-	if (!st || st->init != CFG_TRUE)
-		return CFG_ERROR_INIT;
+	if (!st)
+		CFG_SET_RETURN_STATUS(st, CFG_ERROR_NULL_PTR);
+	if (st->init != CFG_TRUE)
+		CFG_SET_RETURN_STATUS(st, CFG_ERROR_INIT);
 	/* read file */
 	f = fopen(filename, "w");
 	return cfg_write_file_ptr(st, f, CFG_TRUE);
