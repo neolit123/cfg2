@@ -336,10 +336,12 @@ cfg_double cfg_value_to_double(cfg_char *value)
 cfg_char *cfg_bool_to_value(cfg_bool number)
 {
 	static const char *format = "%u";
+	int sz;
+	cfg_char *buf;
 	if (number != CFG_FALSE)
 		number = CFG_TRUE;
-	int sz = snprintf(NULL, 0, format, number);
-	cfg_char *buf = (cfg_char *)malloc(sz + 1);
+	sz = snprintf(NULL, 0, format, number);
+	buf = (cfg_char *)malloc(sz + 1);
 	sprintf(buf, format, number);
 	return buf;
 }
