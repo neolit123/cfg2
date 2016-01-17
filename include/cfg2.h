@@ -65,7 +65,7 @@ typedef enum {
 	/* 7  */ CFG_ERROR_FOPEN,
 	/* 8  */ CFG_ERROR_INIT,
 	/* 9  */ CFG_ERROR_KEY_NOT_FOUND,
-	/* 10  */ CFG_ERROR_PARSE,
+	/* 10 */ CFG_ERROR_PARSE,
 	/* 11 */ CFG_ERROR_NO_KEYS
 } cfg_error_t;
 
@@ -197,10 +197,11 @@ cfg_char *cfg_double_to_value(cfg_double number);
 /* fast fnv-32 hash of a string */
 cfg_uint32 cfg_hash_get(cfg_char *str);
 
-/* converts a HEX string to cfg_char* buffer; allocates memory!
+/* HEX string <-> char* buffer conversations; allocates memory!
  * you can pass NULL as the first argument to ignore the 'verbose' mode of
  * cfg_t and not print anything to stderr. */
 cfg_char *cfg_hex_to_char(cfg_t *st, cfg_char *value);
+cfg_char *cfg_char_to_hex(cfg_t *st, cfg_char *value);
 
 /* a local strdup() implementation */
 cfg_char *cfg_strdup(cfg_char *str);

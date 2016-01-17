@@ -38,7 +38,7 @@ int main(void)
 "key3=value3\n" \
 "key4=value4\n";
 	char file[] = "test.cfg";
-	cfg_char *write_buf;
+	cfg_char *write_buf, *ptr;
 	cfg_uint32 write_len;
 
 	clock_t begin, end;
@@ -119,10 +119,12 @@ int main(void)
 	puts("test conversations:");
 	printf("%u\n", cfg_value_to_bool("0"));
 
-	/* test hex to char */
+	/* test hex <-> char */
 	puts("");
 	entry = cfg_entry_get(&st, "section2", "key13");
-	puts(cfg_hex_to_char(&st, entry->value));
+	ptr = cfg_hex_to_char(&st, entry->value);
+	puts(ptr);
+	puts(cfg_char_to_hex(&st, ptr));
 #endif
 
 #if (PRINT_CACHE == 1)

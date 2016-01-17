@@ -418,13 +418,16 @@ static const cfg_char hex_to_char_lookup[] = {
 
 cfg_char *cfg_hex_to_char(cfg_t *st, cfg_char *value)
 {
-	const cfg_char *fname = "\n[cfg2] cfg_hex_to_char():";
+	const cfg_char *fname = "[cfg2] cfg_hex_to_char():";
 	cfg_uint32 len, len2, badchar_pos;
 	cfg_char *buf, *src_pos, *dst_pos;
 	cfg_char first, second;
 
-	if (!value)
+	if (!value) {
+		if (st && st->verbose > 0)
+			fprintf(stderr, "%s the input value is NULL!\n", fname);
 		return NULL;
+	}
 
 	if (st && st->verbose > 0)
 		fprintf(stderr, "%s input value: %s\n", fname, value);
@@ -462,6 +465,53 @@ error:
 	if (st && st->verbose > 0)
 		fprintf(stderr, "%s input has bad character at position %u!\n", fname, badchar_pos);
 	return NULL;
+}
+
+
+static const cfg_char char_to_hex_lookup[] = {
+48,     49,     50,     51,     52,     53,     54,     55,     56,     57,
+65,     66,     67,     68,     69,     70 };
+
+cfg_char *cfg_char_to_hex(cfg_t *st, cfg_char *value)
+{
+	const cfg_char *fname = "[cfg2] char_to_hex():";
+	cfg_uint32 len, first, second;
+	cfg_uchar in_char;
+	cfg_char *out, *ptr;
+
+	if (!value) {
+		if (st && st->verbose > 0)
+			fprintf(stderr, "%s the input is NULL!\n", fname);
+		return NULL;
+	}
+
+	if (st && st->verbose > 0)
+		fprintf(stderr, "%s input value: %s\n", fname, value);
+
+	len = strlen(value);
+	if (!len) {
+		if (st && st->verbose > 0)
+			fprintf(stderr, "%s the input length is zero!\n", fname);
+		out = (cfg_char *)malloc(1);
+		out[0] = '\0';
+		return out;
+	}
+
+	out = (cfg_char *)malloc(len * 2 + 1);
+	ptr = out;
+	while (*value) {
+		in_char = *value;
+		first = in_char >> 4;
+		second = in_char - (first << 4);
+		*(ptr++) = char_to_hex_lookup[first];
+		*(ptr++) = char_to_hex_lookup[second];
+		value++;
+	}
+	*ptr = '\0';
+
+	if (st && st->verbose > 0)
+		fprintf(stderr, "%s result: %s\n", fname, out);
+	return out;
 }
 
 cfg_error_t cfg_entry_value_set(cfg_t *st, cfg_entry_t *entry, cfg_char *value)
