@@ -75,7 +75,7 @@ cfg_error_t cfg_init(cfg_t *st)
 	st->buf = NULL;
 	st->file = NULL;
 	st->verbose = 0;
-	st->nkeys = 0;
+	st->nentries = 0;
 	st->nsections = 0;
 	st->buf_size = 0;
 	st->cache = NULL;
@@ -236,7 +236,7 @@ static void cfg_unescape(cfg_t *st, cfg_char *buf, cfg_uint32 buf_sz, cfg_uint32
 
 cfg_entry_t *cfg_entry_nth(cfg_t *st, cfg_uint32 n)
 {
-	if (!st || n > st->nkeys - 1 || !st->nkeys)
+	if (!st || n > st->nentries - 1 || !st->nentries)
 		return NULL;
 	return &(st->entry[n]);
 }
@@ -246,7 +246,7 @@ cfg_entry_t *cfg_entry_get(cfg_t *st, cfg_char *section, cfg_char *key)
 	cfg_uint32 section_hash, key_hash, i;
 	cfg_entry_t *entry;
 
-	if (!st || !key || !st->nkeys)
+	if (!st || !key || !st->nentries)
 		return NULL;
 
 	section_hash = section == CFG_ROOT_SECTION ? CFG_ROOT_SECTION_HASH :
@@ -264,7 +264,7 @@ cfg_entry_t *cfg_entry_get(cfg_t *st, cfg_char *section, cfg_char *key)
 		}
 	}
 
-	for (i = 0; i < st->nkeys; i++) {
+	for (i = 0; i < st->nentries; i++) {
 		entry = &st->entry[i];
 		if (section_hash == entry->section_hash &&
 		    key_hash == entry->key_hash) {
@@ -481,15 +481,15 @@ static cfg_error_t cfg_key_add(cfg_t *st, cfg_char *section, cfg_char *key, cfg_
 	cfg_uint32 i;
 	cfg_entry_t *entry;
 
-	st->entry = (cfg_entry_t *)realloc(st->entry, (st->nkeys + 1) * sizeof(cfg_entry_t));
+	st->entry = (cfg_entry_t *)realloc(st->entry, (st->nentries + 1) * sizeof(cfg_entry_t));
 	if (!st->entry)
 		return CFG_ERROR_ALLOC;
-	entry = &st->entry[st->nkeys];
-	entry->index = st->nkeys;
+	entry = &st->entry[st->nentries];
+	entry->index = st->nentries;
 	entry->key = cfg_strdup(key);
 	entry->value = cfg_strdup(value);
 	entry->key_hash = cfg_hash_get(key);
-	st->nkeys++;
+	st->nentries++;
 
 	/* handle new section creation */
 	if(section == CFG_ROOT_SECTION)	{
@@ -516,13 +516,13 @@ cfg_error_t cfg_value_set(cfg_t *st, cfg_char *section, cfg_char *key, cfg_char 
 	cfg_uint32 key_hash, section_hash;
 	cfg_entry_t *entry;
 
-	if (!value || !key || st->nkeys == 0)
+	if (!value || !key || st->nentries == 0)
 		return CFG_ERROR_CRITICAL;
 
 	key_hash = cfg_hash_get(key);
 	section_hash = section == CFG_ROOT_SECTION ? CFG_ROOT_SECTION_HASH : cfg_hash_get(section);
 
-	for (i = 0; i < st->nkeys; i++) {
+	for (i = 0; i < st->nentries; i++) {
 		entry = &st->entry[i];
 		if (key_hash == entry->key_hash && section_hash == entry->section_hash)
 			return cfg_entry_value_set(st, entry, value);
@@ -543,12 +543,12 @@ static cfg_error_t cfg_free_memory(cfg_t *st)
 {
 	cfg_uint32 i;
 
-	if (!st->entry && st->nkeys)
+	if (!st->entry && st->nentries)
 		return CFG_ERROR_CRITICAL;
-	if (!st->nkeys) /* nothing to do here */
+	if (!st->nentries) /* nothing to do here */
 		return CFG_ERROR_OK;
 
-	for (i = 0; i < st->nkeys; i++) {
+	for (i = 0; i < st->nentries; i++) {
 		if (!st->entry[i].key) {
 			return CFG_ERROR_NULL_KEY;
 		} else {
@@ -562,7 +562,7 @@ static cfg_error_t cfg_free_memory(cfg_t *st)
 	}
 	free(st->entry);
 	st->entry = NULL;
-	st->nkeys = 0;
+	st->nentries = 0;
 
 	for (i = 0; i < st->nsections; i++) {
 		free(st->section[i]);
@@ -587,7 +587,7 @@ cfg_error_t cfg_free(cfg_t *st, cfg_bool free_ptr)
 
 	if (st->init != CFG_TRUE)
 		return CFG_ERROR_INIT;
-	if (st->nkeys || st->nsections) {
+	if (st->nentries || st->nsections) {
 		ret = cfg_free_memory(st);
 		if (ret > 0)
 			return ret;
@@ -632,8 +632,8 @@ static cfg_error_t cfg_parse_buffer_keys(cfg_t *st)
 				p++;
 		}
 
-		/* nkeys is reached skip */
-		if (key_idx == st->nkeys)
+		/* nentries is reached skip */
+		if (key_idx == st->nentries)
 			continue;
 
 		/* a new entry */
@@ -705,7 +705,7 @@ cfg_error_t cfg_parse_buffer(cfg_t *st, cfg_char *buf, cfg_uint32 sz, cfg_bool c
 			return CFG_ERROR_ALLOC;
 	}
 
-	st->nkeys = keys;
+	st->nentries = keys;
 	st->nsections = sections;
 	ret = cfg_parse_buffer_keys(st);
 	if (copy)
@@ -882,7 +882,7 @@ cfg_error_t cfg_write_buffer(cfg_t *st, cfg_char **out, cfg_uint32 *len)
 	if (st->verbose > 0)
 		fprintf(stderr, "%s allocating entries per section...\n", fname);
 
-	for (i = 0; i < st->nkeys; i++) {
+	for (i = 0; i < st->nentries; i++) {
 		entry = &st->entry[i];
 		for (j = 0; j < nsec; j++) {
 			if (sec_hash[j] == entry->section_hash)

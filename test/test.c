@@ -66,7 +66,7 @@ int main(void)
 	end = clock();
 	time_spent = (double)(end - begin) / CLOCKS_PER_SEC;
 	printf("time spent parsing %s: %.4f sec\n", file, time_spent);
-	printf("nkeys: %d\n", st.nkeys);
+	printf("nentries: %d\n", st.nentries);
 	printf("nsections: %d\n", st.nsections);
 
 	if (err > 0) {
@@ -81,7 +81,7 @@ int main(void)
 	puts("* actions");
 
 	/* print all keys / values */
-	for (i = 0; i < st.nkeys; i++) {
+	for (i = 0; i < st.nentries; i++) {
 		printf("%#08x, %s, %s, %#08x\n",
 			st.entry[i].key_hash,
 			st.entry[i].key,

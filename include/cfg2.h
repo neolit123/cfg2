@@ -89,7 +89,7 @@ typedef struct {
 
 	cfg_bool init;
 	cfg_uint32 verbose;
-	cfg_uint32 nkeys;
+	cfg_uint32 nentries;
 	cfg_uint32 nsections;
 	cfg_uint32 buf_size;
 	cfg_char section_separator;
