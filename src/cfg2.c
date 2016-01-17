@@ -126,6 +126,7 @@ static void cfg_unescape(cfg_t *st, cfg_char *buf, cfg_uint32 buf_sz, cfg_uint32
 	cfg_bool quote = CFG_FALSE;
 	cfg_bool line_eq_sign = CFG_FALSE;
 	cfg_bool multiline = CFG_FALSE;
+	cfg_bool section_line = CFG_FALSE;
 	*keys = 0;
 	*sections = 0;
 
@@ -199,26 +200,25 @@ static void cfg_unescape(cfg_t *st, cfg_char *buf, cfg_uint32 buf_sz, cfg_uint32
 				continue;
 			case '\n':
 				multiline = CFG_FALSE;
-				if (!line_eq_sign && !quote) {
-					if (st->verbose > 0)
-						fprintf(stderr, "%s: WARNING: no equal sign at line %d\n", fname, line);
-					continue;
+				if (!section_line) {
+					if (!line_eq_sign && !quote) {
+						if (st->verbose > 0)
+							fprintf(stderr, "%s: WARNING: no equal sign at line %d\n", fname, line);
+						continue;
+					}
+					cfg_unescape_check_quote();
+					*dest = st->key_value_separator;
+					dest++;
 				}
-				cfg_unescape_check_quote();
-				*dest = st->key_value_separator;
-				dest++;
+				section_line = CFG_FALSE;
 				continue;
 			case '[':
-				cfg_unescape_check_quote();
+				section_line = CFG_TRUE;
 				(*sections)++;
-				*dest = st->section_separator;
-				dest++;
-				continue;
 			case ']':
 				cfg_unescape_check_quote();
 				*dest = st->section_separator;
 				dest++;
-				src++;
 				continue;
 			}
 		}
