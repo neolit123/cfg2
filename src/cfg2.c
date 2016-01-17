@@ -121,14 +121,15 @@ static void cfg_unescape(cfg_t *st, cfg_char *buf, cfg_uint32 buf_sz, cfg_uint32
 {
 	const cfg_char *fname = "[cfg2] cfg_unescape()";
 	cfg_uint32 line = 0;
-	cfg_char *src, *dst;
+	cfg_char *src, *dest, last_char = 0;
 	cfg_bool escape = CFG_FALSE;
 	cfg_bool quote = CFG_FALSE;
 	cfg_bool line_eq_sign = CFG_FALSE;
 	cfg_bool multiline = CFG_FALSE;
 	*keys = 0;
 	*sections = 0;
-	for (src = dst = buf; src < buf + buf_sz; src++) {
+
+	for (src = dest = buf; src < buf + buf_sz; src++) {
 		/* convert separators to spaces, if found */
 		if (*src == st->section_separator || *src == st->key_value_separator) {
 			*src = ' ';
@@ -140,7 +141,7 @@ static void cfg_unescape(cfg_t *st, cfg_char *buf, cfg_uint32 buf_sz, cfg_uint32
 			*src = '\n';
 
 		/* start of a line */
-		if ((src > buf && *(src - 1) == '\n') || src == buf) {
+		if (last_char == '\n' || src == buf) {
 			line++;
 			if (!multiline)
 				line_eq_sign = CFG_FALSE;
@@ -162,15 +163,16 @@ static void cfg_unescape(cfg_t *st, cfg_char *buf, cfg_uint32 buf_sz, cfg_uint32
 			}
 		}
 
-		*dst = *src;
+		last_char = *src;
+		*dest = *src;
 		/* handle escaped characters */
 		if (escape) {
 			escape = CFG_FALSE;
-			switch (*dst) {
+			switch (*dest) {
 			case 'n':
-				*dst = '\n';
+				*dest = '\n';
 			case '\\':
-				dst++;
+				dest++;
 				continue;
 			case ' ':
 			case '\n':
@@ -179,7 +181,7 @@ static void cfg_unescape(cfg_t *st, cfg_char *buf, cfg_uint32 buf_sz, cfg_uint32
 			}
 		/* handle key/value/section separators */
 		} else {
-			switch (*dst) {
+			switch (*dest) {
 			case ' ':
 			case '\t':
 				if (!quote)
@@ -192,8 +194,8 @@ static void cfg_unescape(cfg_t *st, cfg_char *buf, cfg_uint32 buf_sz, cfg_uint32
 				cfg_unescape_check_quote();
 				line_eq_sign = CFG_TRUE;
 				(*keys)++;
-				*dst = st->key_value_separator;
-				dst++;
+				*dest = st->key_value_separator;
+				dest++;
 				continue;
 			case '\n':
 				multiline = CFG_FALSE;
@@ -203,31 +205,31 @@ static void cfg_unescape(cfg_t *st, cfg_char *buf, cfg_uint32 buf_sz, cfg_uint32
 					continue;
 				}
 				cfg_unescape_check_quote();
-				*dst = st->key_value_separator;
-				dst++;
+				*dest = st->key_value_separator;
+				dest++;
 				continue;
 			case '[':
 				cfg_unescape_check_quote();
 				(*sections)++;
-				*dst = st->section_separator;
-				dst++;
+				*dest = st->section_separator;
+				dest++;
 				continue;
 			case ']':
 				cfg_unescape_check_quote();
-				*dst = st->section_separator;
-				dst++;
+				*dest = st->section_separator;
+				dest++;
 				src++;
 				continue;
 			}
 		}
 		escape = CFG_FALSE;
-		if (*dst == '\\') {
+		if (*dest == '\\') {
 			escape = CFG_TRUE;
 			continue;
 		}
-		dst++;
+		dest++;
 	}
-	*dst = '\0';
+	*dest = '\0';
 	if (st->verbose > 1)
 		fprintf(stderr, "%s:\n%s\n", fname, buf);
 }
