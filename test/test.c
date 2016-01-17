@@ -111,9 +111,13 @@ int main(void)
 	/* test a section */
 	puts("");
 	entry = cfg_entry_get(&st, "section1", "key6");
-	printf("test entry from section: %f\n", (entry) ? cfg_get_double(entry->value) : -1.0);
+	printf("test entry from section: %f\n", (entry) ? cfg_value_to_double(entry->value) : -1.0);
 	entry = cfg_entry_get(&st, "section1", "key9");
 	printf("test entry from section: %s\n", (entry) ? entry->value : "not found");
+
+	puts("");
+	puts("test conversations:");
+	printf("%u\n", cfg_value_to_bool("0"));
 
 	/* test hex to char */
 	puts("");

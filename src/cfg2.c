@@ -304,25 +304,71 @@ cfg_char *cfg_root_value_get(cfg_t *st, cfg_char *key)
 }
 
 /* string -> number conversations */
-cfg_long cfg_get_long(cfg_char *value, cfg_int base)
+cfg_bool cfg_value_to_bool(cfg_char *value)
 {
 	if (!value)
 		return 0;
-	return strtol(value, NULL, base);
+	return strtoul(value, NULL, 2);
 }
 
-cfg_ulong cfg_get_ulong(cfg_char *value, cfg_int base)
+cfg_long cfg_value_to_long(cfg_char *value)
 {
 	if (!value)
 		return 0;
-	return strtoul(value, NULL, base);
+	return strtol(value, NULL, 10);
 }
 
-cfg_double cfg_get_double(cfg_char *value)
+cfg_ulong cfg_value_to_ulong(cfg_char *value)
+{
+	if (!value)
+		return 0;
+	return strtoul(value, NULL, 10);
+}
+
+cfg_double cfg_value_to_double(cfg_char *value)
 {
 	if (!value)
 		return 0.0;
 	return strtod(value, NULL);
+}
+
+/* number -> string conversations */
+cfg_char *cfg_bool_to_value(cfg_bool number)
+{
+	static const char *format = "%u";
+	if (number != CFG_FALSE)
+		number = CFG_TRUE;
+	int sz = snprintf(NULL, 0, format, number);
+	cfg_char *buf = (cfg_char *)malloc(sz + 1);
+	sprintf(buf, format, number);
+	return buf;
+}
+
+cfg_char *cfg_long_to_value(cfg_long number)
+{
+	static const char *format = "%l";
+	int sz = snprintf(NULL, 0, format, number);
+	cfg_char *buf = (cfg_char *)malloc(sz + 1);
+	sprintf(buf, format, number);
+	return buf;
+}
+
+cfg_char *cfg_ulong_to_value(cfg_ulong number)
+{
+	static const char *format = "%ul";
+	int sz = snprintf(NULL, 0, format, number);
+	cfg_char *buf = (cfg_char *)malloc(sz + 1);
+	sprintf(buf, format, number);
+	return buf;
+}
+
+cfg_char *cfg_double_to_value(cfg_double number)
+{
+	static const char *format = "%f";
+	int sz = snprintf(NULL, 0, format, number);
+	cfg_char *buf = (cfg_char *)malloc(sz + 1);
+	sprintf(buf, format, number);
+	return buf;
 }
 
 /* the lookup table acts both as a toupper() converter and as a shifter of any

@@ -43,7 +43,7 @@ extern "C" {
 #endif
 
 typedef char cfg_char;
-typedef char cfg_bool;
+typedef unsigned char cfg_bool;
 typedef float cfg_float;
 typedef double cfg_double;
 typedef int cfg_int;
@@ -170,10 +170,17 @@ cfg_error_t cfg_root_value_set(cfg_t *st, cfg_char *key, cfg_char *value, cfg_bo
  * utilities
 */
 
-/* direct string -> number conversations; same as the ones above */
-cfg_long cfg_get_long(cfg_char *value, cfg_int base);
-cfg_ulong cfg_get_ulong(cfg_char *value, cfg_int base);
-cfg_double cfg_get_double(cfg_char *value);
+/* string -> number conversations */
+cfg_bool cfg_value_to_bool(cfg_char *value);
+cfg_long cfg_value_to_long(cfg_char *value);
+cfg_ulong cfg_value_to_ulong(cfg_char *value);
+cfg_double cfg_value_to_double(cfg_char *value);
+
+/* number -> string conversations (allocate memory) */
+cfg_char *cfg_bool_to_value(cfg_bool number);
+cfg_char *cfg_long_to_value(cfg_long number);
+cfg_char *cfg_ulong_to_value(cfg_ulong number);
+cfg_char *cfg_double_to_value(cfg_double number);
 
 /* fast fnv-32 hash of a string */
 cfg_uint32 cfg_hash_get(cfg_char *str);
