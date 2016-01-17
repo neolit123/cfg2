@@ -838,7 +838,7 @@ static cfg_char* cfg_entry_string(cfg_entry_t *entry, cfg_uint32 *len)
 
 cfg_error_t cfg_write_buffer(cfg_t *st, cfg_char **out, cfg_uint32 *len)
 {
-	const cfg_char *fname = "\n[cfg2] cfg_write_buffer():";
+	const cfg_char *fname = "[cfg2] cfg_write_buffer():";
 
 	cfg_uint32 i, j, nsec, n;
 	cfg_char *ptr, *str;
