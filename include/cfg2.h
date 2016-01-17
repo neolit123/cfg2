@@ -125,7 +125,7 @@ cfg_error_t cfg_parse_file_ptr(cfg_t *st, FILE *f, cfg_bool close);
 cfg_error_t cfg_write_buffer(cfg_t *st, cfg_char **out, cfg_uint32 *len);
 
 /* --------------------------------------------------------------------------
- * catche
+ * cache
 */
 
 /* set the size of the cache (2nd parameter). note that this also clears
