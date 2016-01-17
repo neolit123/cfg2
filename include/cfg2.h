@@ -57,7 +57,7 @@ typedef unsigned long cfg_ulong;
 typedef enum {
 	/* 0  */ CFG_ERROR_OK,
 	/* 1  */ CFG_ERROR_NULL_KEY,
-	/* 2  */ CFG_ERROR_NO_KEYS,
+	/* 2  */ CFG_ERROR_NULL_PTR,
 	/* 3  */ CFG_ERROR_ALLOC,
 	/* 4  */ CFG_ERROR_CRITICAL,
 	/* 5  */ CFG_ERROR_FREAD,
@@ -65,7 +65,7 @@ typedef enum {
 	/* 7  */ CFG_ERROR_INIT,
 	/* 8  */ CFG_ERROR_KEY_NOT_FOUND,
 	/* 9  */ CFG_ERROR_PARSE,
-	/* 10 */ CFG_ERROR_NULL_PTR
+	/* 10 */ CFG_ERROR_NO_KEYS
 } cfg_error_t;
 
 /* an entry pair of key / value */
