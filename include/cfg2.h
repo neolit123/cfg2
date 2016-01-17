@@ -57,12 +57,12 @@ typedef unsigned int cfg_uint;
 typedef unsigned long cfg_ulong;
 
 /* -----------------------------------------------------------------------------
- * error enumeration; if a function returns something other than CFG_ERROR_OK,
+ * status enumeration; if a function returns something other than CFG_STATUS_OK,
  * an error has occured.
 */
 
 typedef enum {
-	/* 0  */ CFG_ERROR_OK,
+	/* 0  */ CFG_STATUS_OK,
 	/* 1  */ CFG_ERROR_NULL_KEY,
 	/* 2  */ CFG_ERROR_NULL_PTR,
 	/* 3  */ CFG_ERROR_ALLOC,
@@ -74,7 +74,7 @@ typedef enum {
 	/* 9  */ CFG_ERROR_KEY_NOT_FOUND,
 	/* 10 */ CFG_ERROR_PARSE,
 	/* 11 */ CFG_ERROR_NO_KEYS
-} cfg_error_t;
+} cfg_status_t;
 
 /* -----------------------------------------------------------------------------
  * the library object entry. holds a pair of key / value.
@@ -121,33 +121,33 @@ typedef struct {
 cfg_t *cfg_alloc(cfg_bool init);
 
 /* init the library object. must be called before everything else. */
-cfg_error_t cfg_init(cfg_t *st);
+cfg_status_t cfg_init(cfg_t *st);
 
 /* free all memory allocated by the library for a cfg_t object,
  * if you pass 'free_ptr' == CFG_TRUE then 'st' will be freed as well! */
-cfg_error_t cfg_free(cfg_t *st, cfg_bool free_ptr);
+cfg_status_t cfg_free(cfg_t *st, cfg_bool free_ptr);
 
 /* parse a buffer (buf) of size (sz); optional copy (copy) or work in place. */
-cfg_error_t cfg_parse_buffer(cfg_t *st, cfg_char *buf, cfg_uint32 sz, cfg_bool copy);
+cfg_status_t cfg_parse_buffer(cfg_t *st, cfg_char *buf, cfg_uint32 sz, cfg_bool copy);
 
 /* parse a file by name, passed as the 2nd parameter. non-safe for Win32's
  * UTF-16 paths! use cfg_parse_buffer() or cfg_parse_file_ptr() instead. */
-cfg_error_t cfg_parse_file(cfg_t *st, cfg_char *filename);
+cfg_status_t cfg_parse_file(cfg_t *st, cfg_char *filename);
 
 /* alternative to cfg_parse_file() that accepts a FILE* stream;
  * third argument is optional close of the stream. */
-cfg_error_t cfg_parse_file_ptr(cfg_t *st, FILE *f, cfg_bool close);
+cfg_status_t cfg_parse_file_ptr(cfg_t *st, FILE *f, cfg_bool close);
 
 /* write all the sections and keys to a string buffer; allocates memory at
  * the 'out' pointer and stores the length in 'len'. */
-cfg_error_t cfg_write_buffer(cfg_t *st, cfg_char **out, cfg_uint32 *len);
+cfg_status_t cfg_write_buffer(cfg_t *st, cfg_char **out, cfg_uint32 *len);
 
 /* write all the sections and keys to a file */
-cfg_error_t cfg_write_file(cfg_t *st, cfg_char *filename);
+cfg_status_t cfg_write_file(cfg_t *st, cfg_char *filename);
 
 /* write all the sections and keys to a FILE pointer with optional close
  * when done. */
-cfg_error_t cfg_write_file_ptr(cfg_t *st, FILE *f, cfg_bool close);
+cfg_status_t cfg_write_file_ptr(cfg_t *st, FILE *f, cfg_bool close);
 
 /* -----------------------------------------------------------------------------
  * cache
@@ -155,13 +155,13 @@ cfg_error_t cfg_write_file_ptr(cfg_t *st, FILE *f, cfg_bool close);
 
 /* set the size of the cache (2nd parameter). note that this also clears
  * the cache */
-cfg_error_t cfg_cache_size_set(cfg_t *st, cfg_uint32 size);
+cfg_status_t cfg_cache_size_set(cfg_t *st, cfg_uint32 size);
 
 /* clear the cache */
-cfg_error_t cfg_cache_clear(cfg_t *st);
+cfg_status_t cfg_cache_clear(cfg_t *st);
 
 /* add an entry to the cache */
-cfg_error_t cfg_cache_entry_add(cfg_t *st, cfg_entry_t *entry);
+cfg_status_t cfg_cache_entry_add(cfg_t *st, cfg_entry_t *entry);
 
 /* -----------------------------------------------------------------------------
  * entries
@@ -181,7 +181,7 @@ cfg_entry_t *cfg_root_entry_get(cfg_t *st, cfg_char *key);
 cfg_char *cfg_entry_value_get(cfg_t *st, cfg_entry_t *entry);
 
 /* set a value for an entry */
-cfg_error_t cfg_entry_value_set(cfg_t *st, cfg_entry_t *entry, cfg_char *value);
+cfg_status_t cfg_entry_value_set(cfg_t *st, cfg_entry_t *entry, cfg_char *value);
 
 /* retrieve a specific value by section and key */
 cfg_char *cfg_value_get(cfg_t *st, cfg_char *section, cfg_char *key);
@@ -190,10 +190,10 @@ cfg_char *cfg_value_get(cfg_t *st, cfg_char *section, cfg_char *key);
 cfg_char *cfg_root_value_get(cfg_t *st, cfg_char *key);
 
 /* set a value for a specific key in a section; add the key if missing. */
-cfg_error_t cfg_value_set(cfg_t *st, cfg_char *section, cfg_char *key, cfg_char *value, cfg_bool add);
+cfg_status_t cfg_value_set(cfg_t *st, cfg_char *section, cfg_char *key, cfg_char *value, cfg_bool add);
 
 /* set a value for a specific key in the root section; add the key if missing. */
-cfg_error_t cfg_root_value_set(cfg_t *st, cfg_char *key, cfg_char *value, cfg_bool add);
+cfg_status_t cfg_root_value_set(cfg_t *st, cfg_char *key, cfg_char *value, cfg_bool add);
 
 /* -----------------------------------------------------------------------------
  * utilities

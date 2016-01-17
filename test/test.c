@@ -28,7 +28,7 @@
 int main(void)
 {
 	cfg_uint32 i;
-	cfg_error_t err;
+	cfg_status_t err;
 	cfg_t st;
 	cfg_entry_t *entry;
 	char buf[] =
