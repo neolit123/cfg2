@@ -97,27 +97,27 @@ int main(void)
 
 	/* test setting a new value */
 	puts("\nattempting to set value...");
-	err = cfg_section_value_set(&st, "section1", "key1", "\tnew value1", CFG_FALSE);
+	err = cfg_value_set(&st, "section1", "key1", "\tnew value1", CFG_FALSE);
 	if (!err)
-		printf("new value: %s\n", cfg_section_value_get(&st, "section1", "key1"));
+		printf("new value: %s\n", cfg_value_get(&st, "section1", "key1"));
 	else
 		printf("setting value error: %d\n", err);
 
 	/* print some values */
 	puts("");
-	printf("find value by key (key1): %s\n", cfg_section_value_get(&st, "section1", "key1"));
-	printf("find value by key (key=8): %s\n", cfg_section_value_get(&st, "section1", "key=8"));
+	printf("find value by key (key1): %s\n", cfg_value_get(&st, "section1", "key1"));
+	printf("find value by key (key=8): %s\n", cfg_value_get(&st, "section1", "key=8"));
 
 	/* test a section */
 	puts("");
-	entry = cfg_section_entry_get(&st, "section1", "key6");
+	entry = cfg_entry_get(&st, "section1", "key6");
 	printf("test entry from section: %f\n", (entry) ? cfg_get_double(entry->value) : -1.0);
-	entry = cfg_section_entry_get(&st, "section1", "key9");
+	entry = cfg_entry_get(&st, "section1", "key9");
 	printf("test entry from section: %s\n", (entry) ? entry->value : "not found");
 
 	/* test hex to char */
 	puts("");
-	entry = cfg_section_entry_get(&st, "section2", "key13");
+	entry = cfg_entry_get(&st, "section2", "key13");
 	puts(cfg_hex_to_char(&st, entry->value));
 #endif
 

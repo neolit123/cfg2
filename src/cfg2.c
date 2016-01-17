@@ -241,7 +241,7 @@ cfg_entry_t *cfg_entry_nth(cfg_t *st, cfg_uint32 n)
 	return &(st->entry[n]);
 }
 
-cfg_entry_t *cfg_section_entry_get(cfg_t *st, cfg_char *section, cfg_char *key)
+cfg_entry_t *cfg_entry_get(cfg_t *st, cfg_char *section, cfg_char *key)
 {
 	cfg_uint32 section_hash, key_hash, i;
 	cfg_entry_t *entry;
@@ -292,15 +292,15 @@ cfg_error_t cfg_cache_entry_add(cfg_t *st, cfg_entry_t *entry)
 	return CFG_ERROR_OK;
 }
 
-cfg_char *cfg_section_value_get(cfg_t *st, cfg_char *section, cfg_char *key)
+cfg_char *cfg_value_get(cfg_t *st, cfg_char *section, cfg_char *key)
 {
-	cfg_entry_t *entry = cfg_section_entry_get(st, section, key);
+	cfg_entry_t *entry = cfg_entry_get(st, section, key);
 	return entry ? entry->value : NULL;
 }
 
-cfg_char *cfg_value_get(cfg_t *st, cfg_char *key)
+cfg_char *cfg_root_value_get(cfg_t *st, cfg_char *key)
 {
-	return cfg_section_value_get(st, CFG_ROOT_SECTION, key);
+	return cfg_value_get(st, CFG_ROOT_SECTION, key);
 }
 
 /* string -> number conversations */
@@ -393,13 +393,6 @@ error:
 	return NULL;
 }
 
-cfg_char *cfg_entry_value_get(cfg_t *st, cfg_entry_t *entry)
-{
-	if (!st || !entry)
-		return NULL;
-	return entry->value;
-}
-
 cfg_error_t cfg_entry_value_set(cfg_t *st, cfg_entry_t *entry, cfg_char *value)
 {
 	if (!st || !entry)
@@ -412,7 +405,7 @@ cfg_error_t cfg_entry_value_set(cfg_t *st, cfg_entry_t *entry, cfg_char *value)
 }
 
 /* should be only called if a key is really missing */
-static cfg_error_t cfg_section_key_add(cfg_t *st, cfg_char *section, cfg_char *key, cfg_char *value)
+static cfg_error_t cfg_key_add(cfg_t *st, cfg_char *section, cfg_char *key, cfg_char *value)
 {
 	cfg_uint32 i;
 	cfg_entry_t *entry;
@@ -446,7 +439,7 @@ static cfg_error_t cfg_section_key_add(cfg_t *st, cfg_char *section, cfg_char *k
 	return CFG_ERROR_OK;
 }
 
-cfg_error_t cfg_section_value_set(cfg_t *st, cfg_char *section, cfg_char *key, cfg_char *value, cfg_bool add)
+cfg_error_t cfg_value_set(cfg_t *st, cfg_char *section, cfg_char *key, cfg_char *value, cfg_bool add)
 {
 	cfg_uint32 i;
 	cfg_uint32 key_hash, section_hash;
@@ -466,13 +459,13 @@ cfg_error_t cfg_section_value_set(cfg_t *st, cfg_char *section, cfg_char *key, c
 
 	/* key is missing. create it */
 	if (add)
-		return cfg_section_key_add(st, section, key, value);
+		return cfg_key_add(st, section, key, value);
 	return CFG_ERROR_KEY_NOT_FOUND;
 }
 
-cfg_error_t cfg_value_set(cfg_t *st, cfg_char *key, cfg_char *value, cfg_bool add)
+cfg_error_t cfg_root_value_set(cfg_t *st, cfg_char *key, cfg_char *value, cfg_bool add)
 {
-	return cfg_section_value_set(st, CFG_ROOT_SECTION, key, value, add);
+	return cfg_value_set(st, CFG_ROOT_SECTION, key, value, add);
 }
 
 static cfg_error_t cfg_free_memory(cfg_t *st)

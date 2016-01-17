@@ -123,7 +123,7 @@ cfg_t st; /* library object */
 
 cfg_init(&st); /* init the library */
 cfg_parse_file(&st, some_file); /* parse a file */
-v = cfg_section_value_get(&st, "section1", "key1"); /* get a key's value */
+v = cfg_value_get(&st, "section1", "key1"); /* get a key's value */
 puts(v); /* value1 */
 cfg_free(&st, CFG_FALSE); /* second argument = don't free 'st' itself */
 

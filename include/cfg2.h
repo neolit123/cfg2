@@ -123,6 +123,10 @@ cfg_error_t cfg_parse_file_ptr(cfg_t *st, FILE *f, cfg_bool close);
  * the 'out' pointer and stores the length in 'len'. */
 cfg_error_t cfg_write_buffer(cfg_t *st, cfg_char **out, cfg_uint32 *len);
 
+/* --------------------------------------------------------------------------
+ * catche
+*/
+
 /* set the size of the cache (2nd parameter). note that this also clears
  * the cache */
 cfg_error_t cfg_cache_size_set(cfg_t *st, cfg_uint32 size);
@@ -130,24 +134,41 @@ cfg_error_t cfg_cache_size_set(cfg_t *st, cfg_uint32 size);
 /* clear the cache */
 cfg_error_t cfg_cache_clear(cfg_t *st);
 
+/* add an entry to the cache */
+cfg_error_t cfg_cache_entry_add(cfg_t *st, cfg_entry_t *entry);
+
+/* --------------------------------------------------------------------------
+ * entries
+*/
+
 /* retrieve the nth entry */
 cfg_entry_t *cfg_entry_nth(cfg_t *st, cfg_uint32 n);
 
 /* return an entry from section (2nd argument, can be CFG_ROOT_SECTION) and
  * key (3rd argument) */
-cfg_entry_t *cfg_section_entry_get(cfg_t *st, cfg_char *section, cfg_char *key);
+cfg_entry_t *cfg_entry_get(cfg_t *st, cfg_char *section, cfg_char *key);
 
-/* retrieve a specific value by key in the root section */
-cfg_char *cfg_value_get(cfg_t *st, cfg_char *key);
+/* get the value for an entry */
+cfg_char *cfg_entry_value_get(cfg_t *st, cfg_entry_t *entry);
+
+/* set a value for an entry */
+cfg_error_t cfg_entry_value_set(cfg_t *st, cfg_entry_t *entry, cfg_char *value);
 
 /* retrieve a specific value by section and key */
-cfg_char *cfg_section_value_get(cfg_t *st, cfg_char *section, cfg_char *key);
+cfg_char *cfg_value_get(cfg_t *st, cfg_char *section, cfg_char *key);
 
-/* set a value for a specific key in the root section; add the key if missing. */
-cfg_error_t cfg_value_set(cfg_t *st, cfg_char *key, cfg_char *value, cfg_bool add);
+/* retrieve a specific value by key in the root section */
+cfg_char *cfg_root_value_get(cfg_t *st, cfg_char *key);
 
 /* set a value for a specific key in a section; add the key if missing. */
-cfg_error_t cfg_section_value_set(cfg_t *st, cfg_char *section, cfg_char *key, cfg_char *value, cfg_bool add);
+cfg_error_t cfg_value_set(cfg_t *st, cfg_char *section, cfg_char *key, cfg_char *value, cfg_bool add);
+
+/* set a value for a specific key in the root section; add the key if missing. */
+cfg_error_t cfg_root_value_set(cfg_t *st, cfg_char *key, cfg_char *value, cfg_bool add);
+
+/* --------------------------------------------------------------------------
+ * utilities
+*/
 
 /* direct string -> number conversations; same as the ones above */
 cfg_long cfg_get_long(cfg_char *value, cfg_int base);
@@ -161,15 +182,6 @@ cfg_uint32 cfg_hash_get(cfg_char *str);
  * you can pass NULL as the first argument to ignore the 'verbose' mode of
  * cfg_t and not print anything to stderr. */
 cfg_char *cfg_hex_to_char(cfg_t *st, cfg_char *value);
-
-/* get the value for an entry */
-cfg_char *cfg_entry_value_get(cfg_t *st, cfg_entry_t *entry);
-
-/* set a value for an entry */
-cfg_error_t cfg_entry_value_set(cfg_t *st, cfg_entry_t *entry, cfg_char *value);
-
-/* add an entry to the cache */
-cfg_error_t cfg_cache_entry_add(cfg_t *st, cfg_entry_t *entry);
 
 /* a local strdup() implementation */
 cfg_char *cfg_strdup(cfg_char *str);
