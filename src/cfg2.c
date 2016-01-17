@@ -336,11 +336,14 @@ cfg_double cfg_value_to_double(cfg_char *value)
 cfg_char *cfg_bool_to_value(cfg_bool number)
 {
 	static const char *format = "%u";
-	int sz;
 	cfg_char *buf;
+	int sz;
+
 	if (number != CFG_FALSE)
 		number = CFG_TRUE;
 	sz = snprintf(NULL, 0, format, number);
+	if (sz < 0)
+		return NULL;
 	buf = (cfg_char *)malloc(sz + 1);
 	sprintf(buf, format, number);
 	return buf;
@@ -349,8 +352,13 @@ cfg_char *cfg_bool_to_value(cfg_bool number)
 cfg_char *cfg_long_to_value(cfg_long number)
 {
 	static const char *format = "%l";
-	int sz = snprintf(NULL, 0, format, number);
-	cfg_char *buf = (cfg_char *)malloc(sz + 1);
+	cfg_char *buf;
+	int sz;
+
+	sz = snprintf(NULL, 0, format, number);
+	if (sz < 0)
+		return NULL;
+	buf = (cfg_char *)malloc(sz + 1);
 	sprintf(buf, format, number);
 	return buf;
 }
@@ -358,8 +366,13 @@ cfg_char *cfg_long_to_value(cfg_long number)
 cfg_char *cfg_ulong_to_value(cfg_ulong number)
 {
 	static const char *format = "%ul";
-	int sz = snprintf(NULL, 0, format, number);
-	cfg_char *buf = (cfg_char *)malloc(sz + 1);
+	cfg_char *buf;
+	int sz;
+
+	sz = snprintf(NULL, 0, format, number);
+	if (sz < 0)
+		return NULL;
+	buf = (cfg_char *)malloc(sz + 1);
 	sprintf(buf, format, number);
 	return buf;
 }
@@ -367,8 +380,13 @@ cfg_char *cfg_ulong_to_value(cfg_ulong number)
 cfg_char *cfg_double_to_value(cfg_double number)
 {
 	static const char *format = "%f";
-	int sz = snprintf(NULL, 0, format, number);
-	cfg_char *buf = (cfg_char *)malloc(sz + 1);
+	int sz;
+	cfg_char *buf;
+
+	sz = snprintf(NULL, 0, format, number);
+	if (sz < 0)
+		return NULL;
+	buf = (cfg_char *)malloc(sz + 1);
 	sprintf(buf, format, number);
 	return buf;
 }
