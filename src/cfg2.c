@@ -353,6 +353,13 @@ cfg_bool cfg_value_to_bool(cfg_char *value)
 	return strtoul(value, NULL, 2);
 }
 
+cfg_int cfg_value_to_int(cfg_char *value)
+{
+	if (!value)
+		return 0;
+	return (cfg_int)strtol(value, NULL, 0);
+}
+
 cfg_long cfg_value_to_long(cfg_char *value)
 {
 	if (!value)
