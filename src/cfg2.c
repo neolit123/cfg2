@@ -403,7 +403,7 @@ cfg_char *cfg_long_to_value(cfg_long number)
 	cfg_char *buf;
 	int sz;
 
-	sz = snprintf(NULL, 0, format, number);
+	sz = sprintf(NULL, format, number);
 	if (sz < 0)
 		return NULL;
 	buf = (cfg_char *)malloc(sz + 1);
@@ -417,7 +417,7 @@ cfg_char *cfg_double_to_value(cfg_double number)
 	int sz;
 	cfg_char *buf;
 
-	sz = snprintf(NULL, 0, format, number);
+	sz = sprintf(NULL, format, number);
 	if (sz < 0)
 		return NULL;
 	buf = (cfg_char *)malloc(sz + 1);
