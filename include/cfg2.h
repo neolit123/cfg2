@@ -38,7 +38,10 @@ extern "C" {
 #define CFG_ROOT_SECTION NULL
 #define CFG_ROOT_SECTION_HASH CFG_HASH_SEED
 
-/* typedefs */
+/* typedefs
+ * NOTE: stdint.h and fixed width types are a C99 feature, but most compilers
+ * should support them.
+ */
 #ifdef _MSC_VER
 	typedef unsigned __int32 cfg_uint32;
 	typedef __int32 cfg_int;
