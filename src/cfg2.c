@@ -356,13 +356,6 @@ cfg_long cfg_value_to_long(cfg_char *value)
 	return strtol(value, NULL, 10);
 }
 
-cfg_ulong cfg_value_to_ulong(cfg_char *value)
-{
-	if (!value)
-		return 0;
-	return strtoul(value, NULL, 10);
-}
-
 cfg_double cfg_value_to_double(cfg_char *value)
 {
 	if (!value)
@@ -390,20 +383,6 @@ cfg_char *cfg_bool_to_value(cfg_bool number)
 cfg_char *cfg_long_to_value(cfg_long number)
 {
 	static const char *format = "%l";
-	cfg_char *buf;
-	int sz;
-
-	sz = snprintf(NULL, 0, format, number);
-	if (sz < 0)
-		return NULL;
-	buf = (cfg_char *)malloc(sz + 1);
-	sprintf(buf, format, number);
-	return buf;
-}
-
-cfg_char *cfg_ulong_to_value(cfg_ulong number)
-{
-	static const char *format = "%ul";
 	cfg_char *buf;
 	int sz;
 

@@ -205,13 +205,11 @@ cfg_status_t cfg_root_value_set(cfg_t *st, cfg_char *key, cfg_char *value, cfg_b
 /* string -> number conversations */
 cfg_bool cfg_value_to_bool(cfg_char *value);
 cfg_long cfg_value_to_long(cfg_char *value);
-cfg_ulong cfg_value_to_ulong(cfg_char *value);
 cfg_double cfg_value_to_double(cfg_char *value);
 
 /* number -> string conversations (allocate memory) */
 cfg_char *cfg_bool_to_value(cfg_bool number);
 cfg_char *cfg_long_to_value(cfg_long number);
-cfg_char *cfg_ulong_to_value(cfg_ulong number);
 cfg_char *cfg_double_to_value(cfg_double number);
 
 /* fast fnv-32 hash of a string */
