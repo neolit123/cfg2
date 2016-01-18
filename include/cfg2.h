@@ -41,20 +41,19 @@ extern "C" {
 /* typedefs */
 #ifdef _MSC_VER
 	typedef unsigned __int32 cfg_uint32;
+	typedef __int32 cfg_int;
+	typedef __int64 cfg_long;
 #else
 	#include <stdint.h>
 	typedef uint32_t cfg_uint32;
+	typedef int32_t cfg_int;
+	typedef int64_t cfg_long;
 #endif
 
 typedef char cfg_char;
-typedef unsigned char cfg_bool;
-typedef float cfg_float;
-typedef double cfg_double;
-typedef int cfg_int;
-typedef long cfg_long;
 typedef unsigned char cfg_uchar;
-typedef unsigned int cfg_uint;
-typedef unsigned long cfg_ulong;
+typedef unsigned char cfg_bool;
+typedef double cfg_double;
 
 /* -----------------------------------------------------------------------------
  * status enumeration; if a function returns something other than CFG_STATUS_OK,
