@@ -149,7 +149,7 @@ int main(void)
 	puts("");
 	printf("write buf (%d):\n", write_len);
 	if (write_buf) {
-		printf(write_buf);
+		puts(write_buf);
 		free(write_buf);
 	}
 
