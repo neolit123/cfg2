@@ -483,7 +483,7 @@ cfg_char *cfg_hex_to_char(cfg_t *st, cfg_char *value)
 		}
 		first--;
 		second--;
-		*dst_pos = (first << 4) + second;
+		*dst_pos = (cfg_char)((first << 4) + second);
 	}
 	buf[len2] = '\0';
 	if (st && st->verbose > 0)
