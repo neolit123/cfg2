@@ -369,6 +369,14 @@ cfg_long cfg_value_to_long(cfg_char *value)
 	return (cfg_long)strtod(value, NULL);
 }
 
+cfg_float cfg_value_to_float(cfg_char *value)
+{
+	if (!value)
+		return 0.f;
+	/* older MSVC are missing strtof(); use strtod() with a cast instead() */
+	return (cfg_float)strtod(value, NULL);
+}
+
 cfg_double cfg_value_to_double(cfg_char *value)
 {
 	if (!value)
@@ -413,6 +421,20 @@ cfg_char *cfg_long_to_value(cfg_long number)
 	static const char *format = "%lli";
 	cfg_char *buf;
 	int sz;
+
+	sz = sprintf(NULL, format, number);
+	if (sz < 0)
+		return NULL;
+	buf = (cfg_char *)malloc(sz + 1);
+	sprintf(buf, format, number);
+	return buf;
+}
+
+cfg_char *cfg_float_to_value(cfg_float number)
+{
+	static const char *format = "%f";
+	int sz;
+	cfg_char *buf;
 
 	sz = sprintf(NULL, format, number);
 	if (sz < 0)

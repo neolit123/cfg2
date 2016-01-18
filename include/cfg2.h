@@ -53,6 +53,7 @@ extern "C" {
 typedef char cfg_char;
 typedef unsigned char cfg_uchar;
 typedef unsigned int cfg_bool;
+typedef float cfg_float;
 typedef double cfg_double;
 
 /* -----------------------------------------------------------------------------
@@ -205,12 +206,14 @@ cfg_status_t cfg_root_value_set(cfg_t *st, cfg_char *key, cfg_char *value, cfg_b
 cfg_bool cfg_value_to_bool(cfg_char *value);
 cfg_int cfg_value_to_int(cfg_char *value);
 cfg_long cfg_value_to_long(cfg_char *value);
+cfg_float cfg_value_to_float(cfg_char *value);
 cfg_double cfg_value_to_double(cfg_char *value);
 
 /* number -> string conversations (allocate memory) */
 cfg_char *cfg_bool_to_value(cfg_bool number);
 cfg_char *cfg_int_to_value(cfg_int number);
 cfg_char *cfg_long_to_value(cfg_long number);
+cfg_char *cfg_float_to_value(cfg_float number);
 cfg_char *cfg_double_to_value(cfg_double number);
 
 /* fast fnv-32 hash of a string */
