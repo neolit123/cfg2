@@ -372,7 +372,22 @@ cfg_char *cfg_bool_to_value(cfg_bool number)
 
 	if (number != CFG_FALSE)
 		number = CFG_TRUE;
-	sz = snprintf(NULL, 0, format, number);
+	sz = sprintf(NULL, format, number);
+	if (sz < 0)
+		return NULL;
+	buf = (cfg_char *)malloc(sz + 1);
+	sprintf(buf, format, number);
+	return buf;
+}
+
+/* number -> string conversations */
+cfg_char *cfg_int_to_value(cfg_int number)
+{
+	static const char *format = "%li";
+	cfg_char *buf;
+	int sz;
+
+	sz = sprintf(NULL, format, number);
 	if (sz < 0)
 		return NULL;
 	buf = (cfg_char *)malloc(sz + 1);
