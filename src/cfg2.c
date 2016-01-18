@@ -399,7 +399,7 @@ cfg_char *cfg_int_to_value(cfg_int number)
 
 cfg_char *cfg_long_to_value(cfg_long number)
 {
-	static const char *format = "%l";
+	static const char *format = "%lli";
 	cfg_char *buf;
 	int sz;
 
@@ -413,7 +413,7 @@ cfg_char *cfg_long_to_value(cfg_long number)
 
 cfg_char *cfg_double_to_value(cfg_double number)
 {
-	static const char *format = "%f";
+	static const char *format = "%lf";
 	int sz;
 	cfg_char *buf;
 
