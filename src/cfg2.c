@@ -353,7 +353,9 @@ cfg_long cfg_value_to_long(cfg_char *value)
 {
 	if (!value)
 		return 0;
-	return strtol(value, NULL, 10);
+	/* the strtoll() portability is a mess; use strtod() and cast to 64bit integer
+	 * instead */
+	return (cfg_long)strtod(value, NULL);
 }
 
 cfg_double cfg_value_to_double(cfg_char *value)
