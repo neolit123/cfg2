@@ -52,7 +52,7 @@ extern "C" {
 
 typedef char cfg_char;
 typedef unsigned char cfg_uchar;
-typedef unsigned char cfg_bool;
+typedef unsigned int cfg_bool;
 typedef double cfg_double;
 
 /* -----------------------------------------------------------------------------
