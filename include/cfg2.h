@@ -148,7 +148,8 @@ cfg_status_t cfg_parse_file_ptr(cfg_t *st, FILE *f, cfg_bool close);
  * the 'out' pointer and stores the length in 'len'. */
 cfg_status_t cfg_write_buffer(cfg_t *st, cfg_char **out, cfg_uint32 *len);
 
-/* write all the sections and keys to a file */
+/* write all the sections and keys to a file. non-safe for Win32's
+ * UTF-16 paths! use cfg_write_buffer() or cfg_write_file_ptr() instead. */
 cfg_status_t cfg_write_file(cfg_t *st, cfg_char *filename);
 
 /* write all the sections and keys to a FILE pointer with optional close
