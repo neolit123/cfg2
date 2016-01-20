@@ -1,6 +1,6 @@
 /*
  * cfg2
- * a simplistic configuration parser for INI like syntax in ANSI C
+ * a simplistic configuration parser for INI like syntax in C
  *
  * author: lubomir i. ivanov (neolit123 at gmail)
  * this code is released in the public domain without warranty of any kind.

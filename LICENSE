@@ -1,5 +1,5 @@
 cfg2 LICENSE
-a simplistic configuration parser for INI like syntax in ANSI C
+a simplistic configuration parser for INI like syntax in C
 
 cfg2 is released in the public domain without waranty of any kind.
 providing credit to the authors is recommended but not mandatory.

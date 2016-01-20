@@ -1,5 +1,5 @@
 cfg2 0.29.0 README
-a simplistic configuration parser for INI like syntax in ANSI C
+a simplistic configuration parser for INI like syntax in C
 
 last revisited:
 	18.01.2016
