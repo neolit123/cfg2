@@ -1,3 +1,12 @@
+0.30.0 - 20.01.2016
+- use fixed width integers
+- value <-> integer fixes
+- better MSVC compatibility
+- better GCC-linux compatibility
+- remove comments about ANSI C as the library uses a couple of C99 features.
+it can still compile with 'gcc -ansi -pedantic', though!
+- API changes related to interger types
+
 0.29.0 - 18.01.2016
 - conceptual rename of 'error' to 'status' - i.e. cfg_error_t is
 now cfg_status_t
