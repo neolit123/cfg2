@@ -39,7 +39,11 @@ extern "C" {
 #define CFG_ROOT_SECTION_HASH CFG_HASH_SEED
 
 #ifdef CFG_DYNAMIC
-#	define CFG_EXPORT __declspec(dllexport)
+#	ifdef _WIN32
+#		define CFG_EXPORT __declspec(dllexport)
+#	else
+#		define CFG_EXPORT __attribute__((visibility("default")))
+#	endif
 #else
 #	define CFG_EXPORT
 #endif
