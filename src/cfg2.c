@@ -630,8 +630,8 @@ cfg_status_t cfg_value_set(cfg_t *st, cfg_char *section, cfg_char *key, cfg_char
 	cfg_uint32 key_hash, section_hash;
 	cfg_entry_t *entry;
 
-	if (!value || !key)
-		CFG_SET_RETURN_STATUS(st, CFG_ERROR_NO_ENTRIES);
+	if (!st)
+		CFG_SET_RETURN_STATUS(st, CFG_ERROR_NULL_PTR);
 
 	if (!value || !key)
 		CFG_SET_RETURN_STATUS(st, CFG_ERROR_NO_ENTRIES);
