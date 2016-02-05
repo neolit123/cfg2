@@ -141,6 +141,10 @@ make test
 to run the example write:
 make run
 
+by default the library builds in DEBUG mode (e.g. gcc -g).
+to build in release mode use:
+make RELEASE=1
+
 at the moment the library makefile can only be used with GCC as
 the compiler/linker, but the library is compatible with MSVC as well.
 to compile with MSVC use the appropriate toolset (e.g. CL/LINK).
