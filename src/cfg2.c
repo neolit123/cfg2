@@ -659,6 +659,29 @@ cfg_status_t cfg_root_value_set(cfg_t *st, cfg_char *key, cfg_char *value, cfg_b
 	return cfg_value_set(st, CFG_ROOT_SECTION, key, value, add);
 }
 
+cfg_status_t cfg_entry_delete(cfg_t *st, cfg_entry_t *entry)
+{
+	cfg_uint32 index;
+
+	CFG_CHECK_ST_RETURN(st, "cfg_entry_delete", CFG_ERROR_NULL_PTR);
+	if (!entry)
+		CFG_SET_RETURN_STATUS(st, CFG_ERROR_NULL_ENTRY);
+
+	free(entry->key);
+	free(entry->value);
+
+	index = entry->index;
+	if (index < st->nentries - 1)
+		memcpy((void *)&st->entry[index], (void *)&st->entry[index + 1], (st->nentries - index - 1) * sizeof(cfg_entry_t));
+
+	st->nentries--;
+	st->entry = (cfg_entry_t *)realloc(st->entry, st->nentries * sizeof(cfg_entry_t));
+	if (!st->entry)
+		CFG_SET_RETURN_STATUS(st, CFG_ERROR_ALLOC);
+
+	CFG_SET_RETURN_STATUS(st, CFG_STATUS_OK);
+}
+
 static cfg_status_t cfg_free_memory(cfg_t *st)
 {
 	cfg_uint32 i;

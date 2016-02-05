@@ -202,6 +202,9 @@ cfg_status_t cfg_value_set(cfg_t *st, cfg_char *section, cfg_char *key, cfg_char
 /* set a value for a specific key in the root section; add the key if missing. */
 cfg_status_t cfg_root_value_set(cfg_t *st, cfg_char *key, cfg_char *value, cfg_bool add);
 
+/* delete an entry */
+cfg_status_t cfg_entry_delete(cfg_t *st, cfg_entry_t *entry);
+
 /* -----------------------------------------------------------------------------
  * utilities
 */
