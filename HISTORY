@@ -1,3 +1,8 @@
+0.32.0 - 05.02.2016
+- add support for a dynamic library build on Win32 and potentially any *Unix
+- better Makefile and .gitignore files
+- add the ./obj folder
+
 0.31.0 - 05.02.2016
 - add cfg_section_delete(), cfg_entry_delete(), cfg_clear()
 - more error reporting fixes
