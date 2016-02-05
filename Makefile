@@ -24,26 +24,26 @@ TESTPATH = ./test
 
 ifeq ($(OS),Windows_NT)
     DLLFILE = ./lib/$(LIBNAME).dll
+    LIBFILE_DYN = $(DLLFILE).a
     TESTEXE = test.exe
+    DLLLINK = -Wl,--out-implib,$(LIBFILE_DYN)
     TESTPATH_EXE = $(TESTPATH)/$(TESTEXE)
 else
     CFLAGS += -fPIC
     DLLFILE = ./lib/$(LIBNAME).so
+    LIBFILE_DYN =
     TESTEXE = ./test
+    DLLLINK =
     TESTPATH_EXE = $(TESTPATH)/$(TESTEXE)
 endif
-LIBFILE_DYN = $(DLLFILE).a
 
-all: $(LIBFILE) $(LIBFILE_DYN) $(DLLFILE) $(TESTPATH_EXE)
+all: $(LIBFILE) $(DLLFILE) $(TESTPATH_EXE)
 
 $(LIBFILE): $(OBJ)
 	$(AR) $(ARFLAGS) $(LIBFILE) $(OBJ)
 
-$(LIBFILE_DYN): $(OBJ_DYN)
-	$(AR) $(ARFLAGS) $(LIBFILE_DYN) $(OBJ_DYN)
-
 $(DLLFILE): $(OBJ_DYN)
-	$(CC) -shared $(OBJ_DYN) -o $(DLLFILE)
+	$(CC) -shared $(OBJ_DYN) -o $(DLLFILE) $(DLLLINK)
 
 $(OBJ): $(SRC) $(HEADERS) $(MAKEFILE)
 	$(CC) $(CFLAGS) $(SRC) -o $(OBJ)
@@ -57,7 +57,7 @@ $(TESTPATH_EXE): $(OBJ) $(TESTOBJ)
 $(TESTOBJ): $(TESTSRC) $(MAKEFILE)
 	$(CC) $(CFLAGS) $(TESTSRC) -o $(TESTOBJ)
 
-lib: $(LIBFILE) $(LIBFILE_DYN)
+lib: $(LIBFILE) $(DLLFILE)
 
 test: $(TESTPATH_EXE)
 
