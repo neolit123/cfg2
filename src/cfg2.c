@@ -661,7 +661,8 @@ cfg_status_t cfg_root_value_set(cfg_t *st, cfg_char *key, cfg_char *value, cfg_b
 
 cfg_status_t cfg_entry_delete(cfg_t *st, cfg_entry_t *entry)
 {
-	cfg_uint32 index;
+	cfg_uint32 index, i;
+	cfg_entry_t *entry_ptr;
 
 	CFG_CHECK_ST_RETURN(st, "cfg_entry_delete", CFG_ERROR_NULL_PTR);
 	if (!entry)
@@ -671,8 +672,14 @@ cfg_status_t cfg_entry_delete(cfg_t *st, cfg_entry_t *entry)
 	free(entry->value);
 
 	index = entry->index;
-	if (index < st->nentries - 1)
+	if (index < st->nentries - 1) {
+		/* shift the elements left and make index adjustment */
+		for (i = index; i < st->nentries; i++) {
+			entry_ptr = &st->entry[i];
+			entry_ptr->index--;
+		}
 		memcpy((void *)&st->entry[index], (void *)&st->entry[index + 1], (st->nentries - index - 1) * sizeof(cfg_entry_t));
+	}
 
 	st->nentries--;
 	st->entry = (cfg_entry_t *)realloc(st->entry, st->nentries * sizeof(cfg_entry_t));
