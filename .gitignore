@@ -1,4 +1,3 @@
-*.o
-*.exe
-*.a
 _backup.cmd
+create-tag.cmd
+delete-tag.cmd
