@@ -686,22 +686,12 @@ static cfg_status_t cfg_free_memory(cfg_t *st)
 {
 	cfg_uint32 i;
 
-	CFG_CHECK_ST_RETURN(st, "cfg_free_memory", CFG_ERROR_NULL_PTR);
-
 	if (!st->entry && st->nentries)
 		CFG_SET_RETURN_STATUS(st, CFG_ERROR_NO_ENTRIES);
 
 	for (i = 0; i < st->nentries; i++) {
-		if (!st->entry[i].key) {
-			CFG_SET_RETURN_STATUS(st, CFG_ERROR_NULL_KEY);
-		} else {
-			free(st->entry[i].key);
-			st->entry[i].key = NULL;
-		}
-		if (st->entry[i].value) {
-			free(st->entry[i].value);
-			st->entry[i].value = NULL;
-		}
+		free(st->entry[i].key);
+		free(st->entry[i].value);
 	}
 	free(st->entry);
 	st->entry = NULL;
