@@ -205,6 +205,11 @@ cfg_status_t cfg_root_value_set(cfg_t *st, cfg_char *key, cfg_char *value, cfg_b
 /* delete an entry */
 cfg_status_t cfg_entry_delete(cfg_t *st, cfg_entry_t *entry);
 
+/* delete a section and all entries associated with it.
+ * if the section is CFG_ROOT_SECTION only the entries will be deleted.
+ * a potentially slow operation! */
+cfg_status_t cfg_section_delete(cfg_t *st, cfg_char *section);
+
 /* delete all entries and sections */
 cfg_status_t cfg_clear(cfg_t *st);
 

@@ -689,6 +689,48 @@ cfg_status_t cfg_entry_delete(cfg_t *st, cfg_entry_t *entry)
 	CFG_SET_RETURN_STATUS(st, CFG_STATUS_OK);
 }
 
+cfg_status_t cfg_section_delete(cfg_t *st, cfg_char *section)
+{
+	cfg_entry_t *entry;
+	cfg_status_t ret;
+	cfg_uint32 section_hash, section_hash_input, i;
+
+	CFG_CHECK_ST_RETURN(st, "cfg_section_delete", CFG_ERROR_NULL_PTR);
+
+	if (section == CFG_ROOT_SECTION) {
+		section_hash_input = CFG_ROOT_SECTION_HASH;
+	} else {
+		section_hash_input = cfg_hash_get(section);
+		for (i = 0; i < st->nsections; i++) {
+			section_hash = cfg_hash_get(st->section[i]);
+			if (section_hash == section_hash_input) {
+				free(st->section[i]);
+				memcpy((void *)&st->section[i], (void *)&st->section[i + 1], (st->nsections - i - 1) * sizeof(cfg_char *));
+				st->nsections--;
+				st->section = (cfg_char **)realloc(st->section, st->nsections * sizeof(cfg_char *));
+				if (!st->section)
+					CFG_SET_RETURN_STATUS(st, CFG_ERROR_ALLOC);
+				break;
+			}
+		}
+	}
+
+	for (i = 0; i < st->nentries; i++) {
+		/* cfg_entry_delete() updates 'nentries' */
+		if (i > st->nentries - 1)
+			break;
+		entry = &st->entry[i];
+		if (entry->section_hash == section_hash_input) {
+			ret = cfg_entry_delete(st, entry);
+			if (ret != CFG_STATUS_OK)
+				return ret;
+			i--;
+		}
+	}
+
+	CFG_SET_RETURN_STATUS(st, CFG_STATUS_OK);
+}
+
 static cfg_status_t cfg_free_memory(cfg_t *st)
 {
 	cfg_uint32 i;
