@@ -145,8 +145,11 @@ int main(void)
 	}
 #endif
 
-	err = cfg_write_buffer(&st, &write_buf, &write_len);
 	puts("");
+	printf("test delete: %d\n", cfg_section_delete(&st, "section2"));
+
+	puts("");
+	err = cfg_write_buffer(&st, &write_buf, &write_len);
 	printf("write buf (%d):\n", write_len);
 	if (write_buf) {
 		puts(write_buf);
