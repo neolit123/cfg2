@@ -23,7 +23,7 @@ extern "C" {
 
 /* version macros */
 #define CFG_VERSION_MAJOR 0
-#define CFG_VERSION_MINOR 30
+#define CFG_VERSION_MINOR 31
 #define CFG_VERSION_PATCH 0
 
 /* preprocessor definitions */

@@ -1,3 +1,7 @@
+0.31.0 - 05.02.2016
+- add cfg_section_delete(), cfg_entry_delete(), cfg_clear()
+- more error reporting fixes
+
 0.30.0 - 20.01.2016
 - use fixed width integers
 - value <-> integer fixes
