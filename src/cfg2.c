@@ -711,6 +711,12 @@ static cfg_status_t cfg_free_memory(cfg_t *st)
 	CFG_SET_RETURN_STATUS(st, CFG_STATUS_OK);
 }
 
+cfg_status_t cfg_clear(cfg_t *st)
+{
+	CFG_CHECK_ST_RETURN(st, "cfg_clear", CFG_ERROR_NULL_PTR);
+	return cfg_free_memory(st);
+}
+
 cfg_status_t cfg_free(cfg_t *st, cfg_bool free_ptr)
 {
 	cfg_status_t ret;
