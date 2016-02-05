@@ -132,16 +132,23 @@ COMPILATION:
 
 go to the root folder and then:
 
-to create a library file (in ./lib) write:
+to compile everything write:
+make
+
+./lib will contain both a dynamic and static library builds (e.g. dll.a, .a)
+the dynamic library build uses the -DCFG_DYNAMIC pre-processor definition.
+./test will contain a test(.exe) executable which is based on test.c
+
+to create just the library files write:
 make lib
 
-to compile the example (in ./test) write:
+to compile just the test write:
 make test
 
-to run the example write:
+to run the test write:
 make run
 
-by default the library builds in DEBUG mode (e.g. gcc -g).
+by default the library builds in DEBUG mode (e.g. gcc -g);
 to build in release mode use:
 make RELEASE=1
 
