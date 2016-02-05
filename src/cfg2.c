@@ -24,6 +24,12 @@
 #define CFG_SET_STATUS(st, _status) \
 	{ st->status = _status; }
 
+#define CFG_CHECK_ST_RETURN(st, _fname, _ret) \
+	if (!st) { \
+		fprintf(stderr, "[cfg] %s(): %s\n", _fname, "the cfg_t pointer cannot bet NULL!\n"); \
+		return _ret; \
+	}
+
 /* local implementation of strdup() if missing on a specific C89 target */
 cfg_char *cfg_strdup(cfg_char *str)
 {
@@ -43,8 +49,7 @@ cfg_char *cfg_strdup(cfg_char *str)
 
 cfg_status_t cfg_cache_clear(cfg_t *st)
 {
-	if (!st)
-		CFG_SET_RETURN_STATUS(st, CFG_ERROR_NULL_PTR);
+	CFG_CHECK_ST_RETURN(st, "cfg_cache_clear", CFG_ERROR_NULL_PTR);
 	if (st->cache_size && st->cache)
 		memset((void *)st->cache, 0, st->cache_size * sizeof(cfg_entry_t *));
 	CFG_SET_RETURN_STATUS(st, CFG_STATUS_OK);
@@ -53,7 +58,9 @@ cfg_status_t cfg_cache_clear(cfg_t *st)
 cfg_status_t cfg_cache_size_set(cfg_t *st, cfg_uint32 size)
 {
 	int diff;
-	if (!st || st->init != CFG_TRUE)
+
+	CFG_CHECK_ST_RETURN(st, "cfg_cache_size_set", CFG_ERROR_NULL_PTR);
+	if (st->init != CFG_TRUE)
 		CFG_SET_RETURN_STATUS(st, CFG_ERROR_INIT);
 	/* check if we are setting the buffers to zero length */
 	if (size == 0) {
@@ -75,8 +82,7 @@ cfg_status_t cfg_cache_size_set(cfg_t *st, cfg_uint32 size)
 
 cfg_status_t cfg_init(cfg_t *st)
 {
-	if (!st)
-		CFG_SET_RETURN_STATUS(st, CFG_ERROR_NULL_PTR);
+	CFG_CHECK_ST_RETURN(st, "cfg_init", CFG_ERROR_NULL_PTR);
 
 	st->entry = NULL;
 	st->section = NULL;
@@ -97,7 +103,7 @@ cfg_status_t cfg_init(cfg_t *st)
 cfg_status_t cfg_status_get(cfg_t *st)
 {
 	if (!st) {
-		fprintf(stderr, "[cfg] cfg_status_get(): input is a NULL pointer!\n");
+		fprintf(stderr, "[cfg] cfg_entry_nth(): %s\n", "the cfg_t pointer cannot bet NULL!");
 		return CFG_ERROR_NULL_PTR;
 	}
 	return st->status;
@@ -107,7 +113,7 @@ cfg_t *cfg_alloc(cfg_bool init)
 {
 	cfg_t *st = (cfg_t *)calloc(1, sizeof(cfg_t));
 	if (!st) {
-		CFG_SET_STATUS(st, CFG_ERROR_ALLOC);
+		fprintf(stderr, "[cfg] cfg_alloc(): cannot calloc() a cfg_t object!\n");
 		return NULL;
 	}
 	if (init)
@@ -253,10 +259,7 @@ static void cfg_unescape(cfg_t *st, cfg_char *buf, cfg_uint32 buf_sz, cfg_uint32
 
 cfg_entry_t *cfg_entry_nth(cfg_t *st, cfg_uint32 n)
 {
-	if (!st) {
-		CFG_SET_STATUS(st, CFG_ERROR_NULL_PTR);
-		return NULL;
-	}
+	CFG_CHECK_ST_RETURN(st, "cfg_entry_nth", NULL);
 	if (n > st->nentries - 1 || !st->nentries) {
 		CFG_SET_STATUS(st, CFG_ERROR_ENTRY_NOT_FOUND);
 		return NULL;
@@ -269,10 +272,7 @@ cfg_entry_t *cfg_entry_get(cfg_t *st, cfg_char *section, cfg_char *key)
 	cfg_uint32 section_hash, key_hash, i;
 	cfg_entry_t *entry;
 
-	if (!st) {
-		CFG_SET_STATUS(st, CFG_ERROR_NULL_PTR);
-		return NULL;
-	}
+	CFG_CHECK_ST_RETURN(st, "cfg_entry_get", NULL);
 	if (!key) {
 		CFG_SET_STATUS(st, CFG_ERROR_NULL_KEY);
 		return NULL;
@@ -318,8 +318,7 @@ cfg_entry_t *cfg_root_entry_get(cfg_t *st, cfg_char *key)
 
 cfg_status_t cfg_cache_entry_add(cfg_t *st, cfg_entry_t *entry)
 {
-	if (!st)
-		CFG_SET_RETURN_STATUS(st, CFG_ERROR_NULL_PTR);
+	CFG_CHECK_ST_RETURN(st, "cfg_cache_entry_add", CFG_ERROR_NULL_PTR);
 	if (!entry)
 		CFG_SET_RETURN_STATUS(st, CFG_ERROR_NULL_ENTRY);
 	if (!st->cache_size)
@@ -578,8 +577,7 @@ cfg_char *cfg_char_to_hex(cfg_t *st, cfg_char *value)
 
 cfg_status_t cfg_entry_value_set(cfg_t *st, cfg_entry_t *entry, cfg_char *value)
 {
-	if (!st)
-		CFG_SET_RETURN_STATUS(st, CFG_ERROR_NULL_PTR);
+	CFG_CHECK_ST_RETURN(st, "cfg_entry_value_set", CFG_ERROR_NULL_PTR);
 	if (!entry || !value)
 		CFG_SET_RETURN_STATUS(st, CFG_ERROR_NULL_PTR);
 	free(entry->value);
@@ -630,11 +628,13 @@ cfg_status_t cfg_value_set(cfg_t *st, cfg_char *section, cfg_char *key, cfg_char
 	cfg_uint32 key_hash, section_hash;
 	cfg_entry_t *entry;
 
-	if (!st)
+	CFG_CHECK_ST_RETURN(st, "cfg_value_set", CFG_ERROR_NULL_PTR);
+
+	if (!value)
 		CFG_SET_RETURN_STATUS(st, CFG_ERROR_NULL_PTR);
 
-	if (!value || !key)
-		CFG_SET_RETURN_STATUS(st, CFG_ERROR_NO_ENTRIES);
+	if (!key)
+		CFG_SET_RETURN_STATUS(st, CFG_ERROR_NULL_KEY);
 
 	if (st->nentries == 0)
 		CFG_SET_RETURN_STATUS(st, CFG_ERROR_NO_ENTRIES);
@@ -662,6 +662,8 @@ cfg_status_t cfg_root_value_set(cfg_t *st, cfg_char *key, cfg_char *value, cfg_b
 static cfg_status_t cfg_free_memory(cfg_t *st)
 {
 	cfg_uint32 i;
+
+	CFG_CHECK_ST_RETURN(st, "cfg_free_memory", CFG_ERROR_NULL_PTR);
 
 	if (!st->entry && st->nentries)
 		CFG_SET_RETURN_STATUS(st, CFG_ERROR_NO_ENTRIES);
@@ -700,8 +702,7 @@ cfg_status_t cfg_free(cfg_t *st, cfg_bool free_ptr)
 {
 	cfg_status_t ret;
 
-	if (!st)
-		CFG_SET_RETURN_STATUS(st, CFG_ERROR_NULL_PTR);
+	CFG_CHECK_ST_RETURN(st, "cfg_free", CFG_ERROR_NULL_PTR);
 
 	if (st->init != CFG_TRUE)
 		CFG_SET_RETURN_STATUS(st, CFG_ERROR_INIT);
@@ -786,6 +787,8 @@ cfg_status_t cfg_parse_buffer(cfg_t *st, cfg_char *buf, cfg_uint32 sz, cfg_bool 
 	cfg_char *newbuf;
 	cfg_uint32 keys, sections;
 
+	CFG_CHECK_ST_RETURN(st, "cfg_parse_buffer", CFG_ERROR_NULL_PTR);
+
 	if (st->init != CFG_TRUE)
 		CFG_SET_RETURN_STATUS(st, CFG_ERROR_INIT);
 
@@ -839,8 +842,7 @@ cfg_status_t cfg_parse_file_ptr(cfg_t *st, FILE *f, cfg_bool close)
 	cfg_uint32 sz = 0;
 	cfg_status_t ret;
 
-	if (!st)
-		CFG_SET_RETURN_STATUS(st, CFG_ERROR_NULL_PTR);
+	CFG_CHECK_ST_RETURN(st, "cfg_parse_file_ptr", CFG_ERROR_NULL_PTR);
 	if (!f)
 		CFG_SET_RETURN_STATUS(st, CFG_ERROR_FILE);
 	if (st->init != CFG_TRUE)
@@ -874,8 +876,9 @@ cfg_status_t cfg_parse_file_ptr(cfg_t *st, FILE *f, cfg_bool close)
 cfg_status_t cfg_parse_file(cfg_t *st, cfg_char *filename)
 {
 	FILE *f;
-	if (!st || st->init != CFG_TRUE)
-		return CFG_ERROR_INIT;
+	CFG_CHECK_ST_RETURN(st, "cfg_parse_file", CFG_ERROR_NULL_PTR);
+	if (st->init != CFG_TRUE)
+		CFG_SET_RETURN_STATUS(st, CFG_ERROR_INIT);
 	/* read file */
 	f = fopen(filename, "r");
 	return cfg_parse_file_ptr(st, f, CFG_TRUE);
@@ -960,7 +963,8 @@ cfg_status_t cfg_write_buffer(cfg_t *st, cfg_char **out, cfg_uint32 *len)
 	cfg_uint32 *sec_len;
 	cfg_entry_t *entry;
 
-	if (!st || st->init != CFG_TRUE)
+	CFG_CHECK_ST_RETURN(st, "cfg_write_buffer", CFG_ERROR_NULL_PTR);
+	if (st->init != CFG_TRUE)
 		return CFG_ERROR_INIT;
 	if (!out || !len)
 		return CFG_ERROR_NULL_PTR;
@@ -1052,8 +1056,7 @@ cfg_status_t cfg_write_file_ptr(cfg_t *st, FILE *f, cfg_bool close)
 	cfg_uint32 sz = 0, sz_write = 0;
 	cfg_status_t ret;
 
-	if (!st)
-		CFG_SET_RETURN_STATUS(st, CFG_ERROR_NULL_PTR);
+	CFG_CHECK_ST_RETURN(st, "cfg_write_file_ptr", CFG_ERROR_NULL_PTR);
 	if (st->init != CFG_TRUE)
 		CFG_SET_RETURN_STATUS(st, CFG_ERROR_INIT);
 	if (!f)
@@ -1080,8 +1083,7 @@ cfg_status_t cfg_write_file_ptr(cfg_t *st, FILE *f, cfg_bool close)
 cfg_status_t cfg_write_file(cfg_t *st, cfg_char *filename)
 {
 	FILE *f;
-	if (!st)
-		CFG_SET_RETURN_STATUS(st, CFG_ERROR_NULL_PTR);
+	CFG_CHECK_ST_RETURN(st, "cfg_write_file", CFG_ERROR_NULL_PTR);
 	if (st->init != CFG_TRUE)
 		CFG_SET_RETURN_STATUS(st, CFG_ERROR_INIT);
 	/* read file */
