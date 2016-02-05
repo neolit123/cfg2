@@ -721,7 +721,7 @@ cfg_status_t cfg_free(cfg_t *st, cfg_bool free_ptr)
 		CFG_SET_RETURN_STATUS(st, CFG_ERROR_INIT);
 	if (st->nentries || st->nsections) {
 		ret = cfg_free_memory(st);
-		if (ret > 0)
+		if (ret != CFG_STATUS_OK)
 			return ret;
 	}
 	memset((void *)st, 0, sizeof(st));
