@@ -26,7 +26,7 @@
 
 #define CFG_CHECK_ST_RETURN(st, _fname, _ret) \
 	if (!st) { \
-		fprintf(stderr, "[cfg] %s(): %s\n", _fname, "the cfg_t pointer cannot bet NULL!"); \
+		fprintf(stderr, "[cfg2] %s(): %s\n", _fname, "the cfg_t pointer cannot bet NULL!"); \
 		return _ret; \
 	}
 
@@ -110,7 +110,7 @@ cfg_t *cfg_alloc(cfg_bool init)
 {
 	cfg_t *st = (cfg_t *)calloc(1, sizeof(cfg_t));
 	if (!st) {
-		fprintf(stderr, "[cfg] cfg_alloc(): cannot calloc() a cfg_t object!\n");
+		fprintf(stderr, "[cfg2] cfg_alloc(): cannot calloc() a cfg_t object!\n");
 		return NULL;
 	}
 	if (init)
