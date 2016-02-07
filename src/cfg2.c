@@ -102,10 +102,7 @@ cfg_status_t cfg_init(cfg_t *st)
 
 cfg_status_t cfg_status_get(cfg_t *st)
 {
-	if (!st) {
-		fprintf(stderr, "[cfg] cfg_entry_nth(): %s\n", "the cfg_t pointer cannot bet NULL!");
-		return CFG_ERROR_NULL_PTR;
-	}
+	CFG_CHECK_ST_RETURN(st, "cfg_status_get", CFG_ERROR_NULL_PTR);
 	return st->status;
 }
 
