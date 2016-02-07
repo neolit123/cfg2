@@ -26,7 +26,7 @@
 
 #define CFG_CHECK_ST_RETURN(st, _fname, _ret) \
 	if (!st) { \
-		fprintf(stderr, "[cfg] %s(): %s\n", _fname, "the cfg_t pointer cannot bet NULL!\n"); \
+		fprintf(stderr, "[cfg] %s(): %s\n", _fname, "the cfg_t pointer cannot bet NULL!"); \
 		return _ret; \
 	}
 
