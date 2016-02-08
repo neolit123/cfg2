@@ -598,6 +598,7 @@ static cfg_status_t cfg_key_add(cfg_t *st, cfg_char *section, cfg_char *key, cfg
 	entry->key = cfg_strdup(key);
 	entry->value = cfg_strdup(value);
 	entry->key_hash = cfg_hash_get(key);
+	cfg_cache_entry_add(st, entry);
 	st->nentries++;
 
 	/* handle new section creation */
@@ -641,8 +642,10 @@ cfg_status_t cfg_value_set(cfg_t *st, cfg_char *section, cfg_char *key, cfg_char
 
 	for (i = 0; i < st->nentries; i++) {
 		entry = &st->entry[i];
-		if (key_hash == entry->key_hash && section_hash == entry->section_hash)
+		if (key_hash == entry->key_hash && section_hash == entry->section_hash) {
+			cfg_cache_entry_add(st, entry);
 			return cfg_entry_value_set(st, entry, value);
+		}
 	}
 
 	/* key is missing. create it */
