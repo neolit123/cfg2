@@ -288,7 +288,9 @@ cfg_entry_t *cfg_entry_get(cfg_t *st, cfg_char *section, cfg_char *key)
 		for (i = 0; i < st->cache_size; i++) {
 			if (!st->cache[i])
 				break;
-			if (key_hash == st->cache[i]->key_hash && section_hash == st->cache[i]->section_hash) {
+			if (section_hash != st->cache[i]->section_hash)
+				continue;
+			if (key_hash == st->cache[i]->key_hash) {
 			    CFG_SET_STATUS(st, CFG_STATUS_OK);
 				return st->cache[i];
 			}
@@ -297,8 +299,9 @@ cfg_entry_t *cfg_entry_get(cfg_t *st, cfg_char *section, cfg_char *key)
 
 	for (i = 0; i < st->nentries; i++) {
 		entry = &st->entry[i];
-		if (section_hash == entry->section_hash &&
-		    key_hash == entry->key_hash) {
+		if (section_hash != entry->section_hash)
+			continue;
+		if (key_hash == entry->key_hash) {
 			cfg_cache_entry_add(st, entry);
 			CFG_SET_STATUS(st, CFG_STATUS_OK);
 			return entry;
@@ -642,7 +645,9 @@ cfg_status_t cfg_value_set(cfg_t *st, cfg_char *section, cfg_char *key, cfg_char
 
 	for (i = 0; i < st->nentries; i++) {
 		entry = &st->entry[i];
-		if (key_hash == entry->key_hash && section_hash == entry->section_hash) {
+		if (section_hash != entry->section_hash)
+			continue;
+		if (key_hash == entry->key_hash) {
 			cfg_cache_entry_add(st, entry);
 			return cfg_entry_value_set(st, entry, value);
 		}
