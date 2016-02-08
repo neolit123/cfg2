@@ -139,7 +139,7 @@ cfg_uint32 cfg_hash_get(cfg_char *str)
 /* unescape all special characters (like \n) in a string */
 static void cfg_unescape(cfg_t *st, cfg_char *buf, cfg_uint32 buf_sz, cfg_uint32 *keys, cfg_uint32 *sections)
 {
-	const cfg_char *fname = "[cfg2] cfg_unescape()";
+	static const cfg_char *fname = "[cfg2] cfg_unescape()";
 	cfg_uint32 line = 0;
 	cfg_char *src, *dest, last_char = 0;
 	cfg_bool escape = CFG_FALSE;
@@ -479,7 +479,7 @@ static const cfg_char hex_to_char_lookup[] = {
 
 cfg_char *cfg_hex_to_char(cfg_t *st, cfg_char *value)
 {
-	const cfg_char *fname = "[cfg2] cfg_hex_to_char():";
+	static const cfg_char *fname = "[cfg2] cfg_hex_to_char():";
 	cfg_uint32 len, len2, badchar_pos;
 	cfg_char *buf, *src_pos, *dst_pos;
 	cfg_char first, second;
@@ -535,7 +535,7 @@ static const cfg_char char_to_hex_lookup[] = {
 
 cfg_char *cfg_char_to_hex(cfg_t *st, cfg_char *value)
 {
-	const cfg_char *fname = "[cfg2] cfg_char_to_hex():";
+	static const cfg_char *fname = "[cfg2] cfg_char_to_hex():";
 	cfg_uint32 len, first, second;
 	cfg_uchar in_char;
 	cfg_char *out, *ptr;
@@ -1027,8 +1027,7 @@ static cfg_char* cfg_entry_string(cfg_entry_t *entry, cfg_uint32 *len)
 
 cfg_status_t cfg_write_buffer(cfg_t *st, cfg_char **out, cfg_uint32 *len)
 {
-	const cfg_char *fname = "[cfg2] cfg_write_buffer():";
-
+	static const cfg_char *fname = "[cfg2] cfg_write_buffer():";
 	cfg_uint32 i, j, nsec, n;
 	cfg_char *ptr, *str;
 	cfg_char **sec_buf;
