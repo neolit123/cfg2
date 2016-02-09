@@ -61,7 +61,7 @@ lib: $(LIBFILE) $(DLLFILE)
 
 test: $(TESTPATH_EXE)
 
-run:
+run: $(TESTPATH_EXE)
 	cd $(TESTPATH) && $(TESTEXE) && cd ..
 
 clean:
