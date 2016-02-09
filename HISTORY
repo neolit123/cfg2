@@ -1,3 +1,8 @@
+0.33.0 - 09.02.2016
+- remove the 'index' field of cfg_entry_t
+- small performance improvements when traversing the entry list
+- cache the latest entry which is added or set to a new value
+
 0.32.0 - 05.02.2016
 - add support for a dynamic library build on Win32 and potentially any *Unix
 - better Makefile and .gitignore files
