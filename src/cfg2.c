@@ -62,7 +62,7 @@ cfg_status_t cfg_cache_size_set(cfg_t *st, cfg_uint32 size)
 	CFG_CHECK_ST_RETURN(st, "cfg_cache_size_set", CFG_ERROR_NULL_PTR);
 	if (st->init != CFG_TRUE)
 		CFG_SET_RETURN_STATUS(st, CFG_ERROR_INIT);
-	/* check if we are setting the buffers to zero length */
+	/* check if we are setting the buffer to zero length */
 	if (!size) {
 		if (!st->cache)
 			CFG_SET_RETURN_STATUS(st, CFG_ERROR_NULL_PTR);
@@ -72,7 +72,7 @@ cfg_status_t cfg_cache_size_set(cfg_t *st, cfg_uint32 size)
 		st->cache = (cfg_entry_t **)realloc(st->cache, size * sizeof(cfg_entry_t *));
 		if (!st->cache)
 			CFG_SET_RETURN_STATUS(st, CFG_ERROR_ALLOC);
-		/* if the new buffers are larger, lets fill the extra indexes with zeroes */
+		/* if the new buffer is larger, fill the extra indexes with zeroes */
 		if (size > st->cache_size) {
 			diff = size - st->cache_size;
 			memset((void *)st->cache, 0, diff * sizeof(cfg_entry_t *));
