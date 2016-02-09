@@ -90,39 +90,16 @@ typedef enum {
 } cfg_status_t;
 
 /* -----------------------------------------------------------------------------
- * the library object entry. holds a pair of key / value.
- * NOTE: please, mind that this struct can become opaque at some point!
+ * the library's data entry
 */
 
-typedef struct {
-	cfg_uint32 key_hash;
-	cfg_uint32 section_hash;
-	cfg_char *key;
-	cfg_char *value;
-} cfg_entry_t;
+typedef struct cfg_entry_private cfg_entry_t;
 
 /* -----------------------------------------------------------------------------
  * the main library object
- * NOTE: please, mind that this struct can become opaque at some point!
 */
 
-typedef struct {
-	cfg_entry_t **cache;
-	cfg_uint32 cache_size;
-
-	cfg_entry_t *entry;
-	cfg_char **section;
-
-	cfg_bool init;
-	cfg_status_t status;
-	cfg_uint32 verbose;
-	cfg_uint32 nentries;
-	cfg_uint32 nsections;
-	cfg_char separator_section;
-	cfg_char separator_key_value;
-	cfg_char comment_char1;
-	cfg_char comment_char2;
-} cfg_t;
+typedef struct cfg_private cfg_t;
 
 /* -----------------------------------------------------------------------------
  * buffer & file I/O
@@ -136,8 +113,7 @@ cfg_t *cfg_alloc();
 CFG_EXPORT
 cfg_status_t cfg_status_get(cfg_t *st);
 
-/* free all memory allocated by the library for a cfg_t object,
- * if you pass 'free_ptr' == CFG_TRUE then 'st' will be freed as well! */
+/* free all memory allocated by the library for a cfg_t object */
 CFG_EXPORT
 cfg_status_t cfg_free(cfg_t *st);
 

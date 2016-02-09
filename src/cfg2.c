@@ -30,6 +30,31 @@
 		return _ret; \
 	}
 
+struct cfg_entry_private {
+	cfg_uint32 key_hash;
+	cfg_uint32 section_hash;
+	cfg_char *key;
+	cfg_char *value;
+};
+
+struct cfg_private {
+	cfg_entry_t **cache;
+	cfg_uint32 cache_size;
+
+	cfg_entry_t *entry;
+	cfg_char **section;
+
+	cfg_bool init;
+	cfg_status_t status;
+	cfg_uint32 verbose;
+	cfg_uint32 nentries;
+	cfg_uint32 nsections;
+	cfg_char separator_section;
+	cfg_char separator_key_value;
+	cfg_char comment_char1;
+	cfg_char comment_char2;
+};
+
 /* local implementation of strdup() if missing on a specific C89 target */
 cfg_char *cfg_strdup(cfg_char *str)
 {
