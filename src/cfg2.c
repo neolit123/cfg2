@@ -63,7 +63,9 @@ cfg_status_t cfg_cache_size_set(cfg_t *st, cfg_uint32 size)
 	if (st->init != CFG_TRUE)
 		CFG_SET_RETURN_STATUS(st, CFG_ERROR_INIT);
 	/* check if we are setting the buffers to zero length */
-	if (size == 0) {
+	if (!size) {
+		if (!st->cache)
+			CFG_SET_RETURN_STATUS(st, CFG_ERROR_NULL_PTR);
 		free(st->cache);
 		st->cache = NULL;
 	} else {
