@@ -107,7 +107,7 @@ typedef struct cfg_private cfg_t;
 
 /* allocates a new library object */
 CFG_EXPORT
-cfg_t *cfg_alloc();
+cfg_t *cfg_alloc(void);
 
 /* get the last status of the library object */
 CFG_EXPORT

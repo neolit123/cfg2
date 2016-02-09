@@ -107,26 +107,6 @@ cfg_status_t cfg_cache_size_set(cfg_t *st, cfg_uint32 size)
 	CFG_SET_RETURN_STATUS(st, CFG_STATUS_OK);
 }
 
-static cfg_status_t cfg_init(cfg_t *st)
-{
-	CFG_CHECK_ST_RETURN(st, "cfg_init", CFG_ERROR_NULL_PTR);
-
-	st->entry = NULL;
-	st->section = NULL;
-	st->verbose = 0;
-	st->status = CFG_STATUS_OK;
-	st->nentries = 0;
-	st->nsections = 0;
-	st->cache = NULL;
-	st->cache_size = CFG_CACHE_SIZE;
-	st->init = CFG_TRUE;
-	st->separator_key_value = CFG_SEPARATOR_KEY_VALUE;
-	st->separator_section = CFG_SEPARATOR_SECTION;
-	st->comment_char1 = CFG_COMMENT_CHAR1;
-	st->comment_char2 = CFG_COMMENT_CHAR2;
-	CFG_SET_RETURN_STATUS(st, CFG_STATUS_OK);
-}
-
 cfg_status_t cfg_verbose_set(cfg_t *st, cfg_uint32 level)
 {
 	CFG_CHECK_ST_RETURN(st, "cfg_verbose_set", CFG_ERROR_NULL_PTR);
@@ -140,15 +120,31 @@ cfg_status_t cfg_status_get(cfg_t *st)
 	return st->status;
 }
 
-cfg_t *cfg_alloc(cfg_bool init)
+static void cfg_init(cfg_t *st)
+{
+	st->entry = NULL;
+	st->section = NULL;
+	st->verbose = 0;
+	st->status = CFG_STATUS_OK;
+	st->nentries = 0;
+	st->nsections = 0;
+	st->cache = NULL;
+	st->cache_size = CFG_CACHE_SIZE;
+	st->init = CFG_TRUE;
+	st->separator_key_value = CFG_SEPARATOR_KEY_VALUE;
+	st->separator_section = CFG_SEPARATOR_SECTION;
+	st->comment_char1 = CFG_COMMENT_CHAR1;
+	st->comment_char2 = CFG_COMMENT_CHAR2;
+}
+
+cfg_t *cfg_alloc(void)
 {
 	cfg_t *st = (cfg_t *)calloc(1, sizeof(cfg_t));
 	if (!st) {
 		fprintf(stderr, "[cfg2] cfg_alloc(): cannot calloc() a cfg_t object!\n");
 		return NULL;
 	}
-	if (init)
-		cfg_init(st);
+	cfg_init(st);
 	return st;
 }
 
