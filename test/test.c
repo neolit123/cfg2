@@ -18,7 +18,6 @@
 
 #define VERBOSE        2
 #define PRINT_TESTS    1
-#define PRINT_CACHE    0
 
 /*
  * test parsing a file or a buffer directly. when calling a parsing method
@@ -27,7 +26,6 @@
  */
 int main(void)
 {
-	cfg_uint32 i;
 	cfg_status_t err;
 	cfg_t *st;
 	cfg_entry_t *entry;
@@ -53,7 +51,6 @@ int main(void)
 	st = cfg_alloc();
 	err = cfg_verbose_set(st, 3);
 	err = cfg_cache_size_set(st, 4);
-	printf("* cache size: %d\n", st->cache_size);
 	puts("* parse");
 	err = cfg_parse_buffer(st, buf, strlen(buf), CFG_TRUE);
 
@@ -62,8 +59,6 @@ int main(void)
 	end = clock();
 	time_spent = (double)(end - begin) / CLOCKS_PER_SEC;
 	printf("time spent parsing %s: %.4f sec\n", file, time_spent);
-	printf("nentries: %d\n", st->nentries);
-	printf("nsections: %d\n", st->nsections);
 
 	if (err > 0) {
 		printf("cfg_parse_file() ERROR: %d\n", err);
@@ -75,21 +70,6 @@ int main(void)
 
 	puts("");
 	puts("* actions");
-
-	/* print all keys / values */
-	for (i = 0; i < st->nentries; i++) {
-		printf("%#08x, %s, %s, %#08x\n",
-			st->entry[i].key_hash,
-			st->entry[i].key,
-			st->entry[i].value,
-			st->entry[i].section_hash
-		);
-	}
-
-	/* list sections */
-	puts("\nlist sections:");
-	for (i = 0; i < st->nsections; i++)
-		printf("%d, %s\n", i, st->section[i]);
 
 	/* test setting a new value */
 	puts("\nattempting to set value...");
@@ -107,9 +87,9 @@ int main(void)
 	/* test a section */
 	puts("");
 	entry = cfg_entry_get(st, "section1", "key6");
-	printf("test entry from section: %f\n", (entry) ? cfg_value_to_double(entry->value) : -1.0);
+	printf("test entry from section: %f\n", (entry) ? cfg_value_to_double(cfg_entry_value_get(st, entry)) : -1.0);
 	entry = cfg_entry_get(st, "section1", "key9");
-	printf("test entry from section: %s\n", (entry) ? entry->value : "not found");
+	printf("test entry from section: %s\n", (entry) ? cfg_entry_value_get(st, entry) : "not found");
 
 	puts("");
 	puts("test conversations:");
@@ -118,26 +98,9 @@ int main(void)
 	/* test hex <-> char */
 	puts("");
 	entry = cfg_entry_get(st, "section2", "key13");
-	ptr = cfg_hex_to_char(st, entry->value);
+	ptr = cfg_hex_to_char(st, cfg_entry_value_get(st, entry));
 	puts(ptr);
 	puts(cfg_char_to_hex(st, ptr));
-#endif
-
-#if (PRINT_CACHE == 1)
-	/* dump the cache */
-	puts("");
-	puts("* cache");
-	for (i = 0; i < st->cache_size; i++) {
-		if (st->cache[i]) {
-			printf("%08x, %08x, %s\n",
-				st->cache[i]->key_hash,
-				st->cache[i]->section_hash,
-				st->cache[i]->value
-			);
-		} else {
-			printf("empty cache pointer at index %d\n", 0);
-		}
-	}
 #endif
 
 	puts("");
