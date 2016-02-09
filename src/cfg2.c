@@ -82,7 +82,7 @@ cfg_status_t cfg_cache_size_set(cfg_t *st, cfg_uint32 size)
 	CFG_SET_RETURN_STATUS(st, CFG_STATUS_OK);
 }
 
-cfg_status_t cfg_init(cfg_t *st)
+static cfg_status_t cfg_init(cfg_t *st)
 {
 	CFG_CHECK_ST_RETURN(st, "cfg_init", CFG_ERROR_NULL_PTR);
 
@@ -765,7 +765,7 @@ cfg_status_t cfg_clear(cfg_t *st)
 	return cfg_free_memory(st);
 }
 
-cfg_status_t cfg_free(cfg_t *st, cfg_bool free_ptr)
+cfg_status_t cfg_free(cfg_t *st)
 {
 	cfg_status_t ret;
 
@@ -781,8 +781,7 @@ cfg_status_t cfg_free(cfg_t *st, cfg_bool free_ptr)
 	memset((void *)st, 0, sizeof(st));
 	st->init = CFG_FALSE; /* not needed if CFG_FALSE is zero */
 
-	if (free_ptr)
-		free(st);
+	free(st);
 	CFG_SET_RETURN_STATUS(st, CFG_STATUS_OK);
 }
 

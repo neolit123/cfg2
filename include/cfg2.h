@@ -128,14 +128,9 @@ typedef struct {
  * buffer & file I/O
 */
 
-/* allocates a new cfg_t object; if 'init' == CFG_TRUE, cfg_init() will also be
- * called */
+/* allocates a new library object */
 CFG_EXPORT
-cfg_t *cfg_alloc(cfg_bool init);
-
-/* init the library object. must be called before everything else. */
-CFG_EXPORT
-cfg_status_t cfg_init(cfg_t *st);
+cfg_t *cfg_alloc();
 
 /* get the last status of the library object */
 CFG_EXPORT
@@ -144,7 +139,7 @@ cfg_status_t cfg_status_get(cfg_t *st);
 /* free all memory allocated by the library for a cfg_t object,
  * if you pass 'free_ptr' == CFG_TRUE then 'st' will be freed as well! */
 CFG_EXPORT
-cfg_status_t cfg_free(cfg_t *st, cfg_bool free_ptr);
+cfg_status_t cfg_free(cfg_t *st);
 
 /* parse a buffer (buf) of size (sz); optional copy (copy) or work in place. */
 CFG_EXPORT
