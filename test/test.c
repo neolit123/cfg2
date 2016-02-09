@@ -133,8 +133,7 @@ int main(void)
 	puts("* cache");
 	for (i = 0; i < st.cache_size; i++) {
 		if (st.cache[i]) {
-			printf("%u, %08x, %08x, %s\n",
-				st.cache[i]->index,
+			printf("%08x, %08x, %s\n",
 				st.cache[i]->key_hash,
 				st.cache[i]->section_hash,
 				st.cache[i]->value

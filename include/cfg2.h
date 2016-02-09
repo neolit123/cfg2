@@ -99,7 +99,6 @@ typedef struct {
 	cfg_uint32 section_hash;
 	cfg_char *key;
 	cfg_char *value;
-	cfg_uint32 index;
 } cfg_entry_t;
 
 /* -----------------------------------------------------------------------------
