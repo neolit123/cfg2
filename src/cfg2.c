@@ -584,6 +584,16 @@ cfg_char *cfg_char_to_hex(cfg_t *st, cfg_char *value)
 	return out;
 }
 
+cfg_char *cfg_entry_value_get(cfg_t *st, cfg_entry_t *entry)
+{
+	CFG_CHECK_ST_RETURN(st, "cfg_entry_value_get", NULL);
+	if (!entry) {
+		CFG_SET_STATUS(st, CFG_ERROR_NULL_PTR);
+		return NULL;
+	}
+	return entry->value;
+}
+
 cfg_status_t cfg_entry_value_set(cfg_t *st, cfg_entry_t *entry, cfg_char *value)
 {
 	CFG_CHECK_ST_RETURN(st, "cfg_entry_value_set", CFG_ERROR_NULL_PTR);
