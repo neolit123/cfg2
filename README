@@ -119,13 +119,13 @@ in "cfg2.h". also a better usage example can be found in "test.c".
 small usage example without error checking:
 --------------------------------------------------------------------------------
 char *v;
-cfg_t st; /* library object */
+cfg_t *st; /* library object */
 
-cfg_init(&st); /* init the library */
-cfg_parse_file(&st, some_file); /* parse a file */
-v = cfg_value_get(&st, "section1", "key1"); /* get a key's value */
+st = cfg_alloc(); /* init the library */
+cfg_parse_file(st, some_file); /* parse a file */
+v = cfg_value_get(st, "section1", "key1"); /* get a key's value */
 puts(v); /* value1 */
-cfg_free(&st, CFG_FALSE); /* second argument = don't free 'st' itself */
+cfg_free(st);
 
 ================================================================================
 COMPILATION:
