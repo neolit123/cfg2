@@ -170,6 +170,10 @@ cfg_status_t cfg_write_file(cfg_t *st, cfg_char *filename);
 CFG_EXPORT
 cfg_status_t cfg_write_file_ptr(cfg_t *st, FILE *f, cfg_bool close);
 
+/* set the verbose level for the library object; verbose = 0, 1, 2, 3... */
+CFG_EXPORT
+cfg_status_t cfg_verbose_set(cfg_t *st, cfg_uint32 level);
+
 /* -----------------------------------------------------------------------------
  * cache
 */

@@ -102,6 +102,13 @@ static cfg_status_t cfg_init(cfg_t *st)
 	CFG_SET_RETURN_STATUS(st, CFG_STATUS_OK);
 }
 
+cfg_status_t cfg_verbose_set(cfg_t *st, cfg_uint32 level)
+{
+	CFG_CHECK_ST_RETURN(st, "cfg_verbose_set", CFG_ERROR_NULL_PTR);
+	st->verbose = level;
+	CFG_SET_RETURN_STATUS(st, CFG_STATUS_OK);
+}
+
 cfg_status_t cfg_status_get(cfg_t *st)
 {
 	CFG_CHECK_ST_RETURN(st, "cfg_status_get", CFG_ERROR_NULL_PTR);
