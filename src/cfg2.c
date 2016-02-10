@@ -36,7 +36,6 @@ struct cfg_private {
 	cfg_char comment_char1;
 	cfg_char comment_char2;
 
-	cfg_bool init;
 	cfg_status_t status;
 	cfg_uint32 verbose;
 	cfg_uint32 cache_size;
@@ -125,8 +124,6 @@ cfg_status_t cfg_status_get(cfg_t *st)
 
 static void cfg_init(cfg_t *st)
 {
-	st->init = CFG_TRUE;
-
 	st->separator_key_value = CFG_SEPARATOR_KEY_VALUE;
 	st->separator_section = CFG_SEPARATOR_SECTION;
 	st->comment_char1 = CFG_COMMENT_CHAR1;
