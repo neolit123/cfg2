@@ -85,8 +85,9 @@ typedef enum {
 	/* 7  */ CFG_ERROR_FILE,
 	/* 8  */ CFG_ERROR_INIT,
 	/* 9  */ CFG_ERROR_ENTRY_NOT_FOUND,
-	/* 10 */ CFG_ERROR_NO_ENTRIES,
-	/* 11 */ CFG_ERROR_CACHE_SIZE
+	/* 10 */ CFG_ERROR_SECTION_NOT_FOUND,
+	/* 11 */ CFG_ERROR_NO_ENTRIES,
+	/* 12 */ CFG_ERROR_CACHE_SIZE
 } cfg_status_t;
 
 /* -----------------------------------------------------------------------------
