@@ -650,7 +650,7 @@ static cfg_status_t cfg_free_memory(cfg_t *st)
 	cfg_uint32 i, j;
 
 	if (!st->section || !st->cache)
-		CFG_SET_RETURN_STATUS(st, CFG_NULL_PTR);
+		CFG_SET_RETURN_STATUS(st, CFG_ERROR_NULL_PTR);
 
 	for (i = 0; i < st->nsections; i++) {
 		section = &st->section[i];
