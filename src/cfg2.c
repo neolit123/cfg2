@@ -697,7 +697,6 @@ cfg_status_t cfg_free(cfg_t *st)
 
 static cfg_status_t cfg_raw_buffer_parse(cfg_t *st, cfg_char *buf, cfg_uint32 sz, cfg_uint32 sections, cfg_uint32 *entries)
 {
-	cfg_uint32 section_hash = CFG_ROOT_SECTION_HASH;
 	cfg_uint32 idx_section = 0;
 	cfg_uint32 idx_entry = 0;
 	cfg_entry_t *entry;
