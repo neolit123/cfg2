@@ -538,7 +538,7 @@ cfg_status_t cfg_value_set(cfg_t *st, cfg_char *section, cfg_char *key, cfg_char
 			section_ptr->name = cfg_strdup(section);
 			section_ptr->hash = cfg_hash_get(section);
 			section_ptr->nentries = 1;
-			section_ptr->entry = (cfg_entry *)malloc(sizeof(cfg_entry_t));
+			section_ptr->entry = (cfg_entry_t *)malloc(sizeof(cfg_entry_t));
 			entry = &section_ptr->entry[0];
 			entry->section = section_ptr;
 			entry->key = cfg_strdup(key);
