@@ -649,9 +649,6 @@ static cfg_status_t cfg_free_memory(cfg_t *st)
 	cfg_entry_t *entry;
 	cfg_uint32 i, j;
 
-	if (!st->section || !st->cache)
-		CFG_SET_RETURN_STATUS(st, CFG_ERROR_NULL_PTR);
-
 	for (i = 0; i < st->nsections; i++) {
 		section = &st->section[i];
 		for (j = 0; j < section->nentries; j++) {
