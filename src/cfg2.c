@@ -1064,9 +1064,9 @@ cfg_status_t cfg_buffer_write(cfg_t *st, cfg_char **out, cfg_uint32 *len)
 	*out[0] = '\0'; /* ensure an empty \0 terminated buffer */
 
 	for (i = 0; i < st->nsections; i++) {
-		if (st->verbose > 0)
-			fprintf(stderr, "%s writing section %d...\n", fname, i);
 		if (i) { /* skip the root section name */
+			if (st->verbose > 0)
+				fprintf(stderr, "%s writing section header %d...\n", fname, i);
 			str = cfg_escape(st->section[i].name, &n);
 			n += 3; /* [, ], \n */
 			*out = (cfg_char *)realloc(*out, sz + n);
