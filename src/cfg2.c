@@ -520,46 +520,11 @@ cfg_status_t cfg_entry_value_set(cfg_t *st, cfg_entry_t *entry, cfg_char *value)
 	CFG_SET_RETURN_STATUS(st, CFG_STATUS_OK);
 }
 
-/* should be only called if a key is really missing */
-static cfg_status_t cfg_key_add(cfg_t *st, cfg_char *section, cfg_char *key, cfg_char *value)
-{
-	cfg_uint32 i;
-	cfg_entry_t *entry;
-
-	st->entry = (cfg_entry_t *)realloc(st->entry, (st->nentries + 1) * sizeof(cfg_entry_t));
-	if (!st->entry)
-		CFG_SET_RETURN_STATUS(st, CFG_ERROR_ALLOC);
-	entry = &st->entry[st->nentries];
-	entry->key = cfg_strdup(key);
-	entry->value = cfg_strdup(value);
-	entry->key_hash = cfg_hash_get(key);
-	cfg_cache_entry_add(st, entry);
-	st->nentries++;
-
-	/* handle new section creation */
-	if(section == CFG_ROOT_SECTION)	{
-		entry->section_hash = CFG_ROOT_SECTION_HASH;
-		CFG_SET_RETURN_STATUS(st, CFG_STATUS_OK);
-	} else {
-		entry->section_hash = cfg_hash_get(section);
-	}
-	for (i = 0; i < st->nsections; i++) {
-		if (entry->section_hash == cfg_hash_get(st->section[i]))
-			CFG_SET_RETURN_STATUS(st, CFG_STATUS_OK);
-	}
-	st->section = (cfg_char **)realloc(st->section, (st->nsections + 1) * sizeof(cfg_char *));
-	if (!st->section)
-		CFG_SET_RETURN_STATUS(st, CFG_ERROR_ALLOC);
-	st->section[st->nsections] = cfg_strdup(section);
-	st->nsections++;
-	CFG_SET_RETURN_STATUS(st, CFG_STATUS_OK);
-}
-
 cfg_status_t cfg_value_set(cfg_t *st, cfg_char *section, cfg_char *key, cfg_char *value, cfg_bool add)
 {
-	cfg_uint32 i;
-	cfg_uint32 key_hash, section_hash;
+	cfg_uint32 i, key_hash;
 	cfg_entry_t *entry;
+	cfg_section_t *section_ptr;
 
 	CFG_CHECK_ST_RETURN(st, "cfg_value_set", CFG_ERROR_NULL_PTR);
 
@@ -570,21 +535,52 @@ cfg_status_t cfg_value_set(cfg_t *st, cfg_char *section, cfg_char *key, cfg_char
 		CFG_SET_RETURN_STATUS(st, CFG_ERROR_NULL_KEY);
 
 	key_hash = cfg_hash_get(key);
-	section_hash = section == CFG_ROOT_SECTION ? CFG_ROOT_SECTION_HASH : cfg_hash_get(section);
+	section_ptr = cfg_section_get(st, section);
+	if (!section_ptr) {
+		/* add section and entry */
+		if (add) {
+			st->section = (cfg_section_t *)realloc(st->section, (st->nsections + 1) * sizeof(cfg_section_t));
+			if (!st->section)
+				CFG_SET_RETURN_STATUS(st, CFG_ERROR_ALLOC);
+			section_ptr = &st->section[st->nsections];
+			section_ptr->name = cfg_strdup(section);
+			section_ptr->hash = cfg_hash_get(section);
+			section_ptr->nentries = 1;
+			section_ptr->entry = (cfg_entry *)malloc(sizeof(cfg_entry_t));
+			entry = &section_ptr->entry[0];
+			entry->section = section_ptr;
+			entry->key = cfg_strdup(key);
+			entry->key_hash = key_hash
+			entry->value = cfg_strdup(value);
+			st->nsections++;
+			CFG_SET_RETURN_STATUS(st, CFG_STATUS_OK);
+		} else {
+			CFG_SET_RETURN_STATUS(st, CFG_ERROR_SECTION_NOT_FOUND);
+		}
+	}
 
-	for (i = 0; i < st->nentries; i++) {
-		entry = &st->entry[i];
-		if (section_hash != entry->section_hash)
-			continue;
+	/* look for the entry in the existing section */
+	for (i = 0; i < section_ptr->nentries; i++) {
+		entry = &section_ptr->entry[i];
 		if (key_hash == entry->key_hash) {
 			cfg_cache_entry_add(st, entry);
 			return cfg_entry_value_set(st, entry, value);
 		}
 	}
 
-	/* key is missing. create it */
-	if (add)
-		return cfg_key_add(st, section, key, value);
+	/* entry not found; add it or return error */
+	if (add) {
+		section_ptr->entry = st->section = (cfg_entry_t *)realloc(section_ptr->entry, (section_ptr->nentries + 1) * sizeof(cfg_section_t));
+		if (!section->entry)
+			CFG_SET_RETURN_STATUS(st, CFG_ERROR_ALLOC);
+		entry = &section_ptr->entry[section_ptr->nentries];
+		entry->section = section_ptr;
+		entry->key = cfg_strdup(key);
+		entry->key_hash = key_hash;
+		entry->value = cfg_strdup(value);
+		section_ptr->nentries++;
+		CFG_SET_RETURN_STATUS(st, CFG_STATUS_OK);
+	}
 	CFG_SET_RETURN_STATUS(st, CFG_ERROR_ENTRY_NOT_FOUND);
 }
 
