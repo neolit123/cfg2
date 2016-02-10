@@ -168,16 +168,6 @@ cfg_uint32 cfg_hash_get(cfg_char *str)
 	return hash;
 }
 
-cfg_entry_t *cfg_entry_nth(cfg_t *st, cfg_uint32 n)
-{
-	CFG_CHECK_ST_RETURN(st, "cfg_entry_nth", NULL);
-	if (n > st->nentries - 1 || !st->nentries) {
-		CFG_SET_STATUS(st, CFG_ERROR_ENTRY_NOT_FOUND);
-		return NULL;
-	}
-	return &(st->entry[n]);
-}
-
 cfg_entry_t *cfg_entry_get(cfg_t *st, cfg_char *section, cfg_char *key)
 {
 	cfg_uint32 section_hash, key_hash, i;

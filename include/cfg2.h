@@ -174,10 +174,6 @@ cfg_status_t cfg_cache_entry_add(cfg_t *st, cfg_entry_t *entry);
  * entries
 */
 
-/* retrieve the nth entry */
-CFG_EXPORT
-cfg_entry_t *cfg_entry_nth(cfg_t *st, cfg_uint32 n);
-
 /* return an entry from section (2nd argument, can be CFG_ROOT_SECTION) and
  * key (3rd argument) */
 CFG_EXPORT
