@@ -690,8 +690,13 @@ static cfg_status_t cfg_free_memory(cfg_t *st)
 
 cfg_status_t cfg_clear(cfg_t *st)
 {
+	cfg_status_t ret;
 	CFG_CHECK_ST_RETURN(st, "cfg_clear", CFG_ERROR_NULL_PTR);
-	return cfg_free_memory(st);
+	ret = cfg_free_memory(st);
+	if (ret != CFG_STATUS_OK)
+		return ret;
+	cfg_cache_size_set(st, st->cache_size); /* recreate the cache */
+	CFG_SET_RETURN_STATUS(st, CFG_STATUS_OK);
 }
 
 cfg_status_t cfg_free(cfg_t *st)
