@@ -688,12 +688,9 @@ cfg_status_t cfg_free(cfg_t *st)
 	cfg_status_t ret;
 
 	CFG_CHECK_ST_RETURN(st, "cfg_free", CFG_ERROR_NULL_PTR);
-
-	if (st->nentries || st->nsections) {
-		ret = cfg_free_memory(st);
-		if (ret != CFG_STATUS_OK)
-			return ret;
-	}
+	ret = cfg_free_memory(st);
+	if (ret != CFG_STATUS_OK)
+		return ret;
 	free(st);
 	return CFG_STATUS_OK;
 }
