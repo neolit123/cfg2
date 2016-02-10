@@ -707,13 +707,27 @@ cfg_status_t cfg_free(cfg_t *st)
 	CFG_SET_RETURN_STATUS(st, CFG_STATUS_OK);
 }
 
-static cfg_status_t cfg_raw_buffer_parse(cfg_t *st, cfg_char *buf, cfg_uint32 sz)
+static cfg_status_t cfg_raw_buffer_parse(cfg_t *st, cfg_char *buf, cfg_uint32 sz, cfg_uint32 sections, cfg_uint32 *entries)
 {
 	cfg_uint32 section_hash = CFG_ROOT_SECTION_HASH;
-	cfg_uint32 section_idx = 0;
-	cfg_uint32 key_idx = 0;
+	cfg_uint32 idx_section = 0;
+	cfg_uint32 idx_entry = 0;
 	cfg_entry_t *entry;
 	cfg_char *p, *end;
+	cfg_uint32 i;
+	cfg_section_t *section;
+
+	/* allocate section and entry buffers */
+	st->section = (cfg_section_t *)malloc(sectios * sizeof(cfg_section_t));
+	for (i = 0; i < sections; i++) {
+		st->section[i].entry = (cfg_entry_t *)malloc(*entries[i] * sizeof(cfg_entry_t));
+		st->section[i].nentries = *entries[i];
+	}
+
+	/* prepare the root section */
+	section = &st->section[0];
+	section->name = CFG_ROOT_SECTION;
+	section->hash = CFG_ROOT_SECTION_HASH;
 
 	for (p = buf; p < buf + sz; p++) {
 		/* store current section hash */
@@ -723,9 +737,11 @@ static cfg_status_t cfg_raw_buffer_parse(cfg_t *st, cfg_char *buf, cfg_uint32 sz
 			while (*end != st->separator_section)
 				end++;
 			*end = '\0';
-			st->section[section_idx] = cfg_strdup(p);
-			section_idx++;
-			section_hash = cfg_hash_get(p);
+			idx_entry = 0;
+			section = st->section[idx_section];
+			section->name = cfg_strdup(p);
+			section->hash = cfg_hash_get(p);
+			idx_section++;
 			*end = st->separator_section;
 			p = end;
 			/* if next character is not a section start skip */
@@ -734,13 +750,13 @@ static cfg_status_t cfg_raw_buffer_parse(cfg_t *st, cfg_char *buf, cfg_uint32 sz
 		}
 
 		/* nentries is reached skip */
-		if (key_idx == st->nentries)
+		if (idx_entry == section->nentries)
 			continue;
 
 		/* a new entry */
-		entry = &st->entry[key_idx];
-		entry->section_hash = section_hash;
-		key_idx++;
+		entry = &section->entry[idx_entry];
+		entry->section = section;
+		idx_entry++;
 
 		/* parse key */
 		end = p;
@@ -784,11 +800,11 @@ static void cfg_raw_buffer_convert(cfg_t *st, cfg_char *buf, cfg_uint32 buf_sz, 
 	cfg_bool line_eq_sign = CFG_FALSE;
 	cfg_bool multiline = CFG_FALSE;
 	cfg_bool section_line = CFG_FALSE;
-	cfg_section_t *section;
 
+	/* prepare the root section */
 	*sections = 0;
 	*entries = (cfg_uint32 *)malloc(sizeof(cfg_uint32));
-	*entries[0] = 0;
+	*entries[*sections] = 0;
 
 	for (src = dest = buf; src < buf + buf_sz; src++) {
 		/* convert separators to spaces, if found */
@@ -891,6 +907,7 @@ static void cfg_raw_buffer_convert(cfg_t *st, cfg_char *buf, cfg_uint32 buf_sz, 
 		}
 		dest++;
 	}
+	*sections++; /* componsate for the root section */
 	*dest = '\0';
 	if (st->verbose > 1)
 		fprintf(stderr, "%s:\n%s\n", fname, buf);
