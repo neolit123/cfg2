@@ -542,7 +542,7 @@ cfg_status_t cfg_value_set(cfg_t *st, cfg_char *section, cfg_char *key, cfg_char
 			entry = &section_ptr->entry[0];
 			entry->section = section_ptr;
 			entry->key = cfg_strdup(key);
-			entry->key_hash = key_hash
+			entry->key_hash = key_hash;
 			entry->value = cfg_strdup(value);
 			st->nsections++;
 			CFG_SET_RETURN_STATUS(st, CFG_STATUS_OK);
@@ -563,7 +563,7 @@ cfg_status_t cfg_value_set(cfg_t *st, cfg_char *section, cfg_char *key, cfg_char
 	/* entry not found; add it or return error */
 	if (add) {
 		section_ptr->entry = (cfg_entry_t *)realloc(section_ptr->entry, (section_ptr->nentries + 1) * sizeof(cfg_section_t));
-		if (!section->entry)
+		if (!section_ptr->entry)
 			CFG_SET_RETURN_STATUS(st, CFG_ERROR_ALLOC);
 		entry = &section_ptr->entry[section_ptr->nentries];
 		entry->section = section_ptr;
