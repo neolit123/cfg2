@@ -90,8 +90,7 @@ cfg_status_t cfg_cache_size_set(cfg_t *st, cfg_uint32 size)
 	int diff;
 
 	CFG_CHECK_ST_RETURN(st, "cfg_cache_size_set", CFG_ERROR_NULL_PTR);
-	if (st->init != CFG_TRUE)
-		CFG_SET_RETURN_STATUS(st, CFG_ERROR_INIT);
+
 	/* check if we are setting the buffer to zero length */
 	if (!size) {
 		if (!st->cache)
@@ -701,8 +700,6 @@ cfg_status_t cfg_free(cfg_t *st)
 
 	CFG_CHECK_ST_RETURN(st, "cfg_free", CFG_ERROR_NULL_PTR);
 
-	if (st->init != CFG_TRUE)
-		CFG_SET_RETURN_STATUS(st, CFG_ERROR_INIT);
 	if (st->nentries || st->nsections) {
 		ret = cfg_free_memory(st);
 		if (ret != CFG_STATUS_OK)
@@ -926,9 +923,6 @@ cfg_status_t cfg_buffer_parse(cfg_t *st, cfg_char *buf, cfg_uint32 sz, cfg_bool 
 
 	CFG_CHECK_ST_RETURN(st, "cfg_buffer_parse", CFG_ERROR_NULL_PTR);
 
-	if (st->init != CFG_TRUE)
-		CFG_SET_RETURN_STATUS(st, CFG_ERROR_INIT);
-
 	/* set buffer */
 	if (copy) {
 		newbuf = (cfg_char *)malloc(sz + 1);
@@ -981,8 +975,6 @@ cfg_status_t cfg_file_ptr_parse(cfg_t *st, FILE *f, cfg_bool close)
 	CFG_CHECK_ST_RETURN(st, "cfg_file_ptr_parse", CFG_ERROR_NULL_PTR);
 	if (!f)
 		CFG_SET_RETURN_STATUS(st, CFG_ERROR_FILE);
-	if (st->init != CFG_TRUE)
-		CFG_SET_RETURN_STATUS(st, CFG_ERROR_INIT);
 
 	/* get file size */
 	while (fgetc(f) != EOF)
@@ -1013,8 +1005,6 @@ cfg_status_t cfg_file_parse(cfg_t *st, cfg_char *filename)
 {
 	FILE *f;
 	CFG_CHECK_ST_RETURN(st, "cfg_file_parse", CFG_ERROR_NULL_PTR);
-	if (st->init != CFG_TRUE)
-		CFG_SET_RETURN_STATUS(st, CFG_ERROR_INIT);
 	/* read file */
 	f = fopen(filename, "r");
 	return cfg_file_ptr_parse(st, f, CFG_TRUE);
@@ -1099,8 +1089,6 @@ cfg_status_t cfg_buffer_write(cfg_t *st, cfg_char **out, cfg_uint32 *len)
 	cfg_entry_t *entry;
 
 	CFG_CHECK_ST_RETURN(st, "cfg_buffer_write", CFG_ERROR_NULL_PTR);
-	if (st->init != CFG_TRUE)
-		return CFG_ERROR_INIT;
 	if (!out || !len)
 		return CFG_ERROR_NULL_PTR;
 
@@ -1192,8 +1180,6 @@ cfg_status_t cfg_file_ptr_write(cfg_t *st, FILE *f, cfg_bool close)
 	cfg_status_t ret;
 
 	CFG_CHECK_ST_RETURN(st, "cfg_file_ptr_write", CFG_ERROR_NULL_PTR);
-	if (st->init != CFG_TRUE)
-		CFG_SET_RETURN_STATUS(st, CFG_ERROR_INIT);
 	if (!f)
 		CFG_SET_RETURN_STATUS(st, CFG_ERROR_FILE);
 
@@ -1219,8 +1205,6 @@ cfg_status_t cfg_file_write(cfg_t *st, cfg_char *filename)
 {
 	FILE *f;
 	CFG_CHECK_ST_RETURN(st, "cfg_file_write", CFG_ERROR_NULL_PTR);
-	if (st->init != CFG_TRUE)
-		CFG_SET_RETURN_STATUS(st, CFG_ERROR_INIT);
 	/* read file */
 	f = fopen(filename, "w");
 	return cfg_file_ptr_write(st, f, CFG_TRUE);
