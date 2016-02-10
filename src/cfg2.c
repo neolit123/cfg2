@@ -708,9 +708,9 @@ static cfg_status_t cfg_raw_buffer_parse(cfg_t *st, cfg_char *buf, cfg_uint32 sz
 	st->section = (cfg_section_t *)malloc(sections * sizeof(cfg_section_t));
 	for (i = 0; i < sections; i++) {
 		section = &st->section[i];
-		section->nentries = *entries[i];
-		if (*entries[i])
-			section->entry = (cfg_entry_t *)malloc( * sizeof(cfg_entry_t));
+		section->nentries = entries[i];
+		if (entries[i])
+			section->entry = (cfg_entry_t *)malloc(entries[i] * sizeof(cfg_entry_t));
 		else
 			section->entry = NULL;
 	}
