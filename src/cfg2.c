@@ -187,7 +187,7 @@ cfg_section_t *cfg_section_get(cfg_t *st, cfg_char *section)
 
 cfg_entry_t *cfg_entry_get(cfg_t *st, cfg_char *section, cfg_char *key)
 {
-	cfg_section_t section;
+	cfg_section_t *section_ptr;
 	cfg_uint32 key_hash, i;
 	cfg_entry_t *entry;
 
@@ -197,8 +197,8 @@ cfg_entry_t *cfg_entry_get(cfg_t *st, cfg_char *section, cfg_char *key)
 		return NULL;
 	}
 
-	section = cfg_section_get(st, section);
-	if (!section)
+	section_ptr = cfg_section_get(st, section);
+	if (!section_ptr)
 		return NULL;
 
 	key_hash = cfg_hash_get(key);
@@ -208,7 +208,7 @@ cfg_entry_t *cfg_entry_get(cfg_t *st, cfg_char *section, cfg_char *key)
 		for (i = 0; i < st->cache_size; i++) {
 			if (!st->cache[i])
 				break;
-			if (section->hash != st->cache[i]->section->hash)
+			if (section_ptr->hash != st->cache[i]->section->hash)
 				continue;
 			if (key_hash == st->cache[i]->key_hash) {
 			    CFG_SET_STATUS(st, CFG_STATUS_OK);
@@ -217,15 +217,13 @@ cfg_entry_t *cfg_entry_get(cfg_t *st, cfg_char *section, cfg_char *key)
 		}
 	}
 
-	for (i = 0; i < section->nentries; i++) {
-		entry = &section->entry[i];
-		if (section_hash != entry->section_hash)
+	for (i = 0; i < section_ptr->nentries; i++) {
+		entry = &section_ptr->entry[i];
+		if (key_hash != entry->key_hash)
 			continue;
-		if (key_hash == entry->key_hash) {
-			cfg_cache_entry_add(st, entry);
-			CFG_SET_STATUS(st, CFG_STATUS_OK);
-			return entry;
-		}
+		cfg_cache_entry_add(st, entry);
+		CFG_SET_STATUS(st, CFG_STATUS_OK);
+		return entry;
 	}
 	CFG_SET_STATUS(st, CFG_ERROR_ENTRY_NOT_FOUND);
 	return NULL;
