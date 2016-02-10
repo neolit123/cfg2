@@ -120,7 +120,7 @@ char *v;
 cfg_t *st; /* library object */
 
 st = cfg_alloc(); /* init the library */
-cfg_parse_file(st, some_file); /* parse a file */
+cfg_file_parse(st, some_file); /* parse a file */
 v = cfg_value_get(st, "section1", "key1"); /* get a key's value */
 puts(v); /* value1 */
 cfg_free(st);
