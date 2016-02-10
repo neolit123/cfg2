@@ -192,7 +192,8 @@ cfg_section_t *cfg_section_get(cfg_t *st, cfg_char *section)
 
 cfg_entry_t *cfg_entry_get(cfg_t *st, cfg_char *section, cfg_char *key)
 {
-	cfg_uint32 section_hash, key_hash, i;
+	cfg_section_t section;
+	cfg_uint32 key_hash, i;
 	cfg_entry_t *entry;
 
 	CFG_CHECK_ST_RETURN(st, "cfg_entry_get", NULL);
@@ -200,13 +201,11 @@ cfg_entry_t *cfg_entry_get(cfg_t *st, cfg_char *section, cfg_char *key)
 		CFG_SET_STATUS(st, CFG_ERROR_NULL_KEY);
 		return NULL;
 	}
-	if (!st->nentries) {
-		CFG_SET_STATUS(st, CFG_ERROR_NO_ENTRIES);
-		return NULL;
-	}
 
-	section_hash = section == CFG_ROOT_SECTION ? CFG_ROOT_SECTION_HASH :
-		cfg_hash_get(section);
+	section = cfg_section_get(st, section);
+	if (!section)
+		return NULL;
+
 	key_hash = cfg_hash_get(key);
 
 	/* check for value in cache first */
@@ -214,7 +213,7 @@ cfg_entry_t *cfg_entry_get(cfg_t *st, cfg_char *section, cfg_char *key)
 		for (i = 0; i < st->cache_size; i++) {
 			if (!st->cache[i])
 				break;
-			if (section_hash != st->cache[i]->section_hash)
+			if (section->hash != st->cache[i]->section->hash)
 				continue;
 			if (key_hash == st->cache[i]->key_hash) {
 			    CFG_SET_STATUS(st, CFG_STATUS_OK);
@@ -223,8 +222,8 @@ cfg_entry_t *cfg_entry_get(cfg_t *st, cfg_char *section, cfg_char *key)
 		}
 	}
 
-	for (i = 0; i < st->nentries; i++) {
-		entry = &st->entry[i];
+	for (i = 0; i < section->nentries; i++) {
+		entry = &section->entry[i];
 		if (section_hash != entry->section_hash)
 			continue;
 		if (key_hash == entry->key_hash) {
