@@ -877,7 +877,8 @@ static void cfg_raw_buffer_convert(cfg_t *st, cfg_char *buf, cfg_uint32 buf_sz, 
 				continue;
 			case '[':
 				section_line = CFG_TRUE;
-				entry_ptr = (cfg_uint32 *)realloc(entry_ptr, (*sections + 1) * sizeof(cfg_uint32));
+				*entries = (cfg_uint32 *)realloc(*entries, (*sections + 1) * sizeof(cfg_uint32));
+				entry_ptr = *entries;
 				entry_ptr[*sections] = 0;
 				(*sections)++;
 			case ']':
