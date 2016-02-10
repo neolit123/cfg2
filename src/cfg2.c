@@ -181,7 +181,7 @@ cfg_section_t *cfg_section_get(cfg_t *st, cfg_char *section)
 		CFG_SET_STATUS(st, CFG_STATUS_OK);
 		return &st->section[i];
 	}
-	CFG_SET_STATUS(st, CFG_ERROR_SECTION_NOT_FOUND);
+	CFG_SET_STATUS(st, CFG_ERROR_NOT_FOUND);
 	return NULL;
 }
 
@@ -225,7 +225,7 @@ cfg_entry_t *cfg_entry_get(cfg_t *st, cfg_char *section, cfg_char *key)
 		CFG_SET_STATUS(st, CFG_STATUS_OK);
 		return entry;
 	}
-	CFG_SET_STATUS(st, CFG_ERROR_ENTRY_NOT_FOUND);
+	CFG_SET_STATUS(st, CFG_ERROR_NOT_FOUND);
 	return NULL;
 }
 
@@ -547,7 +547,7 @@ cfg_status_t cfg_value_set(cfg_t *st, cfg_char *section, cfg_char *key, cfg_char
 			st->nsections++;
 			CFG_SET_RETURN_STATUS(st, CFG_STATUS_OK);
 		} else {
-			CFG_SET_RETURN_STATUS(st, CFG_ERROR_SECTION_NOT_FOUND);
+			CFG_SET_RETURN_STATUS(st, CFG_ERROR_NOT_FOUND);
 		}
 	}
 
@@ -573,7 +573,7 @@ cfg_status_t cfg_value_set(cfg_t *st, cfg_char *section, cfg_char *key, cfg_char
 		section_ptr->nentries++;
 		CFG_SET_RETURN_STATUS(st, CFG_STATUS_OK);
 	}
-	CFG_SET_RETURN_STATUS(st, CFG_ERROR_ENTRY_NOT_FOUND);
+	CFG_SET_RETURN_STATUS(st, CFG_ERROR_NOT_FOUND);
 }
 
 cfg_status_t cfg_root_value_set(cfg_t *st, cfg_char *key, cfg_char *value, cfg_bool add)
@@ -622,7 +622,7 @@ cfg_status_t cfg_section_delete(cfg_t *st, cfg_char *section)
 
 	section_ptr = cfg_section_get(st, section);
 	if (!section_ptr)
-		CFG_SET_RETURN_STATUS(st, CFG_ERROR_SECTION_NOT_FOUND);
+		CFG_SET_RETURN_STATUS(st, CFG_ERROR_NOT_FOUND);
 
 	for (i = 0; i < section_ptr->nentries; i++) {
 		ret = cfg_entry_delete(st, &section_ptr->entry[i]);
