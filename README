@@ -67,38 +67,71 @@ alternative.
 ================================================================================
 HOW IT WORKS:
 
-when reading a buffer with cfg2, first we find how many keys and sections are
-there. after we have a number, we allocate lists of values (or pointers)
-with that size.
+* STRUCTURE
 
-then we go trough the buffer again and store the key values in string buffers
-and also calculate hash values for each one (using fnv-32) and assign them
-to sections. this is a common performance boost, since when we are looking
-for a value in the list we simply compare key hashes (32bit integer) instead
-of key strings. this can be considered as a dictionary implementation,
-yet the source code does not mention it.
+arrays of objects (not object pointers) are used instead of linked lists for
+performance reasons.
 
-the parser uses a trick with special characters to separate sections, keys
-and values into a raw buffer. you should look at cfg2.h to find the default
-ones set as CFG_KEY_VALUE_SEPARATOR and CFG_SECTION_SEPARATOR.
+all sections are allocated into cfg_section_t objects and each section object
+has a list of cfg_entry_t objects which have the key / value pairs.
+everything is continuous memory so cache misses when doing linear search are
+very unlikely.
+
+there is always at least one section, which is called the "root" section.
+
+* PARSING:
+
+once an input buffer is passed to the parser the first stage is to covert it
+into a "raw" buffer, which is readable by the second stage, while counting
+how many sections and entries per section are there.
+in this stage the parser uses a trick with special characters to separate
+sections, keys and values into the "raw" buffer.
+
+the second stage is to parse the strings from the "raw" buffer into the library
+object memory, while allocating the cfg_section_t and cfg_entry_t objects for
+each section. the parsing is a two stage operation for the sake of not
+calling realloc() multiple times. this is a very good optimization for any
+size of the input buffer and parser implementation.
+
+* ACCESS
+
+linear search is used to traverse the list of entries in a section, but this
+is blazing fast for millions of entries because of the continuous memory block
+usage. if you truly have way too many entries, just separate them into multiple
+sections.
+
+addition and deletion of entries is something which arrays are supposedly much
+worse than linked lists, yet performance in this library is quite good as
+it takes milliseconds to transpose a list of millions of entries.
+
+* WRITING
+
+when writing the contents of the library objects the sections and entries
+are serialized into strings one by one into a growing buffer.
+mind that all formatting is lost in the process.
+
+unlike parsing, writing uses realloc() and is a much slower operation.
+this can be optimized eventually.
+
+* CACHE
 
 another present optimization is caching N values in a separate cache buffer and
-always checking this buffer first, instead of the main one (which can be huge).
-this technique optimizes performance when a value is used multiple times.
+always checking this buffer first, instead of a section buffer (which can be
+huge). this technique optimizes performance when a value is used multiple times.
 the cache buffer can be resized dynamically or disabled when its size is set to
 zero.
 
-arrays are used instead of linked lists for performance reasons.
-
-without cache support and all the helper functions the source code can
-be squeezed into 200 lines of readable code.
+ironically, a cache miss is possible when reading entries from the library
+cache because of the way an entry in the cache is checked for it's parent
+section. however, the library cache is still a major performance boost, given
+it has a viable size.
 
 ================================================================================
 PERFORMANCE:
 
-the library should be pretty fast even without optimization flags. from tests
-it takes around 1.4 seconds to parse a 20MB text file with ~550,000 keys and
-~80,000 sections on a modern dual core processor.
+the library should be pretty fast even without optimization flags. from
+some outdated tests, it takes around 1.4 seconds to parse a 20MB text file
+with ~550,000 keys and ~80,000 sections on a modern dual core processor.
 
 ================================================================================
 API:
