@@ -615,6 +615,7 @@ cfg_status_t cfg_entry_delete(cfg_t *st, cfg_entry_t *entry)
 cfg_status_t cfg_section_delete(cfg_t *st, cfg_char *section)
 {
 	cfg_uint32 i, idx;
+	cfg_status_t ret;
 	cfg_section_t *section_ptr;
 
 	CFG_CHECK_ST_RETURN(st, "cfg_section_delete", CFG_ERROR_NULL_PTR);
@@ -623,8 +624,11 @@ cfg_status_t cfg_section_delete(cfg_t *st, cfg_char *section)
 	if (!section_ptr)
 		CFG_SET_RETURN_STATUS(st, CFG_ERROR_SECTION_NOT_FOUND);
 
-	for (i = 0; i < section_ptr->nentries; i++)
-		cfg_entry_delete(st, section_ptr->entry[i]);
+	for (i = 0; i < section_ptr->nentries; i++) {
+		ret = cfg_entry_delete(st, &section_ptr->entry[i]);
+		if (ret != CFG_STATUS_OK)
+			return ret;
+	}
 
 	free(section_ptr->name);
 	free(section_ptr->entry);
@@ -633,7 +637,7 @@ cfg_status_t cfg_section_delete(cfg_t *st, cfg_char *section)
 	if (idx < st->nsections - 1)
 		memcpy((void *)&st->section[idx], (void *)&st->section[idx + 1], (st->nsections - idx - 1) * sizeof(cfg_section_t));
 	st->nsections--;
-	st->section = (cfg_char **)realloc(st->section, st->nsections * sizeof(cfg_section_t));
+	st->section = (cfg_section_t *)realloc(st->section, st->nsections * sizeof(cfg_section_t));
 	if (!st->section)
 		CFG_SET_RETURN_STATUS(st, CFG_ERROR_ALLOC);
 	CFG_SET_RETURN_STATUS(st, CFG_STATUS_OK);
