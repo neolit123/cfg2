@@ -76,16 +76,14 @@ typedef double cfg_double;
 
 typedef enum {
 	/* 0  */ CFG_STATUS_OK,
-	/* 1  */ CFG_ERROR_NULL_KEY,
-	/* 2  */ CFG_ERROR_NULL_ENTRY,
-	/* 3  */ CFG_ERROR_NULL_PTR,
-	/* 4  */ CFG_ERROR_ALLOC,
-	/* 5  */ CFG_ERROR_FREAD,
-	/* 6  */ CFG_ERROR_FWRITE,
-	/* 7  */ CFG_ERROR_FILE,
-	/* 8  */ CFG_ERROR_ENTRY_NOT_FOUND,
-	/* 9  */ CFG_ERROR_SECTION_NOT_FOUND,
-	/* 10 */ CFG_ERROR_CACHE_SIZE
+	/* 1  */ CFG_ERROR_NULL_PTR,
+	/* 2  */ CFG_ERROR_ALLOC,
+	/* 3  */ CFG_ERROR_FREAD,
+	/* 4  */ CFG_ERROR_FWRITE,
+	/* 5  */ CFG_ERROR_FILE,
+	/* 6  */ CFG_ERROR_ENTRY_NOT_FOUND,
+	/* 7  */ CFG_ERROR_SECTION_NOT_FOUND,
+	/* 8 */ CFG_ERROR_CACHE_SIZE
 } cfg_status_t;
 
 /* -----------------------------------------------------------------------------

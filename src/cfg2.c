@@ -196,7 +196,7 @@ cfg_entry_t *cfg_entry_get(cfg_t *st, cfg_char *section, cfg_char *key)
 
 	CFG_CHECK_ST_RETURN(st, "cfg_entry_get", NULL);
 	if (!key) {
-		CFG_SET_STATUS(st, CFG_ERROR_NULL_KEY);
+		CFG_SET_STATUS(st, CFG_ERROR_NULL_PTR);
 		return NULL;
 	}
 
@@ -243,7 +243,7 @@ cfg_status_t cfg_cache_entry_add(cfg_t *st, cfg_entry_t *entry)
 {
 	CFG_CHECK_ST_RETURN(st, "cfg_cache_entry_add", CFG_ERROR_NULL_PTR);
 	if (!entry)
-		CFG_SET_RETURN_STATUS(st, CFG_ERROR_NULL_ENTRY);
+		CFG_SET_RETURN_STATUS(st, CFG_ERROR_NULL_PTR);
 	if (!st->cache_size)
 		CFG_SET_RETURN_STATUS(st, CFG_ERROR_CACHE_SIZE);
 
@@ -528,11 +528,8 @@ cfg_status_t cfg_value_set(cfg_t *st, cfg_char *section, cfg_char *key, cfg_char
 
 	CFG_CHECK_ST_RETURN(st, "cfg_value_set", CFG_ERROR_NULL_PTR);
 
-	if (!value)
+	if (!key || !value)
 		CFG_SET_RETURN_STATUS(st, CFG_ERROR_NULL_PTR);
-
-	if (!key)
-		CFG_SET_RETURN_STATUS(st, CFG_ERROR_NULL_KEY);
 
 	key_hash = cfg_hash_get(key);
 	section_ptr = cfg_section_get(st, section);
@@ -589,13 +586,13 @@ cfg_status_t cfg_root_value_set(cfg_t *st, cfg_char *key, cfg_char *value, cfg_b
 	return cfg_value_set(st, CFG_ROOT_SECTION, key, value, add);
 }
 
-cfg_status_t cfg_entry_delete(cfg_t *st, cfg_entry_t *entry)
+cfg_status_t cfg_entry_delete(cfg_t *st, cfg_section_t *section, cfg_entry_t *entry)
 {
 	cfg_uint32 index;
 
 	CFG_CHECK_ST_RETURN(st, "cfg_entry_delete", CFG_ERROR_NULL_PTR);
-	if (!entry)
-		CFG_SET_RETURN_STATUS(st, CFG_ERROR_NULL_ENTRY);
+	if (!section || !entry)
+		CFG_SET_RETURN_STATUS(st, CFG_ERROR_NULL_PTR);
 
 	free(entry->key);
 	free(entry->value);
@@ -661,7 +658,7 @@ static cfg_status_t cfg_free_memory(cfg_t *st)
 	cfg_uint32 i, j;
 
 	if (!st->section || !st->cache)
-		CFG_SET_RETURN_STATUS(st, CFG_NULL_POINTER);
+		CFG_SET_RETURN_STATUS(st, CFG_NULL_PTR);
 
 	for (i = 0; i < st->nsections; i++) {
 		section = &st->section[i];
