@@ -121,32 +121,32 @@ cfg_status_t cfg_free(cfg_t *st);
 
 /* parse a buffer (buf) of size (sz); optional copy (copy) or work in place. */
 CFG_EXPORT
-cfg_status_t cfg_parse_buffer(cfg_t *st, cfg_char *buf, cfg_uint32 sz, cfg_bool copy);
+cfg_status_t cfg_buffer_parse(cfg_t *st, cfg_char *buf, cfg_uint32 sz, cfg_bool copy);
 
 /* parse a file by name, passed as the 2nd parameter. non-safe for Win32's
  * UTF-16 paths! use cfg_parse_buffer() or cfg_parse_file_ptr() instead. */
 CFG_EXPORT
-cfg_status_t cfg_parse_file(cfg_t *st, cfg_char *filename);
+cfg_status_t cfg_file_parse(cfg_t *st, cfg_char *filename);
 
 /* alternative to cfg_parse_file() that accepts a FILE* stream;
  * third argument is optional close of the stream. */
 CFG_EXPORT
-cfg_status_t cfg_parse_file_ptr(cfg_t *st, FILE *f, cfg_bool close);
+cfg_status_t cfg_file_ptr_parse(cfg_t *st, FILE *f, cfg_bool close);
 
 /* write all the sections and keys to a string buffer; allocates memory at
  * the 'out' pointer and stores the length in 'len'. */
 CFG_EXPORT
-cfg_status_t cfg_write_buffer(cfg_t *st, cfg_char **out, cfg_uint32 *len);
+cfg_status_t cfg_buffer_write(cfg_t *st, cfg_char **out, cfg_uint32 *len);
 
 /* write all the sections and keys to a file. non-safe for Win32's
  * UTF-16 paths! use cfg_write_buffer() or cfg_write_file_ptr() instead. */
 CFG_EXPORT
-cfg_status_t cfg_write_file(cfg_t *st, cfg_char *filename);
+cfg_status_t cfg_file_write(cfg_t *st, cfg_char *filename);
 
 /* write all the sections and keys to a FILE pointer with optional close
  * when done. */
 CFG_EXPORT
-cfg_status_t cfg_write_file_ptr(cfg_t *st, FILE *f, cfg_bool close);
+cfg_status_t cfg_file_ptr_write(cfg_t *st, FILE *f, cfg_bool close);
 
 /* set the verbose level for the library object; level = 0 (OFF), 1, 2, 3... */
 CFG_EXPORT
