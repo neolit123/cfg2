@@ -174,7 +174,7 @@ cfg_uint32 cfg_hash_get(cfg_char *str)
 	quote = CFG_FALSE;
 
 /* unescape all special characters (like \n) in a string */
-static void cfg_unescape(cfg_t *st, cfg_char *buf, cfg_uint32 buf_sz, cfg_uint32 *keys, cfg_uint32 *sections)
+static void cfg_unescape(cfg_t *st, cfg_char *buf, cfg_uint32 buf_sz, cfg_uint32 *sections, cfg_uint32 **entries)
 {
 	static const cfg_char *fname = "[cfg2] cfg_unescape()";
 	cfg_uint32 line = 0;
@@ -184,8 +184,11 @@ static void cfg_unescape(cfg_t *st, cfg_char *buf, cfg_uint32 buf_sz, cfg_uint32
 	cfg_bool line_eq_sign = CFG_FALSE;
 	cfg_bool multiline = CFG_FALSE;
 	cfg_bool section_line = CFG_FALSE;
-	*keys = 0;
+	cfg_section_t *section;
+
 	*sections = 0;
+	*entries = (cfg_uint32 *)malloc(sizeof(cfg_uint32));
+	*entries[0] = 0;
 
 	for (src = dest = buf; src < buf + buf_sz; src++) {
 		/* convert separators to spaces, if found */
@@ -251,7 +254,7 @@ static void cfg_unescape(cfg_t *st, cfg_char *buf, cfg_uint32 buf_sz, cfg_uint32
 			case '=':
 				CFG_UNESCAPE_CHECK_QUOTE();
 				line_eq_sign = CFG_TRUE;
-				(*keys)++;
+				*entries[*sections]++;
 				*dest = st->separator_key_value;
 				dest++;
 				continue;
@@ -271,6 +274,8 @@ static void cfg_unescape(cfg_t *st, cfg_char *buf, cfg_uint32 buf_sz, cfg_uint32
 				continue;
 			case '[':
 				section_line = CFG_TRUE;
+				*entries = (cfg_uint32 *)realloc(*entries, (*sections + 1) * sizeof(cfg_uint32));
+				*entries[*sections] = 0;
 				(*sections)++;
 			case ']':
 				CFG_UNESCAPE_CHECK_QUOTE();
@@ -895,7 +900,7 @@ cfg_status_t cfg_parse_buffer(cfg_t *st, cfg_char *buf, cfg_uint32 sz, cfg_bool 
 {
 	cfg_status_t ret;
 	cfg_char *newbuf;
-	cfg_uint32 keys, sections;
+	cfg_uint32 sections, *entries;
 
 	CFG_CHECK_ST_RETURN(st, "cfg_parse_buffer", CFG_ERROR_NULL_PTR);
 
@@ -924,7 +929,7 @@ cfg_status_t cfg_parse_buffer(cfg_t *st, cfg_char *buf, cfg_uint32 sz, cfg_bool 
 	if (ret != CFG_STATUS_OK)
 		CFG_SET_RETURN_STATUS(st, ret);
 
-	cfg_unescape(st, newbuf, sz, &keys, &sections);
+	cfg_unescape(st, newbuf, sz, &sections, &entries);
 
 	/* allocate memory for the list */
 	if (keys) {
@@ -938,9 +943,8 @@ cfg_status_t cfg_parse_buffer(cfg_t *st, cfg_char *buf, cfg_uint32 sz, cfg_bool 
 			CFG_SET_RETURN_STATUS(st, CFG_ERROR_ALLOC);
 	}
 
-	st->nentries = keys;
-	st->nsections = sections;
-	ret = cfg_parse_buffer_keys(st, newbuf, sz);
+	ret = cfg_parse_buffer_keys(st, newbuf, sz, sections, &entries);
+	free(entries);
 	if (copy)
 		free(newbuf);
 	CFG_SET_RETURN_STATUS(st, ret);
