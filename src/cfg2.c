@@ -586,24 +586,27 @@ cfg_status_t cfg_root_value_set(cfg_t *st, cfg_char *key, cfg_char *value, cfg_b
 	return cfg_value_set(st, CFG_ROOT_SECTION, key, value, add);
 }
 
-cfg_status_t cfg_entry_delete(cfg_t *st, cfg_section_t *section, cfg_entry_t *entry)
+cfg_status_t cfg_entry_delete(cfg_t *st, cfg_entry_t *entry)
 {
 	cfg_uint32 index;
+	cfg_section_t *section;
 
 	CFG_CHECK_ST_RETURN(st, "cfg_entry_delete", CFG_ERROR_NULL_PTR);
-	if (!section || !entry)
+	if (!entry)
 		CFG_SET_RETURN_STATUS(st, CFG_ERROR_NULL_PTR);
+
+	section = entry->section;
 
 	free(entry->key);
 	free(entry->value);
 
-	index = entry - &st->entry[0];
-	if (index < st->nentries - 1)
-		memcpy((void *)&st->entry[index], (void *)&st->entry[index + 1], (st->nentries - index - 1) * sizeof(cfg_entry_t));
+	index = entry - &section->entry[0];
+	if (index < section->nentries - 1)
+		memcpy((void *)&section->entry[index], (void *)&section->entry[index + 1], (section->nentries - index - 1) * sizeof(cfg_entry_t));
 
-	st->nentries--;
-	st->entry = (cfg_entry_t *)realloc(st->entry, st->nentries * sizeof(cfg_entry_t));
-	if (!st->entry)
+	section->nentries--;
+	section->entry = (cfg_entry_t *)realloc(section->entry, section->nentries * sizeof(cfg_entry_t));
+	if (!section->entry)
 		CFG_SET_RETURN_STATUS(st, CFG_ERROR_ALLOC);
 
 	CFG_SET_RETURN_STATUS(st, CFG_STATUS_OK);
