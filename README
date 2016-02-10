@@ -90,8 +90,11 @@ sections, keys and values into the "raw" buffer.
 the second stage is to parse the strings from the "raw" buffer into the library
 object memory, while allocating the cfg_section_t and cfg_entry_t objects for
 each section. the parsing is a two stage operation for the sake of not
-calling realloc() multiple times. this is a very good optimization for any
-size of the input buffer and parser implementation.
+calling realloc() multiple times on the output buffer. this is a very good
+optimization for any size of the input buffer and parser implementation.
+
+realloc() is only used to count the number of sections in a uint32 buffer,
+which grows in power-of-two increments.
 
 * ACCESS
 
@@ -110,21 +113,21 @@ when writing the contents of the library objects the sections and entries
 are serialized into strings one by one into a growing buffer.
 mind that all formatting is lost in the process.
 
-unlike parsing, writing uses realloc() and is a much slower operation.
-this can be optimized eventually.
+unlike parsing, no size estimation is done here, so realloc() is used for the
+output buffer. it grows in power-of-two increments.
 
 * CACHE
 
 another present optimization is caching N values in a separate cache buffer and
 always checking this buffer first, instead of a section buffer (which can be
-huge). this technique optimizes performance when a value is used multiple times.
-the cache buffer can be resized dynamically or disabled when its size is set to
-zero.
+huge). this technique optimizes performance when an entry is used multiple
+times. the cache buffer can be resized dynamically or disabled when its size
+is set to zero.
 
-ironically, a cache miss is possible when reading entries from the library
-cache because of the way an entry in the cache is checked for it's parent
-section. however, the library cache is still a major performance boost, given
-it has a viable size.
+ironically, cache misses are more likely to happen when reading entries from
+the library cache because of the way an entry in the cache is checked for
+it's parent section. however, the library cache is still a major performance
+boost, if it has been set to a reasonable size.
 
 ================================================================================
 PERFORMANCE:
