@@ -91,14 +91,13 @@ typedef enum {
 */
 
 /* the main library object */
-typedef struct cfg_private cfg_t;
+typedef struct _cfg_t cfg_t;
 
 /* the library's section object */
-typedef struct cfg_section_private cfg_section_t;
-
+typedef struct _cfg_section_t cfg_section_t;
 
 /* the library's data entry */
-typedef struct cfg_entry_private cfg_entry_t;
+typedef struct _cfg_entry_t cfg_entry_t;
 
 /* -----------------------------------------------------------------------------
  * buffer & file I/O

@@ -30,7 +30,7 @@
 		return _ret; \
 	}
 
-struct cfg_private {
+struct _cfg_t {
 	cfg_char separator_section;
 	cfg_char separator_key_value;
 	cfg_char comment_char1;
@@ -45,14 +45,14 @@ struct cfg_private {
 	cfg_entry_t **cache;
 };
 
-struct cfg_section_private {
+struct _cfg_section_t {
 	cfg_uint32 hash;
 	cfg_uint32 nentries;
 	cfg_char *name;
 	cfg_entry_t *entry;
 };
 
-struct cfg_entry_private {
+struct _cfg_entry_t {
 	cfg_uint32 key_hash;
 	cfg_char *key;
 	cfg_char *value;
