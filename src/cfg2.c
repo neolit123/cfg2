@@ -662,19 +662,22 @@ cfg_status_t cfg_section_delete(cfg_t *st, cfg_char *section)
 
 static cfg_status_t cfg_free_memory(cfg_t *st)
 {
-	cfg_uint32 i;
+	cfg_section_t *section;
+	cfg_entry_t *entry;
+	cfg_uint32 i, j;
 
-	for (i = 0; i < st->nentries; i++) {
-		free(st->entry[i].key);
-		free(st->entry[i].value);
-	}
-	free(st->entry);
-	st->entry = NULL;
-	st->nentries = 0;
+	if (!st->section || !st->cache)
+		CFG_SET_RETURN_STATUS(st, CFG_NULL_POINTER);
 
 	for (i = 0; i < st->nsections; i++) {
-		free(st->section[i]);
-		st->section[i] = NULL;
+		section = &st->section[i];
+		for (j = 0; j < section->nentries; j++) {
+			entry = &section->entry[j];
+			free(entry->key);
+			free(entry->value);
+		}
+		free(section->name);
+		free(section->entry);
 	}
 	free(st->section);
 	st->section = NULL;
@@ -705,11 +708,8 @@ cfg_status_t cfg_free(cfg_t *st)
 		if (ret != CFG_STATUS_OK)
 			return ret;
 	}
-	memset((void *)st, 0, sizeof(st));
-	st->init = CFG_FALSE; /* not needed if CFG_FALSE is zero */
-
 	free(st);
-	CFG_SET_RETURN_STATUS(st, CFG_STATUS_OK);
+	return CFG_STATUS_OK;
 }
 
 static cfg_status_t cfg_raw_buffer_parse(cfg_t *st, cfg_char *buf, cfg_uint32 sz, cfg_uint32 sections, cfg_uint32 *entries)
