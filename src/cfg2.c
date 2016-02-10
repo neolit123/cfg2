@@ -606,7 +606,7 @@ cfg_status_t cfg_entry_delete(cfg_t *st, cfg_entry_t *entry)
 
 	section->nentries--;
 	if (section->nentries) {
-		section->entry = (cfg_entry_t *)realloc(section->entry, section->nentries * sizeof(cfg_entry_t));	
+		section->entry = (cfg_entry_t *)realloc(section->entry, section->nentries * sizeof(cfg_entry_t));
 		if (!section->entry)
 			CFG_SET_RETURN_STATUS(st, CFG_ERROR_ALLOC);
 	} else {
@@ -727,7 +727,7 @@ static cfg_status_t cfg_raw_buffer_parse(cfg_t *st, cfg_char *buf, cfg_uint32 sz
 	/* allocate section and entry buffers */
 	st->section = (cfg_section_t *)malloc(sections * sizeof(cfg_section_t));
 	for (i = 0; i < sections; i++) {
-		section = &st->section[i]; 
+		section = &st->section[i];
 		section->nentries = *entries[i];
 		if (*entries[i])
 			section->entry = (cfg_entry_t *)malloc( * sizeof(cfg_entry_t));
@@ -1077,95 +1077,47 @@ static cfg_char* cfg_entry_string(cfg_entry_t *entry, cfg_uint32 *len)
 cfg_status_t cfg_buffer_write(cfg_t *st, cfg_char **out, cfg_uint32 *len)
 {
 	static const cfg_char *fname = "[cfg2] cfg_buffer_write():";
-	cfg_uint32 i, j, nsec, n;
-	cfg_char *ptr, *str;
-	cfg_char **sec_buf;
-	cfg_uint32 *sec_hash;
-	cfg_uint32 *sec_len;
+	cfg_uint32 i, j, sz, n;
+	cfg_char *str, *ptr;
+	cfg_section_t *section;
 	cfg_entry_t *entry;
 
-	CFG_CHECK_ST_RETURN(st, "cfg_buffer_write", CFG_ERROR_NULL_PTR);
-	if (!out || !len)
-		return CFG_ERROR_NULL_PTR;
-
-	nsec = st->nsections + 1;
-	sec_hash = (cfg_uint32 *)malloc(nsec * sizeof(cfg_uint32));
-	sec_len = (cfg_uint32 *)malloc(nsec * sizeof(cfg_uint32));
-	sec_buf = (cfg_char **)malloc(nsec * sizeof(cfg_char *));
-	sec_buf[0] = (cfg_char *)malloc(1);
-
-	if (!sec_hash || !sec_len || !sec_buf || !sec_buf[0])
-		CFG_SET_RETURN_STATUS(st, CFG_ERROR_ALLOC);
-
-	sec_buf[0][0] = '\0';
-	sec_hash[0] = CFG_ROOT_SECTION_HASH;
-	sec_len[0] = 0;
-
-	if (st->verbose > 0)
-		fprintf(stderr, "%s allocating sections...\n", fname);
+	sz = 1;
+	ptr = *out;
+	*out = malloc(sz);
+	out[0] = '\0'; /* ensure an empty \0 terminated buffer */
 
 	for (i = 0; i < st->nsections; i++) {
-		sec_hash[i + 1] = cfg_hash_get(st->section[i]);
-
-		str = cfg_escape(st->section[i], &n);
-		n += 3; /* [, ], \n */
-		sec_len[i + 1] = n;
-		sec_buf[i + 1] = (cfg_char *)malloc(n + 1);
-		if (!sec_buf[i + 1])
-			CFG_SET_RETURN_STATUS(st, CFG_ERROR_ALLOC);
-		ptr = sec_buf[i + 1];
-		ptr[0] = '\0';
-		strcat(ptr, "[");
-		strcat(ptr, str);
-		strcat(ptr, "]\n");
-		free(str);
-	}
-
-	if (st->verbose > 0)
-		fprintf(stderr, "%s allocating entries per section...\n", fname);
-
-	for (i = 0; i < st->nentries; i++) {
-		entry = &st->entry[i];
-		if (!entry)
-			CFG_SET_RETURN_STATUS(st, CFG_ERROR_NULL_PTR);
-		for (j = 0; j < nsec; j++) {
-			if (sec_hash[j] == entry->section_hash)
-				break;
+		if (st->verbose > 0)
+			fprintf(stderr, "%s writing section %d...\n", fname, i);
+		if (i) { /* skip the root section name */
+			str = cfg_escape(st->section[i]->name, &n);
+			n += 3; /* [, ], \n */
+			sz += n;
+			*out = (cfg_char *)realloc(*out, sz);
+			if (!*out)
+				CFG_SET_RETURN_STATUS(st, CFG_ERROR_ALLOC);
+			strcat(ptr, "[");
+			strcat(ptr, str);
+			strcat(ptr, "]\n");
+			ptr += n;
+			free(str);
 		}
-		str = cfg_entry_string(entry, &n);
-		if (!str)
-			CFG_SET_RETURN_STATUS(st, CFG_ERROR_ALLOC);
-		sec_buf[j] = realloc(sec_buf[j], sec_len[j] + n + 1);
-		if (!sec_buf[j])
-			CFG_SET_RETURN_STATUS(st, CFG_ERROR_ALLOC);
-		sec_len[j] += n;
-		strcat(sec_buf[j], str);
-		free(str);
+		section = &st->section[i];
+		for (j = 0; j < section->nentries; j++) {
+			entry = &section->entry[j]);
+			str = cfg_entry_string(entry, &n);
+			if (!str)
+				CFG_SET_RETURN_STATUS(st, CFG_ERROR_ALLOC);
+			sz += n;
+			*out = (cfg_char *)realloc(*out, sz);
+			if (!*out)
+				CFG_SET_RETURN_STATUS(st, CFG_ERROR_ALLOC);
+			strcat(ptr, str);
+			ptr += n;
+		}
 	}
-
-	if (st->verbose > 0)
-		fprintf(stderr, "%s combining sections...\n", fname);
-
-	*out = NULL;
-	*len = 0;
-	for (i = 0; i < nsec; i++)
-		*len += sec_len[i] + 1;
-	*out = (cfg_char *)malloc(*len + 1);
-	if (!*out)
-		CFG_SET_RETURN_STATUS(st, CFG_ERROR_ALLOC);
-	*out[0] = '\0';
-	for (i = 0; i < nsec; i++) {
-		strcat(*out, sec_buf[i]);
-		strcat(*out, "\n");
-		free(sec_buf[i]);
-	}
-	free(sec_buf);
-	free(sec_len);
-	free(sec_hash);
-
-	if (st->verbose > 0)
-		fprintf(stderr, "%s done!\n", fname);
-
+	*len = sz;
 	CFG_SET_RETURN_STATUS(st, CFG_STATUS_OK);
 }
 
