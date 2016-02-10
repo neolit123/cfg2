@@ -567,7 +567,7 @@ cfg_status_t cfg_value_set(cfg_t *st, cfg_char *section, cfg_char *key, cfg_char
 
 	/* entry not found; add it or return error */
 	if (add) {
-		section_ptr->entry = st->section = (cfg_entry_t *)realloc(section_ptr->entry, (section_ptr->nentries + 1) * sizeof(cfg_section_t));
+		section_ptr->entry = (cfg_entry_t *)realloc(section_ptr->entry, (section_ptr->nentries + 1) * sizeof(cfg_section_t));
 		if (!section->entry)
 			CFG_SET_RETURN_STATUS(st, CFG_ERROR_ALLOC);
 		entry = &section_ptr->entry[section_ptr->nentries];
@@ -605,9 +605,14 @@ cfg_status_t cfg_entry_delete(cfg_t *st, cfg_entry_t *entry)
 		memcpy((void *)&section->entry[index], (void *)&section->entry[index + 1], (section->nentries - index - 1) * sizeof(cfg_entry_t));
 
 	section->nentries--;
-	section->entry = (cfg_entry_t *)realloc(section->entry, section->nentries * sizeof(cfg_entry_t));
-	if (!section->entry)
-		CFG_SET_RETURN_STATUS(st, CFG_ERROR_ALLOC);
+	if (section->nentries) {
+		section->entry = (cfg_entry_t *)realloc(section->entry, section->nentries * sizeof(cfg_entry_t));	
+		if (!section->entry)
+			CFG_SET_RETURN_STATUS(st, CFG_ERROR_ALLOC);
+	} else {
+		free(section->entry);
+		section->entry = NULL;
+	}
 
 	CFG_SET_RETURN_STATUS(st, CFG_STATUS_OK);
 }
@@ -720,10 +725,14 @@ static cfg_status_t cfg_raw_buffer_parse(cfg_t *st, cfg_char *buf, cfg_uint32 sz
 	cfg_section_t *section;
 
 	/* allocate section and entry buffers */
-	st->section = (cfg_section_t *)malloc(sectios * sizeof(cfg_section_t));
+	st->section = (cfg_section_t *)malloc(sections * sizeof(cfg_section_t));
 	for (i = 0; i < sections; i++) {
-		st->section[i].entry = (cfg_entry_t *)malloc(*entries[i] * sizeof(cfg_entry_t));
-		st->section[i].nentries = *entries[i];
+		section = &st->section[i]; 
+		section->nentries = *entries[i];
+		if (*entries[i])
+			section->entry = (cfg_entry_t *)malloc( * sizeof(cfg_entry_t));
+		else
+			section->entry = NULL;
 	}
 
 	/* prepare the root section */
@@ -946,19 +955,6 @@ cfg_status_t cfg_buffer_parse(cfg_t *st, cfg_char *buf, cfg_uint32 sz, cfg_bool 
 		CFG_SET_RETURN_STATUS(st, ret);
 
 	cfg_raw_buffer_convert(st, newbuf, sz, &sections, &entries);
-
-	/* allocate memory for the list */
-	if (keys) {
-		st->entry = (cfg_entry_t *)malloc(keys * sizeof(cfg_entry_t));
-		if (!st->entry)
-			CFG_SET_RETURN_STATUS(st, CFG_ERROR_ALLOC);
-	}
-	if (sections) {
-		st->section = (cfg_char **)malloc(sections * sizeof(cfg_char *));
-		if (!st->section)
-			CFG_SET_RETURN_STATUS(st, CFG_ERROR_ALLOC);
-	}
-
 	ret = cfg_raw_buffer_parse(st, newbuf, sz, sections, &entries);
 	free(entries);
 	if (copy)
