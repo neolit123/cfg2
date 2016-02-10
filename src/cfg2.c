@@ -93,9 +93,8 @@ cfg_status_t cfg_cache_size_set(cfg_t *st, cfg_uint32 size)
 
 	/* check if we are setting the buffer to zero length */
 	if (!size) {
-		if (!st->cache)
-			CFG_SET_RETURN_STATUS(st, CFG_ERROR_NULL_PTR);
-		free(st->cache);
+		if (st->cache)
+			free(st->cache);
 		st->cache = NULL;
 	} else {
 		st->cache = (cfg_entry_t **)realloc(st->cache, size * sizeof(cfg_entry_t *));
