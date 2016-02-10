@@ -1075,8 +1075,8 @@ cfg_status_t cfg_buffer_write(cfg_t *st, cfg_char **out, cfg_uint32 *len)
 			ptr = *out + sz - 1;
 			sz += n;
 			strcat(ptr, "[");
-			strcat(ptr, str);
-			strcat(ptr, "]\n");
+			strcat(ptr + 1, str);
+			strcat(ptr + n - 2, "]\n");
 			free(str);
 		}
 		section = &st->section[i];
