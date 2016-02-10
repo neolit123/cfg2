@@ -838,7 +838,7 @@ static void cfg_raw_buffer_parse(cfg_t *st, cfg_char *buf, cfg_uint32 sz, cfg_ui
 static void cfg_raw_buffer_convert(cfg_t *st, cfg_char *buf, cfg_uint32 buf_sz, cfg_uint32 *sections, cfg_uint32 **entries)
 {
 	static const cfg_char *fname = "[cfg2] cfg_raw_buffer_convert()";
-	cfg_uint32 line = 0;
+	cfg_uint32 line = 0, allocated;
 	cfg_char *src, *dest, last_char = 0;
 	cfg_bool escape = CFG_FALSE;
 	cfg_bool quote = CFG_FALSE;
@@ -848,7 +848,8 @@ static void cfg_raw_buffer_convert(cfg_t *st, cfg_char *buf, cfg_uint32 buf_sz, 
 	cfg_uint32 *entry_ptr;
 
 	/* prepare the root section */
-	*entries = (cfg_uint32 *)malloc(sizeof(cfg_uint32));
+	allocated = 1;
+	*entries = (cfg_uint32 *)malloc(allocated * sizeof(cfg_uint32));
 	entry_ptr = *entries;
 	entry_ptr[0] = 0;
 	*sections = 1;
@@ -937,7 +938,14 @@ static void cfg_raw_buffer_convert(cfg_t *st, cfg_char *buf, cfg_uint32 buf_sz, 
 				continue;
 			case '[':
 				section_line = CFG_TRUE;
-				*entries = (cfg_uint32 *)realloc(*entries, (*sections + 1) * sizeof(cfg_uint32));
+				if ((*sections + 1) > allocated) {
+					allocated <<= 1;
+					*entries = (cfg_uint32 *)realloc(*entries, allocated * sizeof(cfg_uint32));
+					if (!*entries) {
+						fprintf(stderr, "%s: ERROR: cannot realloc() %d bytes\n", fname, allocated * sizeof(cfg_uint32));
+						return;
+					}
+				}
 				entry_ptr = *entries;
 				entry_ptr[*sections] = 0;
 				(*sections)++;
@@ -956,7 +964,11 @@ static void cfg_raw_buffer_convert(cfg_t *st, cfg_char *buf, cfg_uint32 buf_sz, 
 		dest++;
 	}
 	*dest = '\0';
-
+	*entries = (cfg_uint32 *)realloc(*entries, *sections * sizeof(cfg_uint32)); /* trim */
+	if (!*entries) {
+		fprintf(stderr, "%s: ERROR: cannot realloc() %d bytes\n", fname, *sections * sizeof(cfg_uint32));
+		return;
+	}
 	if (st->verbose > 1)
 		fprintf(stderr, "%s:\n%s\n", fname, buf);
 }
@@ -1115,13 +1127,14 @@ static cfg_char* cfg_entry_string(cfg_entry_t *entry, cfg_uint32 *len)
 cfg_status_t cfg_buffer_write(cfg_t *st, cfg_char **out, cfg_uint32 *len)
 {
 	static const cfg_char *fname = "[cfg2] cfg_buffer_write():";
-	cfg_uint32 i, j, sz, n;
+	cfg_uint32 i, j, sz, n, allocated;
 	cfg_char *str, *ptr;
 	cfg_section_t *section;
 	cfg_entry_t *entry;
 
 	sz = 1;
-	*out = malloc(sz);
+	allocated = 512;
+	*out = malloc(allocated);
 	*out[0] = '\0'; /* ensure an empty '\0' terminated buffer */
 
 	for (i = 0; i < st->nsections; i++) {
@@ -1130,9 +1143,12 @@ cfg_status_t cfg_buffer_write(cfg_t *st, cfg_char **out, cfg_uint32 *len)
 				fprintf(stderr, "%s writing section header %d...\n", fname, i);
 			str = cfg_escape(st->section[i].name, &n);
 			n += 3; /* [, ], \n */
-			*out = (cfg_char *)realloc(*out, sz + n);
-			if (!*out)
-				CFG_SET_RETURN_STATUS(st, CFG_ERROR_ALLOC);
+			if (sz + n > allocated) {
+				allocated <<= 1;
+				*out = (cfg_char *)realloc(*out, allocated);
+				if (!*out)
+					CFG_SET_RETURN_STATUS(st, CFG_ERROR_ALLOC);
+			}
 			ptr = *out + sz - 1;
 			sz += n;
 			strcat(ptr, "[");
@@ -1148,15 +1164,21 @@ cfg_status_t cfg_buffer_write(cfg_t *st, cfg_char **out, cfg_uint32 *len)
 			str = cfg_entry_string(entry, &n);
 			if (!str)
 				CFG_SET_RETURN_STATUS(st, CFG_ERROR_ALLOC);
-			*out = (cfg_char *)realloc(*out, sz + n);
-			if (!*out)
-				CFG_SET_RETURN_STATUS(st, CFG_ERROR_ALLOC);
+			if (sz + n > allocated) {
+				allocated <<= 1;
+				*out = (cfg_char *)realloc(*out, allocated);
+				if (!*out)
+					CFG_SET_RETURN_STATUS(st, CFG_ERROR_ALLOC);
+			}
 			ptr = *out + sz - 1;
 			sz += n;
 			strcat(ptr, str);
 			free(str);
 		}
 	}
+	*out = (cfg_char *)realloc(*out, sz); /* trim */
+	if (!*out)
+		CFG_SET_RETURN_STATUS(st, CFG_ERROR_ALLOC);
 	*len = sz - 1; /* exclude the '\0' character */
 	CFG_SET_RETURN_STATUS(st, CFG_STATUS_OK);
 }
