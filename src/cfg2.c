@@ -30,29 +30,34 @@
 		return _ret; \
 	}
 
-struct cfg_entry_private {
-	cfg_uint32 key_hash;
-	cfg_uint32 section_hash;
-	cfg_char *key;
-	cfg_char *value;
-};
-
 struct cfg_private {
-	cfg_entry_t **cache;
-	cfg_uint32 cache_size;
-
-	cfg_entry_t *entry;
-	cfg_char **section;
-
-	cfg_bool init;
-	cfg_status_t status;
-	cfg_uint32 verbose;
-	cfg_uint32 nentries;
-	cfg_uint32 nsections;
 	cfg_char separator_section;
 	cfg_char separator_key_value;
 	cfg_char comment_char1;
 	cfg_char comment_char2;
+
+	cfg_bool init;
+	cfg_status_t status;
+	cfg_uint32 verbose;
+	cfg_uint32 cache_size;
+	cfg_uint32 nsections;
+	cfg_section_t *section;
+
+	cfg_entry_t **cache;
+};
+
+struct cfg_section_private {
+	cfg_uint32 hash;
+	cfg_uint32 nentries;
+	cfg_char *name;
+	cfg_entry_t *entry;
+};
+
+struct cfg_entry_private {
+	cfg_uint32 key_hash;
+	cfg_char *key;
+	cfg_char *value;
+	cfg_section_t *section;
 };
 
 /* local implementation of strdup() if missing on a specific C89 target */
@@ -122,19 +127,21 @@ cfg_status_t cfg_status_get(cfg_t *st)
 
 static void cfg_init(cfg_t *st)
 {
-	st->entry = NULL;
-	st->section = NULL;
-	st->verbose = 0;
-	st->status = CFG_STATUS_OK;
-	st->nentries = 0;
-	st->nsections = 0;
-	st->cache = NULL;
-	st->cache_size = CFG_CACHE_SIZE;
 	st->init = CFG_TRUE;
+
 	st->separator_key_value = CFG_SEPARATOR_KEY_VALUE;
 	st->separator_section = CFG_SEPARATOR_SECTION;
 	st->comment_char1 = CFG_COMMENT_CHAR1;
 	st->comment_char2 = CFG_COMMENT_CHAR2;
+
+	st->verbose = 0;
+	st->status = CFG_STATUS_OK;
+
+	st->section = NULL;
+	st->nsections = 0;
+
+	st->cache = NULL;
+	st->cache_size = CFG_CACHE_SIZE;
 }
 
 cfg_t *cfg_alloc(void)
