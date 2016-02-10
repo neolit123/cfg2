@@ -615,8 +615,8 @@ cfg_status_t cfg_entry_delete(cfg_t *st, cfg_entry_t *entry)
 cfg_status_t cfg_section_delete(cfg_t *st, cfg_char *section)
 {
 	cfg_uint32 i, idx;
-	cfg_status_t ret;
 	cfg_section_t *section_ptr;
+	cfg_entry_t *entry;
 
 	CFG_CHECK_ST_RETURN(st, "cfg_section_delete", CFG_ERROR_NULL_PTR);
 
@@ -625,9 +625,9 @@ cfg_status_t cfg_section_delete(cfg_t *st, cfg_char *section)
 		CFG_SET_RETURN_STATUS(st, CFG_ERROR_NOT_FOUND);
 
 	for (i = 0; i < section_ptr->nentries; i++) {
-		ret = cfg_entry_delete(st, &section_ptr->entry[i]);
-		if (ret != CFG_STATUS_OK)
-			return ret;
+		entry = &section_ptr->entry[i];
+		free(entry->key);
+		free(entry->value);
 	}
 
 	free(section_ptr->name);
