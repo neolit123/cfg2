@@ -692,24 +692,23 @@ cfg_status_t cfg_free(cfg_t *st)
 	return CFG_STATUS_OK;
 }
 
-static cfg_status_t cfg_raw_buffer_parse(cfg_t *st, cfg_char *buf, cfg_uint32 sz, cfg_uint32 sections, cfg_uint32 *entries)
+static void cfg_raw_buffer_parse(cfg_t *st, cfg_char *buf, cfg_uint32 sz, cfg_uint32 sections, cfg_uint32 **entries)
 {
 	cfg_uint32 idx_section = 0;
 	cfg_uint32 idx_entry = 0;
 	cfg_entry_t *entry;
 	cfg_char *p, *end;
-	cfg_uint32 i;
+	cfg_uint32 i, *entry_ptr;
 	cfg_section_t *section;
 
 	/* allocate section and entry buffers */
+	entry_ptr = *entries;
+	st->nsections = sections;
 	st->section = (cfg_section_t *)malloc(sections * sizeof(cfg_section_t));
 	for (i = 0; i < sections; i++) {
 		section = &st->section[i];
-		section->nentries = entries[i];
-		if (entries[i])
-			section->entry = (cfg_entry_t *)malloc(entries[i] * sizeof(cfg_entry_t));
-		else
-			section->entry = NULL;
+		section->nentries = entry_ptr[i];
+		section->entry = !section->nentries ? NULL : (cfg_entry_t *)malloc(section->nentries * sizeof(cfg_entry_t));
 	}
 
 	/* prepare the root section */
@@ -718,7 +717,7 @@ static cfg_status_t cfg_raw_buffer_parse(cfg_t *st, cfg_char *buf, cfg_uint32 sz
 	section->hash = CFG_ROOT_SECTION_HASH;
 
 	for (p = buf; p < buf + sz; p++) {
-		/* store current section hash */
+		/* store a new section */
 		if (*p == st->separator_section) {
 			p++;
 			end = p;
@@ -726,10 +725,10 @@ static cfg_status_t cfg_raw_buffer_parse(cfg_t *st, cfg_char *buf, cfg_uint32 sz
 				end++;
 			*end = '\0';
 			idx_entry = 0;
+			idx_section++;
 			section = &st->section[idx_section];
 			section->name = cfg_strdup(p);
 			section->hash = cfg_hash_get(p);
-			idx_section++;
 			*end = st->separator_section;
 			p = end;
 			/* if next character is not a section start skip */
@@ -768,8 +767,6 @@ static cfg_status_t cfg_raw_buffer_parse(cfg_t *st, cfg_char *buf, cfg_uint32 sz
 		*end = st->separator_key_value;
 		p = end;
 	}
-
-	CFG_SET_RETURN_STATUS(st, CFG_STATUS_OK);
 }
 
 #define CFG_UNESCAPE_CHECK_QUOTE() \
@@ -791,8 +788,8 @@ static void cfg_raw_buffer_convert(cfg_t *st, cfg_char *buf, cfg_uint32 buf_sz, 
 	cfg_uint32 *entry_ptr;
 
 	/* prepare the root section */
+	*entries = (cfg_uint32 *)malloc(sizeof(cfg_uint32));
 	entry_ptr = *entries;
-	entry_ptr = (cfg_uint32 *)malloc(sizeof(cfg_uint32));
 	entry_ptr[0] = 0;
 	*sections = 1;
 
@@ -907,7 +904,7 @@ cfg_status_t cfg_buffer_parse(cfg_t *st, cfg_char *buf, cfg_uint32 sz, cfg_bool 
 {
 	cfg_status_t ret;
 	cfg_char *newbuf;
-	cfg_uint32 sections, *entries;
+	cfg_uint32 sections, *entries = NULL;
 
 	CFG_CHECK_ST_RETURN(st, "cfg_buffer_parse", CFG_ERROR_NULL_PTR);
 
@@ -934,8 +931,9 @@ cfg_status_t cfg_buffer_parse(cfg_t *st, cfg_char *buf, cfg_uint32 sz, cfg_bool 
 		CFG_SET_RETURN_STATUS(st, ret);
 
 	cfg_raw_buffer_convert(st, newbuf, sz, &sections, &entries);
-	ret = cfg_raw_buffer_parse(st, newbuf, sz, sections, entries);
+	cfg_raw_buffer_parse(st, newbuf, sz, sections, &entries);
 	free(entries);
+
 	if (copy)
 		free(newbuf);
 	CFG_SET_RETURN_STATUS(st, ret);
