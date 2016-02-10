@@ -171,8 +171,11 @@ CFG_EXPORT
 cfg_status_t cfg_cache_entry_add(cfg_t *st, cfg_entry_t *entry);
 
 /* -----------------------------------------------------------------------------
- * entries
+ * entries and sections
 */
+
+/* get a section pointer; 'section' can be CFG_ROOT_SECTION */
+cfg_section_t *cfg_section_get(cfg_t *st, cfg_char *section)
 
 /* return an entry from section (2nd argument, can be CFG_ROOT_SECTION) and
  * key (3rd argument) */

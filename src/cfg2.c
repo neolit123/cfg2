@@ -168,6 +168,28 @@ cfg_uint32 cfg_hash_get(cfg_char *str)
 	return hash;
 }
 
+cfg_section_t *cfg_section_get(cfg_t *st, cfg_char *section)
+{
+	cfg_uint32 i, section_hash;
+
+	CFG_CHECK_ST_RETURN(st, "cfg_section_get", NULL);
+	if (section == CFG_ROOT_SECTION) {
+		CFG_SET_STATUS(st, CFG_STATUS_OK);
+		return &st->section[0];
+	} else {
+		section_hash = cfg_hash_get(section);
+	}
+
+	for (i = 1; i < st->nsections; i++) {
+		if (st->section[i].hash != section_hash)
+			continue;
+		CFG_SET_STATUS(st, CFG_STATUS_OK);
+		return &st->section[i];
+	}
+	CFG_SET_STATUS(st, CFG_ERROR_SECTION_NOT_FOUND);
+	return NULL;
+}
+
 cfg_entry_t *cfg_entry_get(cfg_t *st, cfg_char *section, cfg_char *key)
 {
 	cfg_uint32 section_hash, key_hash, i;
