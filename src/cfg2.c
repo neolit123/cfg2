@@ -791,10 +791,10 @@ static void cfg_raw_buffer_convert(cfg_t *st, cfg_char *buf, cfg_uint32 buf_sz, 
 	cfg_uint32 *entry_ptr;
 
 	/* prepare the root section */
-	*sections = 0;
 	entry_ptr = *entries;
 	entry_ptr = (cfg_uint32 *)malloc(sizeof(cfg_uint32));
-	entry_ptr[*sections] = 0;
+	entry_ptr[0] = 0;
+	*sections = 1;
 
 	for (src = dest = buf; src < buf + buf_sz; src++) {
 		/* convert separators to spaces, if found */
@@ -860,7 +860,7 @@ static void cfg_raw_buffer_convert(cfg_t *st, cfg_char *buf, cfg_uint32 buf_sz, 
 			case '=':
 				CFG_UNESCAPE_CHECK_QUOTE();
 				line_eq_sign = CFG_TRUE;
-				entry_ptr[*sections]++;
+				entry_ptr[*sections - 1]++;
 				*dest = st->separator_key_value;
 				dest++;
 				continue;
@@ -897,8 +897,8 @@ static void cfg_raw_buffer_convert(cfg_t *st, cfg_char *buf, cfg_uint32 buf_sz, 
 		}
 		dest++;
 	}
-	(*sections)++; /* componsate for the root section */
 	*dest = '\0';
+
 	if (st->verbose > 1)
 		fprintf(stderr, "%s:\n%s\n", fname, buf);
 }
