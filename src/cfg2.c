@@ -1061,7 +1061,7 @@ cfg_status_t cfg_buffer_write(cfg_t *st, cfg_char **out, cfg_uint32 *len)
 
 	sz = 1;
 	*out = malloc(sz);
-	*out[0] = '\0'; /* ensure an empty \0 terminated buffer */
+	*out[0] = '\0'; /* ensure an empty '\0' terminated buffer */
 
 	for (i = 0; i < st->nsections; i++) {
 		if (i) { /* skip the root section name */
@@ -1096,7 +1096,7 @@ cfg_status_t cfg_buffer_write(cfg_t *st, cfg_char **out, cfg_uint32 *len)
 			free(str);
 		}
 	}
-	*len = sz;
+	*len = sz - 1; /* exclude the '\0' character */
 	CFG_SET_RETURN_STATUS(st, CFG_STATUS_OK);
 }
 
