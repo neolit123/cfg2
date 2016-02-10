@@ -168,134 +168,6 @@ cfg_uint32 cfg_hash_get(cfg_char *str)
 	return hash;
 }
 
-#define CFG_UNESCAPE_CHECK_QUOTE() \
-	if (quote && st->verbose > 0) \
-		fprintf(stderr, "%s: WARNING: quote not closed at line %d\n", fname, line); \
-	quote = CFG_FALSE;
-
-/* unescape all special characters (like \n) in a string */
-static void cfg_unescape(cfg_t *st, cfg_char *buf, cfg_uint32 buf_sz, cfg_uint32 *sections, cfg_uint32 **entries)
-{
-	static const cfg_char *fname = "[cfg2] cfg_unescape()";
-	cfg_uint32 line = 0;
-	cfg_char *src, *dest, last_char = 0;
-	cfg_bool escape = CFG_FALSE;
-	cfg_bool quote = CFG_FALSE;
-	cfg_bool line_eq_sign = CFG_FALSE;
-	cfg_bool multiline = CFG_FALSE;
-	cfg_bool section_line = CFG_FALSE;
-	cfg_section_t *section;
-
-	*sections = 0;
-	*entries = (cfg_uint32 *)malloc(sizeof(cfg_uint32));
-	*entries[0] = 0;
-
-	for (src = dest = buf; src < buf + buf_sz; src++) {
-		/* convert separators to spaces, if found */
-		if (*src == st->separator_section || *src == st->separator_key_value) {
-			*src = ' ';
-			continue;
-		}
-
-		/* convert CR to LF */
-		if (*src == '\r')
-			*src = '\n';
-
-		/* start of a line */
-		if (last_char == '\n' || src == buf) {
-			line++;
-			if (!multiline)
-				line_eq_sign = CFG_FALSE;
-			/* skip empty lines */
-			while (*src == '\n' || *src == ' ' || *src == '\t') {
-				if (*src == '\n') {
-					line++;
-					line_eq_sign = CFG_FALSE;
-				}
-				src++;
-			}
-			/* skip comment lines */
-			while (*src == st->comment_char1 || *src == st->comment_char2) {
-				line++;
-				line_eq_sign = CFG_FALSE;
-				while (*src != '\n')
-					src++;
-				src++;
-			}
-		}
-
-		last_char = *src;
-		*dest = *src;
-		/* handle escaped characters */
-		if (escape) {
-			escape = CFG_FALSE;
-			switch (*dest) {
-			case 'n':
-				*dest = '\n';
-			case '\\':
-				dest++;
-				continue;
-			case ' ':
-			case '\n':
-				multiline = CFG_TRUE;
-				continue;
-			}
-		/* handle key/value/section separators */
-		} else {
-			switch (*dest) {
-			case ' ':
-			case '\t':
-				if (!quote)
-					continue;
-				break;
-			case '"':
-				quote = !quote;
-				continue;
-			case '=':
-				CFG_UNESCAPE_CHECK_QUOTE();
-				line_eq_sign = CFG_TRUE;
-				*entries[*sections]++;
-				*dest = st->separator_key_value;
-				dest++;
-				continue;
-			case '\n':
-				multiline = CFG_FALSE;
-				if (!section_line) {
-					if (!line_eq_sign && !quote) {
-						if (st->verbose > 0)
-							fprintf(stderr, "%s: WARNING: no equal sign at line %d\n", fname, line);
-						continue;
-					}
-					CFG_UNESCAPE_CHECK_QUOTE();
-					*dest = st->separator_key_value;
-					dest++;
-				}
-				section_line = CFG_FALSE;
-				continue;
-			case '[':
-				section_line = CFG_TRUE;
-				*entries = (cfg_uint32 *)realloc(*entries, (*sections + 1) * sizeof(cfg_uint32));
-				*entries[*sections] = 0;
-				(*sections)++;
-			case ']':
-				CFG_UNESCAPE_CHECK_QUOTE();
-				*dest = st->separator_section;
-				dest++;
-				continue;
-			}
-		}
-		escape = CFG_FALSE;
-		if (*dest == '\\') {
-			escape = CFG_TRUE;
-			continue;
-		}
-		dest++;
-	}
-	*dest = '\0';
-	if (st->verbose > 1)
-		fprintf(stderr, "%s:\n%s\n", fname, buf);
-}
-
 cfg_entry_t *cfg_entry_nth(cfg_t *st, cfg_uint32 n)
 {
 	CFG_CHECK_ST_RETURN(st, "cfg_entry_nth", NULL);
@@ -835,7 +707,7 @@ cfg_status_t cfg_free(cfg_t *st)
 	CFG_SET_RETURN_STATUS(st, CFG_STATUS_OK);
 }
 
-static cfg_status_t cfg_parse_buffer_keys(cfg_t *st, cfg_char *buf, cfg_uint32 sz)
+static cfg_status_t cfg_parse_raw_buffer(cfg_t *st, cfg_char *buf, cfg_uint32 sz)
 {
 	cfg_uint32 section_hash = CFG_ROOT_SECTION_HASH;
 	cfg_uint32 section_idx = 0;
@@ -896,6 +768,134 @@ static cfg_status_t cfg_parse_buffer_keys(cfg_t *st, cfg_char *buf, cfg_uint32 s
 	CFG_SET_RETURN_STATUS(st, CFG_STATUS_OK);
 }
 
+#define CFG_UNESCAPE_CHECK_QUOTE() \
+	if (quote && st->verbose > 0) \
+		fprintf(stderr, "%s: WARNING: quote not closed at line %d\n", fname, line); \
+	quote = CFG_FALSE;
+
+/* unescape all special characters (like \n) in a string and convert to a raw buffer */
+static void cfg_raw_buffer_convert(cfg_t *st, cfg_char *buf, cfg_uint32 buf_sz, cfg_uint32 *sections, cfg_uint32 **entries)
+{
+	static const cfg_char *fname = "[cfg2] cfg_raw_buffer_convert()";
+	cfg_uint32 line = 0;
+	cfg_char *src, *dest, last_char = 0;
+	cfg_bool escape = CFG_FALSE;
+	cfg_bool quote = CFG_FALSE;
+	cfg_bool line_eq_sign = CFG_FALSE;
+	cfg_bool multiline = CFG_FALSE;
+	cfg_bool section_line = CFG_FALSE;
+	cfg_section_t *section;
+
+	*sections = 0;
+	*entries = (cfg_uint32 *)malloc(sizeof(cfg_uint32));
+	*entries[0] = 0;
+
+	for (src = dest = buf; src < buf + buf_sz; src++) {
+		/* convert separators to spaces, if found */
+		if (*src == st->separator_section || *src == st->separator_key_value) {
+			*src = ' ';
+			continue;
+		}
+
+		/* convert CR to LF */
+		if (*src == '\r')
+			*src = '\n';
+
+		/* start of a line */
+		if (last_char == '\n' || src == buf) {
+			line++;
+			if (!multiline)
+				line_eq_sign = CFG_FALSE;
+			/* skip empty lines */
+			while (*src == '\n' || *src == ' ' || *src == '\t') {
+				if (*src == '\n') {
+					line++;
+					line_eq_sign = CFG_FALSE;
+				}
+				src++;
+			}
+			/* skip comment lines */
+			while (*src == st->comment_char1 || *src == st->comment_char2) {
+				line++;
+				line_eq_sign = CFG_FALSE;
+				while (*src != '\n')
+					src++;
+				src++;
+			}
+		}
+
+		last_char = *src;
+		*dest = *src;
+		/* handle escaped characters */
+		if (escape) {
+			escape = CFG_FALSE;
+			switch (*dest) {
+			case 'n':
+				*dest = '\n';
+			case '\\':
+				dest++;
+				continue;
+			case ' ':
+			case '\n':
+				multiline = CFG_TRUE;
+				continue;
+			}
+		/* handle key/value/section separators */
+		} else {
+			switch (*dest) {
+			case ' ':
+			case '\t':
+				if (!quote)
+					continue;
+				break;
+			case '"':
+				quote = !quote;
+				continue;
+			case '=':
+				CFG_UNESCAPE_CHECK_QUOTE();
+				line_eq_sign = CFG_TRUE;
+				*entries[*sections]++;
+				*dest = st->separator_key_value;
+				dest++;
+				continue;
+			case '\n':
+				multiline = CFG_FALSE;
+				if (!section_line) {
+					if (!line_eq_sign && !quote) {
+						if (st->verbose > 0)
+							fprintf(stderr, "%s: WARNING: no equal sign at line %d\n", fname, line);
+						continue;
+					}
+					CFG_UNESCAPE_CHECK_QUOTE();
+					*dest = st->separator_key_value;
+					dest++;
+				}
+				section_line = CFG_FALSE;
+				continue;
+			case '[':
+				section_line = CFG_TRUE;
+				*entries = (cfg_uint32 *)realloc(*entries, (*sections + 1) * sizeof(cfg_uint32));
+				*entries[*sections] = 0;
+				(*sections)++;
+			case ']':
+				CFG_UNESCAPE_CHECK_QUOTE();
+				*dest = st->separator_section;
+				dest++;
+				continue;
+			}
+		}
+		escape = CFG_FALSE;
+		if (*dest == '\\') {
+			escape = CFG_TRUE;
+			continue;
+		}
+		dest++;
+	}
+	*dest = '\0';
+	if (st->verbose > 1)
+		fprintf(stderr, "%s:\n%s\n", fname, buf);
+}
+
 cfg_status_t cfg_parse_buffer(cfg_t *st, cfg_char *buf, cfg_uint32 sz, cfg_bool copy)
 {
 	cfg_status_t ret;
@@ -929,7 +929,7 @@ cfg_status_t cfg_parse_buffer(cfg_t *st, cfg_char *buf, cfg_uint32 sz, cfg_bool 
 	if (ret != CFG_STATUS_OK)
 		CFG_SET_RETURN_STATUS(st, ret);
 
-	cfg_unescape(st, newbuf, sz, &sections, &entries);
+	cfg_raw_buffer_convert(st, newbuf, sz, &sections, &entries);
 
 	/* allocate memory for the list */
 	if (keys) {
@@ -943,7 +943,7 @@ cfg_status_t cfg_parse_buffer(cfg_t *st, cfg_char *buf, cfg_uint32 sz, cfg_bool 
 			CFG_SET_RETURN_STATUS(st, CFG_ERROR_ALLOC);
 	}
 
-	ret = cfg_parse_buffer_keys(st, newbuf, sz, sections, &entries);
+	ret = cfg_raw_buffer_parse(st, newbuf, sz, sections, &entries);
 	free(entries);
 	if (copy)
 		free(newbuf);
