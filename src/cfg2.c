@@ -588,7 +588,7 @@ cfg_status_t cfg_root_value_set(cfg_t *st, cfg_char *key, cfg_char *value, cfg_b
 
 cfg_status_t cfg_entry_delete(cfg_t *st, cfg_entry_t *entry)
 {
-	cfg_uint32 index;
+	cfg_uint32 idx;
 	cfg_section_t *section;
 
 	CFG_CHECK_ST_RETURN(st, "cfg_entry_delete", CFG_ERROR_NULL_PTR);
@@ -600,9 +600,9 @@ cfg_status_t cfg_entry_delete(cfg_t *st, cfg_entry_t *entry)
 	free(entry->key);
 	free(entry->value);
 
-	index = entry - &section->entry[0];
-	if (index < section->nentries - 1)
-		memcpy((void *)&section->entry[index], (void *)&section->entry[index + 1], (section->nentries - index - 1) * sizeof(cfg_entry_t));
+	idx = entry - &section->entry[0];
+	if (idx < section->nentries - 1)
+		memcpy((void *)&section->entry[idx], (void *)&section->entry[idx + 1], (section->nentries - idx - 1) * sizeof(cfg_entry_t));
 
 	section->nentries--;
 	if (section->nentries) {
@@ -619,43 +619,28 @@ cfg_status_t cfg_entry_delete(cfg_t *st, cfg_entry_t *entry)
 
 cfg_status_t cfg_section_delete(cfg_t *st, cfg_char *section)
 {
-	cfg_entry_t *entry;
-	cfg_status_t ret;
-	cfg_uint32 section_hash, section_hash_input, i;
+	cfg_uint32 i, idx;
+	cfg_section_t *section_ptr;
 
 	CFG_CHECK_ST_RETURN(st, "cfg_section_delete", CFG_ERROR_NULL_PTR);
 
-	if (section == CFG_ROOT_SECTION) {
-		section_hash_input = CFG_ROOT_SECTION_HASH;
-	} else {
-		section_hash_input = cfg_hash_get(section);
-		for (i = 0; i < st->nsections; i++) {
-			section_hash = cfg_hash_get(st->section[i]);
-			if (section_hash == section_hash_input) {
-				free(st->section[i]);
-				memcpy((void *)&st->section[i], (void *)&st->section[i + 1], (st->nsections - i - 1) * sizeof(cfg_char *));
-				st->nsections--;
-				st->section = (cfg_char **)realloc(st->section, st->nsections * sizeof(cfg_char *));
-				if (!st->section)
-					CFG_SET_RETURN_STATUS(st, CFG_ERROR_ALLOC);
-				break;
-			}
-		}
-	}
+	section_ptr = cfg_section_get(st, section);
+	if (!section_ptr)
+		CFG_SET_RETURN_STATUS(st, CFG_ERROR_SECTION_NOT_FOUND);
 
-	for (i = 0; i < st->nentries; i++) {
-		/* cfg_entry_delete() updates 'nentries' */
-		if (i > st->nentries - 1)
-			break;
-		entry = &st->entry[i];
-		if (entry->section_hash == section_hash_input) {
-			ret = cfg_entry_delete(st, entry);
-			if (ret != CFG_STATUS_OK)
-				return ret;
-			i--;
-		}
-	}
+	for (i = 0; i < section_ptr->nentries; i++)
+		cfg_entry_delete(st, section_ptr->entry[i]);
 
+	free(section_ptr->name);
+	free(section_ptr->entry);
+
+	idx = section_ptr - &st->section[0];
+	if (idx < st->nsections - 1)
+		memcpy((void *)&st->section[idx], (void *)&st->section[idx + 1], (st->nsections - idx - 1) * sizeof(cfg_section_t));
+	st->nsections--;
+	st->section = (cfg_char **)realloc(st->section, st->nsections * sizeof(cfg_section_t));
+	if (!st->section)
+		CFG_SET_RETURN_STATUS(st, CFG_ERROR_ALLOC);
 	CFG_SET_RETURN_STATUS(st, CFG_STATUS_OK);
 }
 
