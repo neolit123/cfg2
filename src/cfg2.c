@@ -729,7 +729,7 @@ static cfg_status_t cfg_raw_buffer_parse(cfg_t *st, cfg_char *buf, cfg_uint32 sz
 				end++;
 			*end = '\0';
 			idx_entry = 0;
-			section = st->section[idx_section];
+			section = &st->section[idx_section];
 			section->name = cfg_strdup(p);
 			section->hash = cfg_hash_get(p);
 			idx_section++;
@@ -861,7 +861,7 @@ static void cfg_raw_buffer_convert(cfg_t *st, cfg_char *buf, cfg_uint32 buf_sz, 
 			case '=':
 				CFG_UNESCAPE_CHECK_QUOTE();
 				line_eq_sign = CFG_TRUE;
-				*entries[*sections]++;
+				(*entries[*sections])++;
 				*dest = st->separator_key_value;
 				dest++;
 				continue;
@@ -898,7 +898,7 @@ static void cfg_raw_buffer_convert(cfg_t *st, cfg_char *buf, cfg_uint32 buf_sz, 
 		}
 		dest++;
 	}
-	*sections++; /* componsate for the root section */
+	(*sections)++; /* componsate for the root section */
 	*dest = '\0';
 	if (st->verbose > 1)
 		fprintf(stderr, "%s:\n%s\n", fname, buf);
@@ -935,7 +935,7 @@ cfg_status_t cfg_buffer_parse(cfg_t *st, cfg_char *buf, cfg_uint32 sz, cfg_bool 
 		CFG_SET_RETURN_STATUS(st, ret);
 
 	cfg_raw_buffer_convert(st, newbuf, sz, &sections, &entries);
-	ret = cfg_raw_buffer_parse(st, newbuf, sz, sections, &entries);
+	ret = cfg_raw_buffer_parse(st, newbuf, sz, sections, entries);
 	free(entries);
 	if (copy)
 		free(newbuf);
@@ -1071,7 +1071,7 @@ cfg_status_t cfg_buffer_write(cfg_t *st, cfg_char **out, cfg_uint32 *len)
 		if (st->verbose > 0)
 			fprintf(stderr, "%s writing section %d...\n", fname, i);
 		if (i) { /* skip the root section name */
-			str = cfg_escape(st->section[i]->name, &n);
+			str = cfg_escape((&st->section[i])->name, &n);
 			n += 3; /* [, ], \n */
 			sz += n;
 			*out = (cfg_char *)realloc(*out, sz);
@@ -1085,7 +1085,7 @@ cfg_status_t cfg_buffer_write(cfg_t *st, cfg_char **out, cfg_uint32 *len)
 		}
 		section = &st->section[i];
 		for (j = 0; j < section->nentries; j++) {
-			entry = &section->entry[j]);
+			entry = &section->entry[j];
 			str = cfg_entry_string(entry, &n);
 			if (!str)
 				CFG_SET_RETURN_STATUS(st, CFG_ERROR_ALLOC);
