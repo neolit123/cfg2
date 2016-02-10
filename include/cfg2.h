@@ -166,11 +166,32 @@ CFG_EXPORT
 cfg_status_t cfg_cache_entry_add(cfg_t *st, cfg_entry_t *entry);
 
 /* -----------------------------------------------------------------------------
- * entries and sections
+ * sections and entries
 */
 
 /* get a section pointer; 'section' can be CFG_ROOT_SECTION */
+CFG_EXPORT
 cfg_section_t *cfg_section_get(cfg_t *st, cfg_char *section);
+
+/* get the total number of sections; the root section is always present, thus n >= 1 */
+CFG_EXPORT
+cfg_uint32 cfg_total_sections(cfg_t *st);
+
+/* get the nth section; n = 0 is always the root section */
+CFG_EXPORT
+cfg_section_t *cfg_section_nth(cfg_t *st, cfg_uint32 n);
+
+/* get the raw name of a section */
+CFG_EXPORT
+cfg_char *cfg_section_name_get(cfg_t *st, cfg_section_t *section);
+
+/* get the total number of entries within a section */
+CFG_EXPORT
+cfg_uint32 cfg_total_entries(cfg_t *st, cfg_section_t *section);
+
+/* get the nth entry from a section */
+CFG_EXPORT
+cfg_entry_t *cfg_entry_nth(cfg_t *st, cfg_section_t *section, cfg_uint32 n);
 
 /* return an entry from section (2nd argument, can be CFG_ROOT_SECTION) and
  * key (3rd argument) */
@@ -180,6 +201,10 @@ cfg_entry_t *cfg_entry_get(cfg_t *st, cfg_char *section, cfg_char *key);
 /* return an entry from the root section */
 CFG_EXPORT
 cfg_entry_t *cfg_root_entry_get(cfg_t *st, cfg_char *key);
+
+/* get the key for an entry */
+CFG_EXPORT
+cfg_char *cfg_entry_key_get(cfg_t *st, cfg_entry_t *entry);
 
 /* get the value for an entry */
 CFG_EXPORT

@@ -163,6 +163,56 @@ cfg_uint32 cfg_hash_get(cfg_char *str)
 	return hash;
 }
 
+cfg_uint32 cfg_total_sections(cfg_t *st)
+{
+	CFG_CHECK_ST_RETURN(st, "cfg_total_sections", 0);
+	return st->nsections;
+}
+
+cfg_section_t *cfg_section_nth(cfg_t *st, cfg_uint32 n)
+{
+	CFG_CHECK_ST_RETURN(st, "cfg_section_nth", NULL);
+	if (n > st->nsections - 1) {
+		CFG_SET_STATUS(st, CFG_ERROR_OUT_OF_RANGE);
+		return NULL;
+	}
+	return &st->section[n];
+}
+
+cfg_char *cfg_section_name_get(cfg_t *st, cfg_section_t *section)
+{
+	CFG_CHECK_ST_RETURN(st, "cfg_section_name_get", NULL);
+	if (!section) {
+		CFG_SET_STATUS(st, CFG_ERROR_NULL_PTR);
+		return 0;
+	}
+	return section->name;
+}
+
+cfg_uint32 cfg_total_entries(cfg_t *st, cfg_section_t *section)
+{
+	CFG_CHECK_ST_RETURN(st, "cfg_total_entries", 0);
+	if (!section) {
+		CFG_SET_STATUS(st, CFG_ERROR_NULL_PTR);
+		return 0;
+	}
+	return section->nentries;
+}
+
+cfg_entry_t *cfg_entry_nth(cfg_t *st, cfg_section_t *section, cfg_uint32 n)
+{
+	CFG_CHECK_ST_RETURN(st, "cfg_section_nth", NULL);
+	if (!section) {
+		CFG_SET_STATUS(st, CFG_ERROR_NULL_PTR);
+		return 0;
+	}
+	if (n > section->nentries - 1) {
+		CFG_SET_STATUS(st, CFG_ERROR_OUT_OF_RANGE);
+		return NULL;
+	}
+	return &section->entry[n];
+}
+
 cfg_section_t *cfg_section_get(cfg_t *st, cfg_char *section)
 {
 	cfg_uint32 i, section_hash;
@@ -491,6 +541,16 @@ cfg_char *cfg_char_to_hex(cfg_t *st, cfg_char *value)
 	if (st && st->verbose > 0)
 		fprintf(stderr, "%s result: %s\n", fname, out);
 	return out;
+}
+
+cfg_char *cfg_entry_key_get(cfg_t *st, cfg_entry_t *entry)
+{
+	CFG_CHECK_ST_RETURN(st, "cfg_entry_key_get", NULL);
+	if (!entry) {
+		CFG_SET_STATUS(st, CFG_ERROR_NULL_PTR);
+		return NULL;
+	}
+	return entry->key;
 }
 
 cfg_char *cfg_entry_value_get(cfg_t *st, cfg_entry_t *entry)
