@@ -571,9 +571,6 @@ cfg_status_t cfg_value_set(cfg_t *st, cfg_char *section, cfg_char *key, cfg_char
 	if (!key)
 		CFG_SET_RETURN_STATUS(st, CFG_ERROR_NULL_KEY);
 
-	if (st->nentries == 0)
-		CFG_SET_RETURN_STATUS(st, CFG_ERROR_NO_ENTRIES);
-
 	key_hash = cfg_hash_get(key);
 	section_hash = section == CFG_ROOT_SECTION ? CFG_ROOT_SECTION_HASH : cfg_hash_get(section);
 
@@ -666,9 +663,6 @@ cfg_status_t cfg_section_delete(cfg_t *st, cfg_char *section)
 static cfg_status_t cfg_free_memory(cfg_t *st)
 {
 	cfg_uint32 i;
-
-	if (!st->entry && st->nentries)
-		CFG_SET_RETURN_STATUS(st, CFG_ERROR_NO_ENTRIES);
 
 	for (i = 0; i < st->nentries; i++) {
 		free(st->entry[i].key);
