@@ -788,11 +788,13 @@ static void cfg_raw_buffer_convert(cfg_t *st, cfg_char *buf, cfg_uint32 buf_sz, 
 	cfg_bool line_eq_sign = CFG_FALSE;
 	cfg_bool multiline = CFG_FALSE;
 	cfg_bool section_line = CFG_FALSE;
+	cfg_uint32 *entry_ptr;
 
 	/* prepare the root section */
 	*sections = 0;
-	*entries = (cfg_uint32 *)malloc(sizeof(cfg_uint32));
-	*entries[*sections] = 0;
+	entry_ptr = *entries;
+	entry_ptr = (cfg_uint32 *)malloc(sizeof(cfg_uint32));
+	entry_ptr[*sections] = 0;
 
 	for (src = dest = buf; src < buf + buf_sz; src++) {
 		/* convert separators to spaces, if found */
@@ -858,7 +860,7 @@ static void cfg_raw_buffer_convert(cfg_t *st, cfg_char *buf, cfg_uint32 buf_sz, 
 			case '=':
 				CFG_UNESCAPE_CHECK_QUOTE();
 				line_eq_sign = CFG_TRUE;
-				(*entries[*sections])++;
+				entry_ptr[*sections]++;
 				*dest = st->separator_key_value;
 				dest++;
 				continue;
@@ -878,8 +880,8 @@ static void cfg_raw_buffer_convert(cfg_t *st, cfg_char *buf, cfg_uint32 buf_sz, 
 				continue;
 			case '[':
 				section_line = CFG_TRUE;
-				*entries = (cfg_uint32 *)realloc(*entries, (*sections + 1) * sizeof(cfg_uint32));
-				*entries[*sections] = 0;
+				entry_ptr = (cfg_uint32 *)realloc(entry_ptr, (*sections + 1) * sizeof(cfg_uint32));
+				entry_ptr[*sections] = 0;
 				(*sections)++;
 			case ']':
 				CFG_UNESCAPE_CHECK_QUOTE();
