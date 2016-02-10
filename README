@@ -80,9 +80,7 @@ yet the source code does not mention it.
 
 the parser uses a trick with special characters to separate sections, keys
 and values into a raw buffer. you should look at cfg2.h to find the default
-ones set as CFG_KEY_VALUE_SEPARATOR and CFG_SECTION_SEPARATOR. custom ones can
-be set into the cfg_t struct as 'key_value_separator' and 'section_separator'
-and should be unique for the parser to work!
+ones set as CFG_KEY_VALUE_SEPARATOR and CFG_SECTION_SEPARATOR.
 
 another present optimization is caching N values in a separate cache buffer and
 always checking this buffer first, instead of the main one (which can be huge).
