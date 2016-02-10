@@ -52,16 +52,16 @@ int main(void)
 	err = cfg_verbose_set(st, 3);
 	err = cfg_cache_size_set(st, 4);
 	puts("* parse");
-	err = cfg_parse_buffer(st, buf, strlen(buf), CFG_TRUE);
+	err = cfg_buffer_parse(st, buf, strlen(buf), CFG_TRUE);
 
 	begin = clock();
-	err = cfg_parse_file(st, file);
+	err = cfg_file_parse(st, file);
 	end = clock();
 	time_spent = (double)(end - begin) / CLOCKS_PER_SEC;
 	printf("time spent parsing %s: %.4f sec\n", file, time_spent);
 
 	if (err > 0) {
-		printf("cfg_parse_file() ERROR: %d\n", err);
+		printf("cfg_file_parse() ERROR: %d\n", err);
 		goto exit;
 	}
 #if (PRINT_TESTS == 1)
@@ -107,14 +107,14 @@ int main(void)
 	printf("test delete: %d\n", cfg_section_delete(st, "section2"));
 
 	puts("");
-	err = cfg_write_buffer(st, &write_buf, &write_len);
+	err = cfg_buffer_write(st, &write_buf, &write_len);
 	printf("write buf (%d):\n", write_len);
 	if (write_buf) {
 		puts(write_buf);
 		free(write_buf);
 	}
 
-	printf("write_file() status: %d\n", cfg_write_file(st, "out.cfg"));
+	printf("write_file() status: %d\n", cfg_file_write(st, "out.cfg"));
 
 exit:
 	puts("");

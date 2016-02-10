@@ -120,11 +120,11 @@ CFG_EXPORT
 cfg_status_t cfg_buffer_parse(cfg_t *st, cfg_char *buf, cfg_uint32 sz, cfg_bool copy);
 
 /* parse a file by name, passed as the 2nd parameter. non-safe for Win32's
- * UTF-16 paths! use cfg_parse_buffer() or cfg_parse_file_ptr() instead. */
+ * UTF-16 paths! use cfg_buffer_parse() or cfg_file_ptr_parse() instead. */
 CFG_EXPORT
 cfg_status_t cfg_file_parse(cfg_t *st, cfg_char *filename);
 
-/* alternative to cfg_parse_file() that accepts a FILE* stream;
+/* alternative to cfg_file_parse() that accepts a FILE* stream;
  * third argument is optional close of the stream. */
 CFG_EXPORT
 cfg_status_t cfg_file_ptr_parse(cfg_t *st, FILE *f, cfg_bool close);
@@ -135,7 +135,7 @@ CFG_EXPORT
 cfg_status_t cfg_buffer_write(cfg_t *st, cfg_char **out, cfg_uint32 *len);
 
 /* write all the sections and keys to a file. non-safe for Win32's
- * UTF-16 paths! use cfg_write_buffer() or cfg_write_file_ptr() instead. */
+ * UTF-16 paths! use cfg_buffer_write() or cfg_file_ptr_write() instead. */
 CFG_EXPORT
 cfg_status_t cfg_file_write(cfg_t *st, cfg_char *filename);
 
