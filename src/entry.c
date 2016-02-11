@@ -12,6 +12,9 @@
 
 #include "defines.h"
 
+/* not exposed as an API method */
+cfg_entry_t *cfg_cache_entry_get(cfg_t *st, cfg_uint32 section_hash, cfg_uint32 key_hash);
+
 cfg_uint32 cfg_total_sections(cfg_t *st)
 {
 	CFG_CHECK_ST_RETURN(st, "cfg_total_sections", 0);
@@ -103,18 +106,9 @@ cfg_entry_t *cfg_entry_get(cfg_t *st, const cfg_char *section, const cfg_char *k
 	key_hash = cfg_hash_get(key);
 
 	/* check for value in cache first */
-	if (st->cache_size > 0) {
-		for (i = 0; i < st->cache_size; i++) {
-			if (!st->cache[i])
-				break;
-			if (section_ptr->hash != st->cache[i]->section->hash)
-				continue;
-			if (key_hash == st->cache[i]->key_hash) {
-			    CFG_SET_STATUS(st, CFG_STATUS_OK);
-				return st->cache[i];
-			}
-		}
-	}
+	entry = cfg_cache_entry_get(st, section_ptr->hash, key_hash);
+	if (entry)
+		return entry;
 
 	for (i = 0; i < section_ptr->nentries; i++) {
 		entry = &section_ptr->entry[i];
@@ -206,11 +200,17 @@ cfg_status_t cfg_value_set(cfg_t *st, const cfg_char *section, const cfg_char *k
 			entry->key_hash = key_hash;
 			entry->value = cfg_strdup(value);
 			st->nsections++;
+			cfg_cache_entry_add(st, entry);
 			CFG_SET_RETURN_STATUS(st, CFG_STATUS_OK);
 		} else {
 			CFG_SET_RETURN_STATUS(st, CFG_ERROR_NOT_FOUND);
 		}
 	}
+
+	/* check for value in cache first */
+	entry = cfg_cache_entry_get(st, section_ptr->hash, key_hash);
+	if (entry)
+		return cfg_entry_value_set(st, entry, value);
 
 	/* look for the entry in the existing section */
 	for (i = 0; i < section_ptr->nentries; i++) {

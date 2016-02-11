@@ -37,6 +37,7 @@ cfg_t *cfg_alloc(void)
 		return NULL;
 	}
 	cfg_init(st);
+	cfg_cache_size_set(st, st->cache_size);
 	return st;
 }
 
