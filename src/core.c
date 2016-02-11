@@ -415,10 +415,10 @@ static cfg_char *cfg_escape(cfg_char *str, cfg_uint32 *len)
 
 	*len = 0;
 	if (!src)
-		return "";
+		return cfg_strdup("");
 	n = strlen(src);
 	if (!n)
-		return "";
+		return cfg_strdup("");
 	buf = (cfg_char *)malloc(n * 2 + 1);
 	dest = buf;
 
@@ -468,10 +468,8 @@ static cfg_char* cfg_entry_string(cfg_entry_t *entry, cfg_uint32 *len)
 	strcat(buf, value);
 	strcat(buf, "\"\n");
 
-	if (key_len)
-		free(key);
-	if (value_len)
-		free(value);
+	free(key);
+	free(value);
 	return buf;
 }
 

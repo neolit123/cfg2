@@ -4,7 +4,7 @@ MAKEFILE = Makefile
 CC = gcc
 AR = ar
 ARFLAGS = rs
-CFLAGS = -c -Wall -std=c89 -pedantic -I./include/
+CFLAGS = -c -Wall -Wno-write-strings -std=c89 -pedantic -I./include/
 LDFLAGS =
 
 ifneq ($(RELEASE), 1)
@@ -54,12 +54,12 @@ $(DLLFILE): $(OBJ_DYN)
 	@echo building $(DLLFILE)
 	@$(CC) -shared $(OBJ_DYN) -o $(DLLFILE) $(DLLLINK)
 
-$(SRCPATH)/%.c: $(HEADERS) $(MAKEFILE)
-
+$(OBJ): $(TESTSRC) $(MAKEFILE)
 $(OBJPATH)/%.o: $(SRCPATH)/%.c
 	@echo building $@
 	@$(CC) -c $< $(CFLAGS) -o $@
 
+$(OBJ_DYN): $(TESTSRC) $(MAKEFILE)
 $(OBJPATH)/%.dyn.o: $(SRCPATH)/%.c
 	@echo building $@
 	@$(CC) -c $< $(CFLAGS) -DCFG_DYNAMIC -o $@
