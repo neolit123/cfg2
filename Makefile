@@ -4,7 +4,7 @@ MAKEFILE = Makefile
 CC = gcc
 AR = ar
 ARFLAGS = rs
-CFLAGS = -c -Wall -Wno-write-strings -std=c89 -pedantic -I./include/
+CFLAGS = -c -Wall -std=c89 -pedantic -I./include/
 LDFLAGS =
 
 ifneq ($(RELEASE), 1)
