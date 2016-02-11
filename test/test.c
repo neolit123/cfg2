@@ -16,8 +16,9 @@
 #include <time.h>
 #include "cfg2.h"
 
-#define VERBOSE        2
-#define PRINT_TESTS    1
+#define VERBOSE           1
+#define PRINT_TESTS       1
+#define PRINT_WRITE_BUF   0
 
 /*
  * test parsing a file or a buffer directly. when calling a parsing method
@@ -35,7 +36,8 @@ int main(void)
 "key2=value2\n" \
 "key3=value3\n" \
 "key4=value4\n";
-	char file[] = "test.cfg";
+	char in_file[] = "test.cfg";
+	char out_file[] = "out.cfg";
 	cfg_char *write_buf, *ptr;
 	cfg_uint32 write_len;
 
@@ -49,16 +51,16 @@ int main(void)
 	/* init the structure with cache buffer size of 4. this means that 4 unique
 	 * (and fast) entries will be cached at all times. */
 	st = cfg_alloc();
-	err = cfg_verbose_set(st, 3);
+	err = cfg_verbose_set(st, VERBOSE);
 	err = cfg_cache_size_set(st, 4);
 	puts("* parse");
 	err = cfg_buffer_parse(st, buf, strlen(buf), CFG_TRUE);
 
 	begin = clock();
-	err = cfg_file_parse(st, file);
+	err = cfg_file_parse(st, in_file);
 	end = clock();
 	time_spent = (double)(end - begin) / CLOCKS_PER_SEC;
-	printf("time spent parsing %s: %.4f sec\n", file, time_spent);
+	printf("time spent parsing %s: %.4f sec\n", in_file, time_spent);
 
 	if (err > 0) {
 		printf("cfg_file_parse() ERROR: %d\n", err);
@@ -106,6 +108,7 @@ int main(void)
 	puts("");
 	printf("test delete: %d\n", cfg_section_delete(st, "section2"));
 
+#if (PRINT_WRITE_BUF == 1)
 	puts("");
 	err = cfg_buffer_write(st, &write_buf, &write_len);
 	printf("write buf (%d):\n", write_len);
@@ -113,8 +116,16 @@ int main(void)
 		puts(write_buf);
 		free(write_buf);
 	}
+#else
+	(void)write_buf, (void)write_len;
+#endif
 
-	printf("write_file() status: %d\n", cfg_file_write(st, "out.cfg"));
+	begin = clock();
+	err = cfg_file_write(st, out_file);
+	end = clock();
+	printf("write_file() status: %d\n", err);
+	time_spent = (double)(end - begin) / CLOCKS_PER_SEC;
+	printf("time spent writing %s: %.4f sec\n", out_file, time_spent);
 
 exit:
 	puts("");
