@@ -12,8 +12,9 @@
 
 #include "defines.h"
 
-/* not exposed as an API method */
+/* not exposed in the API */
 cfg_entry_t *cfg_cache_entry_get(cfg_t *st, cfg_uint32 section_hash, cfg_uint32 key_hash);
+void cfg_cache_entry_delete(cfg_t *st, cfg_entry_t *entry);
 
 cfg_uint32 cfg_total_sections(cfg_t *st)
 {
@@ -252,9 +253,11 @@ cfg_status_t cfg_entry_delete(cfg_t *st, cfg_entry_t *entry)
 		CFG_SET_RETURN_STATUS(st, CFG_ERROR_NULL_PTR);
 
 	section = entry->section;
-
 	free(entry->key);
 	free(entry->value);
+
+	/* delete from the cache */
+	cfg_cache_entry_delete(st, entry);
 
 	idx = entry - &section->entry[0];
 	if (idx < section->nentries - 1)

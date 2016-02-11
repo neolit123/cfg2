@@ -67,6 +67,20 @@ cfg_entry_t *cfg_cache_entry_nth(cfg_t *st, cfg_uint32 n)
 }
 
 /* not exposed in the API */
+void cfg_cache_entry_delete(cfg_t *st, cfg_entry_t *entry)
+{
+	cfg_uint32 i;
+	for (i = 0; i < st->cache_size; i++) {
+		if (st->cache[i] != entry)
+			continue;
+		if (i < st->cache_size - 1)
+			memcpy((void *)(st->cache + i), (void *)(st->cache + i + 1), (st->cache_size - i - 1) * sizeof(cfg_entry_t *));
+		st->cache[st->cache_size - 1] = NULL;
+		return;
+	}
+}
+
+/* not exposed in the API */
 cfg_entry_t *cfg_cache_entry_get(cfg_t *st, cfg_uint32 section_hash, cfg_uint32 key_hash)
 {
 	cfg_uint32 i;
