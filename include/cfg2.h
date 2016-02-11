@@ -286,7 +286,7 @@ cfg_char *cfg_char_to_hex(cfg_t *st, cfg_char *value);
 
 /* a local strdup() implementation */
 CFG_EXPORT
-cfg_char *cfg_strdup(cfg_char *str);
+cfg_char *cfg_strdup(const cfg_char *str);
 
 /* -------------------------------------------------------------------------- */
 

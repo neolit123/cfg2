@@ -13,7 +13,7 @@
 #include "defines.h"
 
 /* local implementation of strdup() if missing on a specific C89 target */
-cfg_char *cfg_strdup(cfg_char *str)
+cfg_char *cfg_strdup(const cfg_char *str)
 {
 	cfg_uint32 n;
 	cfg_char *copy;
