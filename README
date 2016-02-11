@@ -152,7 +152,9 @@ in "cfg2.h". also a better usage example can be found in "test.c".
 
 small usage example without error checking:
 --------------------------------------------------------------------------------
-char *v;
+#include "cfg2.h"
+
+cfg_char *v;
 cfg_t *st; /* library object */
 
 st = cfg_alloc(); /* init the library */
