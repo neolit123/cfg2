@@ -87,8 +87,7 @@ cfg_status_t cfg_clear(cfg_t *st)
 	ret = cfg_memory_free(st);
 	if (ret != CFG_STATUS_OK)
 		return ret;
-	cfg_cache_size_set(st, st->cache_size); /* recreate the cache */
-	CFG_SET_RETURN_STATUS(st, CFG_STATUS_OK);
+	return cfg_cache_clear(st);
 }
 
 cfg_status_t cfg_free(cfg_t *st)
@@ -345,13 +344,7 @@ cfg_status_t cfg_buffer_parse(cfg_t *st, cfg_char *buf, cfg_uint32 sz, cfg_bool 
 	}
 
 	/* clear old keys */
-	ret = cfg_memory_free(st);
-	if (ret != CFG_STATUS_OK)
-		CFG_SET_RETURN_STATUS(st, ret);
-	ret = cfg_cache_size_set(st, st->cache_size);
-	if (ret != CFG_STATUS_OK)
-		CFG_SET_RETURN_STATUS(st, ret);
-	cfg_cache_clear(st);
+	ret = cfg_clear(st);
 	if (ret != CFG_STATUS_OK)
 		CFG_SET_RETURN_STATUS(st, ret);
 
