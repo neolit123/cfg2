@@ -54,7 +54,7 @@ cfg_status_t cfg_status_get(cfg_t *st)
 	return st->status;
 }
 
-static cfg_status_t cfg_memory_free(cfg_t *st)
+static void cfg_memory_free(cfg_t *st)
 {
 	cfg_section_t *section;
 	cfg_entry_t *entry;
@@ -74,30 +74,23 @@ static cfg_status_t cfg_memory_free(cfg_t *st)
 	st->section = NULL;
 	st->nsections = 0;
 
-	free(st->cache);
-	st->cache = NULL;
-
-	CFG_SET_RETURN_STATUS(st, CFG_STATUS_OK);
+	if (st->cache) {
+		free(st->cache);
+		st->cache = NULL;
+	}
 }
 
 cfg_status_t cfg_clear(cfg_t *st)
 {
-	cfg_status_t ret;
 	CFG_CHECK_ST_RETURN(st, "cfg_clear", CFG_ERROR_NULL_PTR);
-	ret = cfg_memory_free(st);
-	if (ret != CFG_STATUS_OK)
-		return ret;
-	return cfg_cache_clear(st);
+	cfg_memory_free(st);
+	return cfg_cache_size_set(st, st->cache_size);
 }
 
 cfg_status_t cfg_free(cfg_t *st)
 {
-	cfg_status_t ret;
-
 	CFG_CHECK_ST_RETURN(st, "cfg_free", CFG_ERROR_NULL_PTR);
-	ret = cfg_memory_free(st);
-	if (ret != CFG_STATUS_OK)
-		return ret;
+	cfg_memory_free(st);
 	free(st);
 	return CFG_STATUS_OK;
 }
