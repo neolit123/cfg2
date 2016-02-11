@@ -485,7 +485,7 @@ cfg_status_t cfg_buffer_write(cfg_t *st, cfg_char **out, cfg_uint32 *len)
 
 	sz = 1;
 	allocated = 512;
-	*out = malloc(allocated);
+	*out = (cfg_char *)malloc(allocated);
 	*out[0] = '\0'; /* ensure an empty '\0' terminated buffer */
 
 	for (i = 0; i < st->nsections; i++) {
