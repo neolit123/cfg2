@@ -107,10 +107,6 @@ typedef struct _cfg_entry_t cfg_entry_t;
 CFG_EXPORT
 cfg_t *cfg_alloc(void);
 
-/* get the last status of the library object */
-CFG_EXPORT
-cfg_status_t cfg_status_get(cfg_t *st);
-
 /* free all memory allocated by the library for a cfg_t object */
 CFG_EXPORT
 cfg_status_t cfg_free(cfg_t *st);
@@ -147,6 +143,10 @@ cfg_status_t cfg_file_ptr_write(cfg_t *st, FILE *f, cfg_bool close);
 /* set the verbose level for the library object; level = 0 (OFF), 1, 2, 3... */
 CFG_EXPORT
 cfg_status_t cfg_verbose_set(cfg_t *st, cfg_uint32 level);
+
+/* get the last status of the library object */
+CFG_EXPORT
+cfg_status_t cfg_status_get(cfg_t *st);
 
 /* -----------------------------------------------------------------------------
  * cache
