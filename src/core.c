@@ -491,7 +491,7 @@ cfg_status_t cfg_buffer_write(cfg_t *st, cfg_char **out, cfg_uint32 *len)
 	for (i = 0; i < st->nsections; i++) {
 		if (i) { /* skip the root section name */
 			if (st->verbose > 0)
-				fprintf(stderr, "%s writing section header %d...\n", fname, i);
+				fprintf(stderr, "%s writing section header %d\n", fname, i);
 			str = cfg_escape(st->section[i].name, &n);
 			n += 3; /* [, ], \n */
 			if (sz + n > allocated) {
@@ -510,7 +510,7 @@ cfg_status_t cfg_buffer_write(cfg_t *st, cfg_char **out, cfg_uint32 *len)
 		section = &st->section[i];
 		for (j = 0; j < section->nentries; j++) {
 			if (st->verbose > 0)
-				fprintf(stderr, "%s writing section %d, entry %d...\n", fname, i, j);
+				fprintf(stderr, "%s writing section %d, entry %d\n", fname, i, j);
 			entry = &section->entry[j];
 			str = cfg_entry_string(entry, &n);
 			if (!str)
