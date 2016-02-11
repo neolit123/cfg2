@@ -50,6 +50,4 @@ struct _cfg_entry_t {
 	cfg_section_t *section;
 };
 
-#pragma GCC diagnostic ignored "-Wwrite-strings"
-
 #endif
