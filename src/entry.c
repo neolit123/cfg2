@@ -62,7 +62,7 @@ cfg_entry_t *cfg_entry_nth(cfg_t *st, cfg_section_t *section, cfg_uint32 n)
 	return &section->entry[n];
 }
 
-cfg_section_t *cfg_section_get(cfg_t *st, cfg_char *section)
+cfg_section_t *cfg_section_get(cfg_t *st, const cfg_char *section)
 {
 	cfg_uint32 i, section_hash;
 
@@ -84,7 +84,7 @@ cfg_section_t *cfg_section_get(cfg_t *st, cfg_char *section)
 	return NULL;
 }
 
-cfg_entry_t *cfg_entry_get(cfg_t *st, cfg_char *section, cfg_char *key)
+cfg_entry_t *cfg_entry_get(cfg_t *st, const cfg_char *section, const cfg_char *key)
 {
 	cfg_section_t *section_ptr;
 	cfg_uint32 key_hash, i;
@@ -128,18 +128,18 @@ cfg_entry_t *cfg_entry_get(cfg_t *st, cfg_char *section, cfg_char *key)
 	return NULL;
 }
 
-cfg_entry_t *cfg_root_entry_get(cfg_t *st, cfg_char *key)
+cfg_entry_t *cfg_root_entry_get(cfg_t *st, const cfg_char *key)
 {
 	return cfg_entry_get(st, CFG_ROOT_SECTION, key);
 }
 
-cfg_char *cfg_value_get(cfg_t *st, cfg_char *section, cfg_char *key)
+cfg_char *cfg_value_get(cfg_t *st, const cfg_char *section, const cfg_char *key)
 {
 	cfg_entry_t *entry = cfg_entry_get(st, section, key);
 	return entry ? entry->value : NULL;
 }
 
-cfg_char *cfg_root_value_get(cfg_t *st, cfg_char *key)
+cfg_char *cfg_root_value_get(cfg_t *st, const cfg_char *key)
 {
 	return cfg_value_get(st, CFG_ROOT_SECTION, key);
 }
@@ -164,7 +164,7 @@ cfg_char *cfg_entry_value_get(cfg_t *st, cfg_entry_t *entry)
 	return entry->value;
 }
 
-cfg_status_t cfg_entry_value_set(cfg_t *st, cfg_entry_t *entry, cfg_char *value)
+cfg_status_t cfg_entry_value_set(cfg_t *st, cfg_entry_t *entry, const cfg_char *value)
 {
 	CFG_CHECK_ST_RETURN(st, "cfg_entry_value_set", CFG_ERROR_NULL_PTR);
 	if (!entry || !value)
@@ -176,7 +176,7 @@ cfg_status_t cfg_entry_value_set(cfg_t *st, cfg_entry_t *entry, cfg_char *value)
 	CFG_SET_RETURN_STATUS(st, CFG_STATUS_OK);
 }
 
-cfg_status_t cfg_value_set(cfg_t *st, cfg_char *section, cfg_char *key, cfg_char *value, cfg_bool add)
+cfg_status_t cfg_value_set(cfg_t *st, const cfg_char *section, const cfg_char *key, const cfg_char *value, cfg_bool add)
 {
 	cfg_uint32 i, key_hash;
 	cfg_entry_t *entry;
@@ -237,7 +237,7 @@ cfg_status_t cfg_value_set(cfg_t *st, cfg_char *section, cfg_char *key, cfg_char
 	CFG_SET_RETURN_STATUS(st, CFG_ERROR_NOT_FOUND);
 }
 
-cfg_status_t cfg_root_value_set(cfg_t *st, cfg_char *key, cfg_char *value, cfg_bool add)
+cfg_status_t cfg_root_value_set(cfg_t *st, const cfg_char *key, const cfg_char *value, cfg_bool add)
 {
 	return cfg_value_set(st, CFG_ROOT_SECTION, key, value, add);
 }
@@ -273,7 +273,7 @@ cfg_status_t cfg_entry_delete(cfg_t *st, cfg_entry_t *entry)
 	CFG_SET_RETURN_STATUS(st, CFG_STATUS_OK);
 }
 
-cfg_status_t cfg_section_delete(cfg_t *st, cfg_char *section)
+cfg_status_t cfg_section_delete(cfg_t *st, const cfg_char *section)
 {
 	cfg_uint32 i, idx;
 	cfg_section_t *section_ptr;

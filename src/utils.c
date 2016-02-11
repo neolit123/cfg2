@@ -30,34 +30,35 @@ cfg_char *cfg_strdup(const cfg_char *str)
 }
 
 /* fast fnv-32 hash */
-cfg_uint32 cfg_hash_get(cfg_char *str)
+cfg_uint32 cfg_hash_get(const cfg_char *str)
 {
+	cfg_char *ptr = (cfg_char *)str;
 	cfg_uint32 hash = CFG_HASH_SEED;
 	if (!str)
 		return hash;
-	while (*str) {
+	while (*ptr) {
 		hash *= hash;
-		hash ^= *str++;
+		hash ^= *ptr++;
 	}
 	return hash;
 }
 
 /* string -> number conversations */
-cfg_bool cfg_value_to_bool(cfg_char *value)
+cfg_bool cfg_value_to_bool(const cfg_char *value)
 {
 	if (!value)
 		return CFG_FALSE;
 	return strtoul(value, NULL, 2);
 }
 
-cfg_int cfg_value_to_int(cfg_char *value)
+cfg_int cfg_value_to_int(const cfg_char *value)
 {
 	if (!value)
 		return 0;
 	return (cfg_int)strtol(value, NULL, 0);
 }
 
-cfg_long cfg_value_to_long(cfg_char *value)
+cfg_long cfg_value_to_long(const cfg_char *value)
 {
 	if (!value)
 		return 0;
@@ -66,7 +67,7 @@ cfg_long cfg_value_to_long(cfg_char *value)
 	return (cfg_long)strtod(value, NULL);
 }
 
-cfg_float cfg_value_to_float(cfg_char *value)
+cfg_float cfg_value_to_float(const cfg_char *value)
 {
 	if (!value)
 		return 0.f;
@@ -74,7 +75,7 @@ cfg_float cfg_value_to_float(cfg_char *value)
 	return (cfg_float)strtod(value, NULL);
 }
 
-cfg_double cfg_value_to_double(cfg_char *value)
+cfg_double cfg_value_to_double(const cfg_char *value)
 {
 	if (!value)
 		return 0.0;
@@ -175,12 +176,12 @@ static const cfg_char hex_to_char_lookup[] = {
 0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,
 0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0 };
 
-cfg_char *cfg_hex_to_char(cfg_t *st, cfg_char *value)
+cfg_char *cfg_hex_to_char(cfg_t *st, const cfg_char *value)
 {
 	static const cfg_char *fname = "[cfg2] cfg_hex_to_char():";
 	cfg_uint32 len, len2, badchar_pos;
 	cfg_char *buf, *src_pos, *dst_pos;
-	cfg_char first, second;
+	cfg_char first, second, *value_ptr = (cfg_char *)value;
 
 	if (!value) {
 		if (st && st->verbose > 0)
@@ -204,7 +205,7 @@ cfg_char *cfg_hex_to_char(cfg_t *st, cfg_char *value)
 			fprintf(stderr, "%s cannot allocate buffer of length %u!\n", fname, len);
 		return NULL;
 	}
-	for (src_pos = value, dst_pos = buf; *src_pos != '\0'; src_pos += 2, dst_pos++) {
+	for (src_pos = value_ptr, dst_pos = buf; *src_pos != '\0'; src_pos += 2, dst_pos++) {
 		first = hex_to_char_lookup[(cfg_uchar)*src_pos];
 		second = hex_to_char_lookup[(cfg_uchar)*(src_pos + 1)];
 		if (!first || !second) {
@@ -231,12 +232,12 @@ static const cfg_char char_to_hex_lookup[] = {
 48,     49,     50,     51,     52,     53,     54,     55,     56,     57,
 65,     66,     67,     68,     69,     70 };
 
-cfg_char *cfg_char_to_hex(cfg_t *st, cfg_char *value)
+cfg_char *cfg_char_to_hex(cfg_t *st, const cfg_char *value)
 {
 	static const cfg_char *fname = "[cfg2] cfg_char_to_hex():";
 	cfg_uint32 len, first, second;
 	cfg_uchar in_char;
-	cfg_char *out, *ptr;
+	cfg_char *out, *ptr, *value_ptr = (cfg_char *)value;
 
 	if (!value) {
 		if (st && st->verbose > 0)
@@ -258,13 +259,13 @@ cfg_char *cfg_char_to_hex(cfg_t *st, cfg_char *value)
 
 	out = (cfg_char *)malloc(len * 2 + 1);
 	ptr = out;
-	while (*value) {
-		in_char = *value;
+	while (*value_ptr) {
+		in_char = *value_ptr;
 		first = in_char >> 4;
 		second = in_char - (first << 4);
 		*(ptr++) = char_to_hex_lookup[first];
 		*(ptr++) = char_to_hex_lookup[second];
-		value++;
+		value_ptr++;
 	}
 	*ptr = '\0';
 

@@ -171,7 +171,7 @@ cfg_status_t cfg_cache_entry_add(cfg_t *st, cfg_entry_t *entry);
 
 /* get a section pointer; 'section' can be CFG_ROOT_SECTION */
 CFG_EXPORT
-cfg_section_t *cfg_section_get(cfg_t *st, cfg_char *section);
+cfg_section_t *cfg_section_get(cfg_t *st, const cfg_char *section);
 
 /* get the total number of sections; the root section is always present, thus n >= 1 */
 CFG_EXPORT
@@ -196,11 +196,11 @@ cfg_entry_t *cfg_entry_nth(cfg_t *st, cfg_section_t *section, cfg_uint32 n);
 /* return an entry from section (2nd argument, can be CFG_ROOT_SECTION) and
  * key (3rd argument) */
 CFG_EXPORT
-cfg_entry_t *cfg_entry_get(cfg_t *st, cfg_char *section, cfg_char *key);
+cfg_entry_t *cfg_entry_get(cfg_t *st, const cfg_char *section, const cfg_char *key);
 
 /* return an entry from the root section */
 CFG_EXPORT
-cfg_entry_t *cfg_root_entry_get(cfg_t *st, cfg_char *key);
+cfg_entry_t *cfg_root_entry_get(cfg_t *st, const cfg_char *key);
 
 /* get the key for an entry */
 CFG_EXPORT
@@ -212,23 +212,23 @@ cfg_char *cfg_entry_value_get(cfg_t *st, cfg_entry_t *entry);
 
 /* set a value for an entry */
 CFG_EXPORT
-cfg_status_t cfg_entry_value_set(cfg_t *st, cfg_entry_t *entry, cfg_char *value);
+cfg_status_t cfg_entry_value_set(cfg_t *st, cfg_entry_t *entry, const cfg_char *value);
 
 /* retrieve a specific value by section and key */
 CFG_EXPORT
-cfg_char *cfg_value_get(cfg_t *st, cfg_char *section, cfg_char *key);
+cfg_char *cfg_value_get(cfg_t *st, const cfg_char *section, const cfg_char *key);
 
 /* retrieve a specific value by key in the root section */
 CFG_EXPORT
-cfg_char *cfg_root_value_get(cfg_t *st, cfg_char *key);
+cfg_char *cfg_root_value_get(cfg_t *st, const cfg_char *key);
 
 /* set a value for a specific key in a section; add the key if missing. */
 CFG_EXPORT
-cfg_status_t cfg_value_set(cfg_t *st, cfg_char *section, cfg_char *key, cfg_char *value, cfg_bool add);
+cfg_status_t cfg_value_set(cfg_t *st, const cfg_char *section, const cfg_char *key, const cfg_char *value, cfg_bool add);
 
 /* set a value for a specific key in the root section; add the key if missing. */
 CFG_EXPORT
-cfg_status_t cfg_root_value_set(cfg_t *st, cfg_char *key, cfg_char *value, cfg_bool add);
+cfg_status_t cfg_root_value_set(cfg_t *st, const cfg_char *key, const cfg_char *value, cfg_bool add);
 
 /* delete an entry */
 CFG_EXPORT
@@ -238,7 +238,7 @@ cfg_status_t cfg_entry_delete(cfg_t *st, cfg_entry_t *entry);
  * if the section is CFG_ROOT_SECTION only the entries will be deleted.
  * a potentially slow operation! */
 CFG_EXPORT
-cfg_status_t cfg_section_delete(cfg_t *st, cfg_char *section);
+cfg_status_t cfg_section_delete(cfg_t *st, const cfg_char *section);
 
 /* delete all entries and sections */
 CFG_EXPORT
@@ -250,15 +250,15 @@ cfg_status_t cfg_clear(cfg_t *st);
 
 /* string -> number conversations */
 CFG_EXPORT
-cfg_bool cfg_value_to_bool(cfg_char *value);
+cfg_bool cfg_value_to_bool(const cfg_char *value);
 CFG_EXPORT
-cfg_int cfg_value_to_int(cfg_char *value);
+cfg_int cfg_value_to_int(const cfg_char *value);
 CFG_EXPORT
-cfg_long cfg_value_to_long(cfg_char *value);
+cfg_long cfg_value_to_long(const cfg_char *value);
 CFG_EXPORT
-cfg_float cfg_value_to_float(cfg_char *value);
+cfg_float cfg_value_to_float(const cfg_char *value);
 CFG_EXPORT
-cfg_double cfg_value_to_double(cfg_char *value);
+cfg_double cfg_value_to_double(const cfg_char *value);
 
 /* number -> string conversations (allocate memory) */
 CFG_EXPORT
@@ -274,15 +274,15 @@ cfg_char *cfg_double_to_value(cfg_double number);
 
 /* fast fnv-32 hash of a string */
 CFG_EXPORT
-cfg_uint32 cfg_hash_get(cfg_char *str);
+cfg_uint32 cfg_hash_get(const cfg_char *str);
 
 /* HEX string <-> char* buffer conversations; allocates memory!
  * you can pass NULL as the first argument to ignore the 'verbose' mode of
  * cfg_t and not print anything to stderr. */
 CFG_EXPORT
-cfg_char *cfg_hex_to_char(cfg_t *st, cfg_char *value);
+cfg_char *cfg_hex_to_char(cfg_t *st, const cfg_char *value);
 CFG_EXPORT
-cfg_char *cfg_char_to_hex(cfg_t *st, cfg_char *value);
+cfg_char *cfg_char_to_hex(cfg_t *st, const cfg_char *value);
 
 /* a local strdup() implementation */
 CFG_EXPORT
