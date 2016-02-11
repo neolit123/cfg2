@@ -188,14 +188,13 @@ static void cfg_raw_buffer_parse(cfg_t *st, cfg_char *buf, cfg_uint32 sz, cfg_ui
 static void cfg_raw_buffer_convert(cfg_t *st, cfg_char *buf, cfg_uint32 buf_sz, cfg_uint32 *sections, cfg_uint32 **entries)
 {
 	static const cfg_char *fname = "[cfg2] cfg_raw_buffer_convert()";
-	cfg_uint32 line = 0, allocated;
+	cfg_uint32 line = 0, allocated, *entry_ptr, tmp_sz;
 	cfg_char *src, *dest, last_char = 0;
 	cfg_bool escape = CFG_FALSE;
 	cfg_bool quote = CFG_FALSE;
 	cfg_bool line_eq_sign = CFG_FALSE;
 	cfg_bool multiline = CFG_FALSE;
 	cfg_bool section_line = CFG_FALSE;
-	cfg_uint32 *entry_ptr;
 
 	/* prepare the root section */
 	allocated = 1;
@@ -290,9 +289,10 @@ static void cfg_raw_buffer_convert(cfg_t *st, cfg_char *buf, cfg_uint32 buf_sz, 
 				section_line = CFG_TRUE;
 				if ((*sections + 1) > allocated) {
 					allocated <<= 1;
-					*entries = (cfg_uint32 *)realloc(*entries, allocated * sizeof(cfg_uint32));
+					tmp_sz = allocated * sizeof(cfg_uint32);
+					*entries = (cfg_uint32 *)realloc(*entries, tmp_sz);
 					if (!*entries) {
-						fprintf(stderr, "%s: ERROR: cannot realloc() %d bytes\n", fname, allocated * sizeof(cfg_uint32));
+						fprintf(stderr, "%s: ERROR: cannot realloc() %d bytes\n", fname, tmp_sz);
 						return;
 					}
 				}
@@ -314,9 +314,10 @@ static void cfg_raw_buffer_convert(cfg_t *st, cfg_char *buf, cfg_uint32 buf_sz, 
 		dest++;
 	}
 	*dest = '\0';
-	*entries = (cfg_uint32 *)realloc(*entries, *sections * sizeof(cfg_uint32)); /* trim */
+	tmp_sz = *sections * sizeof(cfg_uint32);
+	*entries = (cfg_uint32 *)realloc(*entries, tmp_sz); /* trim */
 	if (!*entries) {
-		fprintf(stderr, "%s: ERROR: cannot realloc() %d bytes\n", fname, *sections * sizeof(cfg_uint32));
+		fprintf(stderr, "%s: ERROR: cannot realloc() %d bytes\n", fname, tmp_sz);
 		return;
 	}
 	if (st->verbose > 1)
