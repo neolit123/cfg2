@@ -56,6 +56,16 @@ cfg_status_t cfg_cache_entry_add(cfg_t *st, cfg_entry_t *entry)
 	CFG_SET_RETURN_STATUS(st, CFG_STATUS_OK);
 }
 
+cfg_entry_t *cfg_cache_entry_nth(cfg_t *st, cfg_uint32 n)
+{
+	CFG_CHECK_ST_RETURN(st, "cfg_cache_entry_nth", NULL);
+	if (n > st->cache_size - 1) {
+		CFG_SET_STATUS(st, CFG_ERROR_OUT_OF_RANGE);
+		return NULL;
+	}
+	return st->cache[n];
+}
+
 /* not exposed in the API */
 cfg_entry_t *cfg_cache_entry_get(cfg_t *st, cfg_uint32 section_hash, cfg_uint32 key_hash)
 {
