@@ -1,8 +1,8 @@
-cfg2 0.34.0 README
+cfg2 0.99.0 README
 a simplistic configuration parser for INI like syntax in C
 
 last revisited:
-	09.02.2016
+	12.02.2016
 author:
 	lubomir i. ivanov (neolit123 at gmail)
 

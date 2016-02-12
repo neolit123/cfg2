@@ -1,3 +1,6 @@
+0.99.0 - 12.02.2016
+- preparation for a 1.0.0 release
+
 0.34.0 - 09.02.2016
 - hide the library structures from the user
 - make cfg_init() a static function, cfg_alloc() should always be used instead
