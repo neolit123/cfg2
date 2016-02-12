@@ -38,14 +38,20 @@ extern "C" {
 #define CFG_ROOT_SECTION NULL
 #define CFG_ROOT_SECTION_HASH CFG_HASH_SEED
 
-#ifdef CFG_DYNAMIC
-#	ifdef _WIN32
-#		define CFG_EXPORT __declspec(dllexport)
+/* if you want to link statically on win32, define CFG_LIB_STATIC before
+ * including this header. */
+#if defined(_WIN32) || defined(__CYGWIN__)
+#	if defined(CFG_LIB_BUILD) && defined(CFG_LIB_DYNAMIC)
+#		define CFG_API __declspec(dllexport)
+#	elif defined(CFG_LIB_BUILD) || defined(CFG_LIB_STATIC)
+#		define CFG_API
 #	else
-#		define CFG_EXPORT __attribute__((visibility("default")))
+#		define CFG_API __declspec(dllimport)
 #	endif
+#elif defined(CFG_LIB_BUILD)
+#	define CFG_API __attribute__((visibility("default")))
 #else
-#	define CFG_EXPORT
+#	define CFG_API
 #endif
 
 /* typedefs
@@ -104,48 +110,48 @@ typedef struct _cfg_entry_t cfg_entry_t;
 */
 
 /* allocates a new library object */
-CFG_EXPORT
+CFG_API
 cfg_t *cfg_alloc(void);
 
 /* free all memory allocated by the library for a cfg_t object */
-CFG_EXPORT
+CFG_API
 cfg_status_t cfg_free(cfg_t *st);
 
 /* parse a buffer (buf) of size (sz); optional copy (copy) or work in place. */
-CFG_EXPORT
+CFG_API
 cfg_status_t cfg_buffer_parse(cfg_t *st, cfg_char *buf, cfg_uint32 sz, cfg_bool copy);
 
 /* parse a file by name, passed as the 2nd parameter. non-safe for Win32's
  * UTF-16 paths! use cfg_buffer_parse() or cfg_file_ptr_parse() instead. */
-CFG_EXPORT
+CFG_API
 cfg_status_t cfg_file_parse(cfg_t *st, cfg_char *filename);
 
 /* alternative to cfg_file_parse() that accepts a FILE* stream;
  * third argument is optional close of the stream. */
-CFG_EXPORT
+CFG_API
 cfg_status_t cfg_file_ptr_parse(cfg_t *st, FILE *f, cfg_bool close);
 
 /* write all the sections and keys to a string buffer; allocates memory at
  * the 'out' pointer and stores the length in 'len'. */
-CFG_EXPORT
+CFG_API
 cfg_status_t cfg_buffer_write(cfg_t *st, cfg_char **out, cfg_uint32 *len);
 
 /* write all the sections and keys to a file. non-safe for Win32's
  * UTF-16 paths! use cfg_buffer_write() or cfg_file_ptr_write() instead. */
-CFG_EXPORT
+CFG_API
 cfg_status_t cfg_file_write(cfg_t *st, cfg_char *filename);
 
 /* write all the sections and keys to a FILE pointer with optional close
  * when done. */
-CFG_EXPORT
+CFG_API
 cfg_status_t cfg_file_ptr_write(cfg_t *st, FILE *f, cfg_bool close);
 
 /* set the verbose level for the library object; level = 0 (OFF), 1, 2, 3... */
-CFG_EXPORT
+CFG_API
 cfg_status_t cfg_verbose_set(cfg_t *st, cfg_uint32 level);
 
 /* get the last status of the library object */
-CFG_EXPORT
+CFG_API
 cfg_status_t cfg_status_get(cfg_t *st);
 
 /* -----------------------------------------------------------------------------
@@ -154,19 +160,19 @@ cfg_status_t cfg_status_get(cfg_t *st);
 
 /* set the size of the cache (2nd parameter). note that this also clears
  * the cache */
-CFG_EXPORT
+CFG_API
 cfg_status_t cfg_cache_size_set(cfg_t *st, cfg_uint32 size);
 
 /* clear the cache */
-CFG_EXPORT
+CFG_API
 cfg_status_t cfg_cache_clear(cfg_t *st);
 
 /* add an entry to the cache */
-CFG_EXPORT
+CFG_API
 cfg_status_t cfg_cache_entry_add(cfg_t *st, cfg_entry_t *entry);
 
 /* retrieve the nth entry from the cache */
-CFG_EXPORT
+CFG_API
 cfg_entry_t *cfg_cache_entry_nth(cfg_t *st, cfg_uint32 n);
 
 /* -----------------------------------------------------------------------------
@@ -174,78 +180,78 @@ cfg_entry_t *cfg_cache_entry_nth(cfg_t *st, cfg_uint32 n);
 */
 
 /* get a section pointer; 'section' can be CFG_ROOT_SECTION */
-CFG_EXPORT
+CFG_API
 cfg_section_t *cfg_section_get(cfg_t *st, const cfg_char *section);
 
 /* get the total number of sections; the root section is always present, thus n >= 1 */
-CFG_EXPORT
+CFG_API
 cfg_uint32 cfg_total_sections(cfg_t *st);
 
 /* get the nth section; n = 0 is always the root section */
-CFG_EXPORT
+CFG_API
 cfg_section_t *cfg_section_nth(cfg_t *st, cfg_uint32 n);
 
 /* get the raw name of a section */
-CFG_EXPORT
+CFG_API
 cfg_char *cfg_section_name_get(cfg_t *st, cfg_section_t *section);
 
 /* get the total number of entries within a section */
-CFG_EXPORT
+CFG_API
 cfg_uint32 cfg_total_entries(cfg_t *st, cfg_section_t *section);
 
 /* get the nth entry from a section */
-CFG_EXPORT
+CFG_API
 cfg_entry_t *cfg_entry_nth(cfg_t *st, cfg_section_t *section, cfg_uint32 n);
 
 /* return an entry from section (2nd argument, can be CFG_ROOT_SECTION) and
  * key (3rd argument) */
-CFG_EXPORT
+CFG_API
 cfg_entry_t *cfg_entry_get(cfg_t *st, const cfg_char *section, const cfg_char *key);
 
 /* return an entry from the root section */
-CFG_EXPORT
+CFG_API
 cfg_entry_t *cfg_root_entry_get(cfg_t *st, const cfg_char *key);
 
 /* get the key for an entry */
-CFG_EXPORT
+CFG_API
 cfg_char *cfg_entry_key_get(cfg_t *st, cfg_entry_t *entry);
 
 /* get the value for an entry */
-CFG_EXPORT
+CFG_API
 cfg_char *cfg_entry_value_get(cfg_t *st, cfg_entry_t *entry);
 
 /* set a value for an entry */
-CFG_EXPORT
+CFG_API
 cfg_status_t cfg_entry_value_set(cfg_t *st, cfg_entry_t *entry, const cfg_char *value);
 
 /* retrieve a specific value by section and key */
-CFG_EXPORT
+CFG_API
 cfg_char *cfg_value_get(cfg_t *st, const cfg_char *section, const cfg_char *key);
 
 /* retrieve a specific value by key in the root section */
-CFG_EXPORT
+CFG_API
 cfg_char *cfg_root_value_get(cfg_t *st, const cfg_char *key);
 
 /* set a value for a specific key in a section; add the key if missing. */
-CFG_EXPORT
+CFG_API
 cfg_status_t cfg_value_set(cfg_t *st, const cfg_char *section, const cfg_char *key, const cfg_char *value, cfg_bool add);
 
 /* set a value for a specific key in the root section; add the key if missing. */
-CFG_EXPORT
+CFG_API
 cfg_status_t cfg_root_value_set(cfg_t *st, const cfg_char *key, const cfg_char *value, cfg_bool add);
 
 /* delete an entry */
-CFG_EXPORT
+CFG_API
 cfg_status_t cfg_entry_delete(cfg_t *st, cfg_entry_t *entry);
 
 /* delete a section and all entries associated with it.
  * if the section is CFG_ROOT_SECTION only the entries will be deleted.
  * a potentially slow operation! */
-CFG_EXPORT
+CFG_API
 cfg_status_t cfg_section_delete(cfg_t *st, const cfg_char *section);
 
 /* delete all entries and sections */
-CFG_EXPORT
+CFG_API
 cfg_status_t cfg_clear(cfg_t *st);
 
 /* -----------------------------------------------------------------------------
@@ -253,43 +259,43 @@ cfg_status_t cfg_clear(cfg_t *st);
 */
 
 /* string -> number conversations */
-CFG_EXPORT
+CFG_API
 cfg_bool cfg_value_to_bool(const cfg_char *value);
-CFG_EXPORT
+CFG_API
 cfg_int cfg_value_to_int(const cfg_char *value);
-CFG_EXPORT
+CFG_API
 cfg_long cfg_value_to_long(const cfg_char *value);
-CFG_EXPORT
+CFG_API
 cfg_float cfg_value_to_float(const cfg_char *value);
-CFG_EXPORT
+CFG_API
 cfg_double cfg_value_to_double(const cfg_char *value);
 
 /* number -> string conversations (allocate memory) */
-CFG_EXPORT
+CFG_API
 cfg_char *cfg_bool_to_value(cfg_bool number);
-CFG_EXPORT
+CFG_API
 cfg_char *cfg_int_to_value(cfg_int number);
-CFG_EXPORT
+CFG_API
 cfg_char *cfg_long_to_value(cfg_long number);
-CFG_EXPORT
+CFG_API
 cfg_char *cfg_float_to_value(cfg_float number);
-CFG_EXPORT
+CFG_API
 cfg_char *cfg_double_to_value(cfg_double number);
 
 /* fast fnv-32 hash of a string */
-CFG_EXPORT
+CFG_API
 cfg_uint32 cfg_hash_get(const cfg_char *str);
 
 /* HEX string <-> char* buffer conversations; allocates memory!
  * you can pass NULL as the first argument to ignore the 'verbose' mode of
  * cfg_t and not print anything to stderr. */
-CFG_EXPORT
+CFG_API
 cfg_char *cfg_hex_to_char(cfg_t *st, const cfg_char *value);
-CFG_EXPORT
+CFG_API
 cfg_char *cfg_char_to_hex(cfg_t *st, const cfg_char *value);
 
 /* a local strdup() implementation */
-CFG_EXPORT
+CFG_API
 cfg_char *cfg_strdup(const cfg_char *str);
 
 /* -------------------------------------------------------------------------- */

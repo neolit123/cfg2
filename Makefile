@@ -57,20 +57,20 @@ $(DLLFILE): $(OBJ_DYN)
 $(OBJ): $(TESTSRC) $(MAKEFILE)
 $(OBJPATH)/%.o: $(SRCPATH)/%.c
 	@echo building $@
-	@$(CC) -c $< $(CFLAGS) -o $@
+	@$(CC) -c $< $(CFLAGS) -DCFG_LIB_BUILD -DCFG_LIB_STATIC -o $@
 
 $(OBJ_DYN): $(TESTSRC) $(MAKEFILE)
 $(OBJPATH)/%.dyn.o: $(SRCPATH)/%.c
 	@echo building $@
-	@$(CC) -c $< $(CFLAGS) -DCFG_DYNAMIC -o $@
+	@$(CC) -c $< $(CFLAGS) -DCFG_LIB_BUILD -DCFG_LIB_DYNAMIC -o $@
 
 $(TESTPATH_EXE): $(LIBFILE) $(TESTOBJ)
 	@echo building $(TESTPATH_EXE)
-	@$(CC) $(OBJ) $(TESTOBJ) -o $(TESTPATH_EXE) -L$(LIBPATH) -lcfg2
+	@$(CC) $(TESTOBJ) -o $(TESTPATH_EXE) -L./lib -static -lcfg2
 
 $(TESTOBJ): $(TESTSRC) $(MAKEFILE)
 	@echo building $(TESTOBJ)
-	@$(CC) $(CFLAGS) $(TESTSRC) -o $(TESTOBJ)
+	@$(CC) $(CFLAGS) $(TESTSRC) -DCFG_LIB_STATIC -o $(TESTOBJ)
 
 lib: $(LIBFILE) $(DLLFILE)
 
