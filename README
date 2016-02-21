@@ -2,7 +2,7 @@ cfg2 0.99.0 README
 a simplistic configuration parser for INI like syntax in C
 
 last revisited:
-	12.02.2016
+	21.02.2016
 author:
 	lubomir i. ivanov (neolit123 at gmail)
 
@@ -166,30 +166,44 @@ cfg_free(st);
 ================================================================================
 COMPILATION:
 
-go to the root folder and then:
+you need GNU-Make and either GCC/Mingw or a MSVC toolchain.
+
+--------------------------------------------------------------------------------
+GCC
+--------------------------------------------------------------------------------
 
 to compile everything write:
 make
 
-./lib will contain both a dynamic and static library builds (e.g. dll.a, .a)
-the dynamic library build uses the -DCFG_DYNAMIC pre-processor definition.
-./test will contain a test(.exe) executable which is based on test.c
-
 to create just the library files write:
 make lib
 
-to compile just the test write:
+to compile the test write:
 make test
 
 to run the test write:
 make run
 
-by default the library builds in DEBUG mode (e.g. gcc -g);
+NOTES:
+- the Makefile has been tested on Win32 and Linux
+- ./lib will contain both a dynamic and static library builds (e.g. dll.a, .a)
+- ./test will contain a test(.exe) executable which is based on test.c
+- to link against the static library define CFG_LIB_STATIC
+- by default the library builds in DEBUG mode (e.g. gcc -g);
 to build in release mode use:
 make RELEASE=1
 
-at the moment the library makefile can only be used with GCC as
-the compiler/linker, but the library is compatible with MSVC as well.
-to compile with MSVC use the appropriate toolset (e.g. CL/LINK).
+--------------------------------------------------------------------------------
+MSVC
+--------------------------------------------------------------------------------
+
+specify the custom Makefile:
+make -f Makefile.msvc
+make -f Makefile.msvc lib
+...
+
+NOTES:
+- the same Makefile rules as the GCC version apply
+- MSVC building has only been tested with the 1998 and 2003 toolchains
 
 ================================================================================
