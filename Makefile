@@ -1,4 +1,4 @@
-# libcfg2 makefile
+# libcfg2 Makefile for GCC
 
 MAKEFILE = Makefile
 CC = gcc
