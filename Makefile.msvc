@@ -1,0 +1,75 @@
+# libcfg2 Makefile for MSVC
+
+MAKEFILE = Makefile.msvc
+CC = cl
+CFLAGS = /nologo /c /W4 /I.\include
+LINK = link
+LDFLAGS = /nologo
+LIB = lib
+LIBFLAGS = /nologo
+
+ifneq ($(RELEASE), 1)
+   CFLAGS += /Z7
+endif
+
+SRCPATH = ./src
+OBJPATH = ./obj
+SRCFILES = $(wildcard $(SRCPATH)/*.c)
+_OBJ = $(patsubst %.c,%.obj,$(SRCFILES))
+OBJ = $(patsubst $(SRCPATH)/%,$(OBJPATH)/%,$(_OBJ))
+OBJ_DYN = $(patsubst %.obj,%.dyn.obj,$(OBJ))
+HEADERS = ./include/cfg2.h ./scr/defines.h
+TESTSRC = ./test/test.c
+TESTOBJ = ./obj/test.obj
+LIBNAME = libcfg2
+LIBPATH = ./lib
+LIBFILE = $(LIBPATH)/$(LIBNAME)_static.lib
+TESTPATH = ./test
+
+VPATH = $(SRCPATH)
+
+NULLDEVICE = NUL
+DLLFILE = ./lib/$(LIBNAME).dll
+DLLLIB = ./lib/$(LIBNAME).lib
+DLLEXP = ./lib/$(LIBNAME).exp
+TESTEXE = test.exe
+DLLLINK =
+TESTPATH_EXE = $(TESTPATH)/$(TESTEXE)
+
+all: $(LIBFILE) $(DLLFILE) $(TESTPATH_EXE)
+
+$(LIBFILE): $(OBJ)
+	@echo building $(LIBFILE)
+	@$(LIB) $(LIBFLAGS) /OUT:$(subst /,\,$(LIBFILE)) $(subst /,\,$(OBJ))
+
+$(DLLFILE): $(OBJ_DYN)
+	@echo building $(DLLFILE)
+	@$(LINK) /Dll /nologo $(subst /,\,$(OBJ_DYN)) /out:$(DLLFILE) > $(NULLDEVICE)
+
+$(OBJ): $(TESTSRC) $(MAKEFILE)
+$(OBJPATH)/%.obj: $(SRCPATH)/%.c
+	@echo building $@
+	@$(CC) $< $(CFLAGS) /DDCFG_LIB_BUILD /DCFG_LIB_STATIC /Fo$(subst /,\,$@) > $(NULLDEVICE)
+
+$(OBJ_DYN): $(TESTSRC) $(MAKEFILE)
+$(OBJPATH)/%.dyn.obj: $(SRCPATH)/%.c
+	@echo building $@
+	@$(CC) $< $(CFLAGS) /DCFG_LIB_BUILD /DCFG_LIB_DYNAMIC /Fo$(subst /,\,$@) > $(NULLDEVICE)
+
+$(TESTPATH_EXE): $(LIBFILE) $(TESTOBJ)
+	@echo building $(TESTPATH_EXE)
+	@$(LINK) $(LDFLAGS) $(TESTOBJ) /OUT:$(subst /,\,$(TESTPATH_EXE)) $(subst /,\,$(LIBFILE)) > $(NULLDEVICE)
+
+$(TESTOBJ): $(TESTSRC) $(MAKEFILE)
+	@echo building $(TESTOBJ)
+	@$(CC) $(CFLAGS) $(TESTSRC) -DCFG_LIB_STATIC /Fo$(subst /,\,$@) > $(NULLDEVICE)
+
+lib: $(LIBFILE) $(DLLFILE)
+
+test: $(TESTPATH_EXE)
+
+run: $(TESTPATH_EXE)
+	cd $(TESTPATH) && $(TESTEXE) && cd ..
+
+clean:
+	del /q $(subst /,\,$(DLLLIB) $(DLLEXP) $(OBJ) $(OBJ_DYN) $(LIBFILE) $(LIBFILE_DYN) $(DLLFILE) $(TESTPATH_EXE) $(TESTOBJ) > $(NULLDEVICE)) 2>&1
