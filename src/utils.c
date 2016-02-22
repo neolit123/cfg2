@@ -192,10 +192,10 @@ cfg_char *cfg_hex_to_char(const cfg_char *value)
 		fprintf(stderr, "%s input length is zero or not divisible by two!\n", fname);
 		return NULL;
 	}
-	len >>= 1;
-	buf = (cfg_char *)malloc(len + 1);
+	len = (len >> 1) + 1;
+	buf = (cfg_char *)malloc(len);
 	if (!buf) {
-		fprintf(stderr, "%s cannot allocate buffer of length %u!\n", fname, len + 1);
+		fprintf(stderr, "%s cannot allocate buffer of length %u!\n", fname, len);
 		return NULL;
 	}
 	for (src_pos = value_ptr, dst_pos = buf; *src_pos != '\0'; src_pos += 2, dst_pos++) {
@@ -205,11 +205,9 @@ cfg_char *cfg_hex_to_char(const cfg_char *value)
 			badchar_pos = src_pos - value;
 			goto error;
 		}
-		first--;
-		second--;
-		*dst_pos = (cfg_char)((first << 4) + second);
+		*dst_pos = (cfg_char)((--first << 4) + --second);
 	}
-	buf[len] = '\0';
+	*dst_pos = '\0';
 	return buf;
 error:
 	free(buf);
@@ -238,7 +236,7 @@ cfg_char *cfg_char_to_hex(const cfg_char *value)
 		fprintf(stderr, "%s the input length is zero!\n", fname);
 		return NULL;
 	}
-	len = len * 2 + 1;
+	len = (len << 1) + 1;
 	out = (cfg_char *)malloc(len);
 	if (!out) {
 		fprintf(stderr, "%s cannot allocate buffer of length %u!\n", fname, len);
