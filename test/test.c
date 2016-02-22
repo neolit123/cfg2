@@ -100,9 +100,9 @@ int main(void)
 	/* test hex <-> char */
 	puts("");
 	entry = cfg_entry_get(st, "section2", "key13");
-	ptr = cfg_hex_to_char(st, cfg_entry_value_get(st, entry));
+	ptr = cfg_hex_to_char(cfg_entry_value_get(st, entry));
 	puts(ptr);
-	puts(cfg_char_to_hex(st, ptr));
+	puts(cfg_char_to_hex(ptr));
 #endif
 
 	puts("");

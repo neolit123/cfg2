@@ -176,7 +176,7 @@ static const cfg_char hex_to_char_lookup[] = {
 0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,
 0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0 };
 
-cfg_char *cfg_hex_to_char(cfg_t *st, const cfg_char *value)
+cfg_char *cfg_hex_to_char(const cfg_char *value)
 {
 	static const cfg_char *fname = "[cfg2] cfg_hex_to_char():";
 	cfg_uint32 len, len2, badchar_pos;
@@ -184,25 +184,19 @@ cfg_char *cfg_hex_to_char(cfg_t *st, const cfg_char *value)
 	cfg_char first, second, *value_ptr = (cfg_char *)value;
 
 	if (!value) {
-		if (st && st->verbose > 0)
-			fprintf(stderr, "%s the input value is NULL!\n", fname);
+		fprintf(stderr, "%s the input value is NULL!\n", fname);
 		return NULL;
 	}
 
-	if (st && st->verbose > 0)
-		fprintf(stderr, "%s input value: %s\n", fname, value);
-
 	len = strlen(value);
 	if (len % 2 || !len) {
-		if (st && st->verbose > 0)
-			fprintf(stderr, "%s input length is zero or not divisible by two!\n", fname);
+		fprintf(stderr, "%s input length is zero or not divisible by two!\n", fname);
 		return NULL;
 	}
 	len2 = len / 2;
 	buf = (cfg_char *)malloc(len2 + 1);
 	if (!buf) {
-		if (st && st->verbose > 0)
-			fprintf(stderr, "%s cannot allocate buffer of length %u!\n", fname, len);
+		fprintf(stderr, "%s cannot allocate buffer of length %u!\n", fname, len);
 		return NULL;
 	}
 	for (src_pos = value_ptr, dst_pos = buf; *src_pos != '\0'; src_pos += 2, dst_pos++) {
@@ -217,13 +211,10 @@ cfg_char *cfg_hex_to_char(cfg_t *st, const cfg_char *value)
 		*dst_pos = (cfg_char)((first << 4) + second);
 	}
 	buf[len2] = '\0';
-	if (st && st->verbose > 0)
-		fprintf(stderr, "%s result: %s\n", fname, buf);
 	return buf;
 error:
 	free(buf);
-	if (st && st->verbose > 0)
-		fprintf(stderr, "%s input has bad character at position %u!\n", fname, badchar_pos);
+	fprintf(stderr, "%s input has bad character at position %u!\n", fname, badchar_pos);
 	return NULL;
 }
 
@@ -232,7 +223,7 @@ static const cfg_char char_to_hex_lookup[] = {
 48,     49,     50,     51,     52,     53,     54,     55,     56,     57,
 65,     66,     67,     68,     69,     70 };
 
-cfg_char *cfg_char_to_hex(cfg_t *st, const cfg_char *value)
+cfg_char *cfg_char_to_hex(const cfg_char *value)
 {
 	static const cfg_char *fname = "[cfg2] cfg_char_to_hex():";
 	cfg_uint32 len, first, second;
@@ -240,21 +231,14 @@ cfg_char *cfg_char_to_hex(cfg_t *st, const cfg_char *value)
 	cfg_char *out, *ptr, *value_ptr = (cfg_char *)value;
 
 	if (!value) {
-		if (st && st->verbose > 0)
-			fprintf(stderr, "%s the input is NULL!\n", fname);
+		fprintf(stderr, "%s the input is NULL!\n", fname);
 		return NULL;
 	}
 
-	if (st && st->verbose > 0)
-		fprintf(stderr, "%s input value: %s\n", fname, value);
-
 	len = strlen(value);
 	if (!len) {
-		if (st && st->verbose > 0)
-			fprintf(stderr, "%s the input length is zero!\n", fname);
-		out = (cfg_char *)malloc(1);
-		out[0] = '\0';
-		return out;
+		fprintf(stderr, "%s the input length is zero!\n", fname);
+		return NULL;
 	}
 
 	out = (cfg_char *)malloc(len * 2 + 1);
@@ -268,8 +252,5 @@ cfg_char *cfg_char_to_hex(cfg_t *st, const cfg_char *value)
 		value_ptr++;
 	}
 	*ptr = '\0';
-
-	if (st && st->verbose > 0)
-		fprintf(stderr, "%s result: %s\n", fname, out);
 	return out;
 }

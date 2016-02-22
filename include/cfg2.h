@@ -286,13 +286,11 @@ cfg_char *cfg_double_to_value(cfg_double number);
 CFG_API
 cfg_uint32 cfg_hash_get(const cfg_char *str);
 
-/* HEX string <-> char* buffer conversations; allocates memory!
- * you can pass NULL as the first argument to ignore the 'verbose' mode of
- * cfg_t and not print anything to stderr. */
+/* HEX string <-> char* buffer conversations; allocates memory! */
 CFG_API
-cfg_char *cfg_hex_to_char(cfg_t *st, const cfg_char *value);
+cfg_char *cfg_hex_to_char(const cfg_char *value);
 CFG_API
-cfg_char *cfg_char_to_hex(cfg_t *st, const cfg_char *value);
+cfg_char *cfg_char_to_hex(const cfg_char *value);
 
 /* a local strdup() implementation */
 CFG_API
