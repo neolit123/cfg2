@@ -128,6 +128,67 @@ cfg_entry_t *cfg_root_entry_get(cfg_t *st, const cfg_char *key)
 	return cfg_entry_get(st, CFG_ROOT_SECTION, key);
 }
 
+cfg_entry_t *cfg_entry_add(cfg_t *st, const cfg_char *section, const cfg_char *key, const cfg_char *value)
+{
+	cfg_uint32 key_hash;
+	cfg_entry_t *entry;
+	cfg_section_t *section_ptr;
+
+	CFG_CHECK_ST_RETURN(st, "cfg_entry_add", NULL);
+
+	entry = cfg_entry_get(st, section, key);
+	if (entry) {
+		cfg_entry_value_set(st, entry, value);
+		return entry;
+	}
+
+	key_hash = cfg_hash_get(key);
+	section_ptr = cfg_section_get(st, section);
+
+	/* create a new section and add the entry to it */
+	if (!section_ptr) {
+		st->section = (cfg_section_t *)realloc(st->section, (st->nsections + 1) * sizeof(cfg_section_t));
+		if (!st->section) {
+			CFG_SET_STATUS(st, CFG_ERROR_ALLOC);
+			return NULL;
+		}
+		section_ptr = &st->section[st->nsections];
+		section_ptr->name = cfg_strdup(section);
+		section_ptr->hash = cfg_hash_get(section);
+		section_ptr->nentries = 1;
+		section_ptr->entry = (cfg_entry_t *)malloc(sizeof(cfg_entry_t));
+		entry = &section_ptr->entry[0];
+		entry->section = section_ptr;
+		entry->key = cfg_strdup(key);
+		entry->key_hash = key_hash;
+		entry->value = cfg_strdup(value);
+		st->nsections++;
+		cfg_cache_entry_add(st, entry);
+		CFG_SET_STATUS(st, CFG_STATUS_OK);
+		return entry;
+	}
+
+	/* add entry to an existing section */
+	section_ptr->entry = (cfg_entry_t *)realloc(section_ptr->entry, (section_ptr->nentries + 1) * sizeof(cfg_section_t));
+	if (!section_ptr->entry) {
+		CFG_SET_STATUS(st, CFG_ERROR_ALLOC);
+		return NULL;
+	}
+	entry = &section_ptr->entry[section_ptr->nentries];
+	entry->section = section_ptr;
+	entry->key = cfg_strdup(key);
+	entry->key_hash = key_hash;
+	entry->value = cfg_strdup(value);
+	section_ptr->nentries++;
+	CFG_SET_STATUS(st, CFG_STATUS_OK);
+	return entry;
+}
+
+cfg_entry_t *cfg_root_entry_add(cfg_t *st, const cfg_char *key, const cfg_char *value)
+{
+	return cfg_entry_add(st, CFG_ROOT_SECTION, key, value);
+}
+
 cfg_char *cfg_value_get(cfg_t *st, const cfg_char *section, const cfg_char *key)
 {
 	cfg_entry_t *entry = cfg_entry_get(st, section, key);
@@ -182,36 +243,15 @@ cfg_status_t cfg_value_set(cfg_t *st, const cfg_char *section, const cfg_char *k
 	if (!key || !value)
 		CFG_SET_RETURN_STATUS(st, CFG_ERROR_NULL_PTR);
 
-	key_hash = cfg_hash_get(key);
-	section_ptr = cfg_section_get(st, section);
-	if (!section_ptr) {
-		/* add section and entry */
-		if (add) {
-			st->section = (cfg_section_t *)realloc(st->section, (st->nsections + 1) * sizeof(cfg_section_t));
-			if (!st->section)
-				CFG_SET_RETURN_STATUS(st, CFG_ERROR_ALLOC);
-			section_ptr = &st->section[st->nsections];
-			section_ptr->name = cfg_strdup(section);
-			section_ptr->hash = cfg_hash_get(section);
-			section_ptr->nentries = 1;
-			section_ptr->entry = (cfg_entry_t *)malloc(sizeof(cfg_entry_t));
-			entry = &section_ptr->entry[0];
-			entry->section = section_ptr;
-			entry->key = cfg_strdup(key);
-			entry->key_hash = key_hash;
-			entry->value = cfg_strdup(value);
-			st->nsections++;
-			cfg_cache_entry_add(st, entry);
-			CFG_SET_RETURN_STATUS(st, CFG_STATUS_OK);
-		} else {
-			CFG_SET_RETURN_STATUS(st, CFG_ERROR_NOT_FOUND);
-		}
+	if (add) {
+		entry = cfg_entry_add(st, section, key, value);
+		return st->status;
 	}
 
-	/* check for value in cache first */
-	entry = cfg_cache_entry_get(st, section_ptr->hash, key_hash);
-	if (entry)
-		return cfg_entry_value_set(st, entry, value);
+	key_hash = cfg_hash_get(key);
+	section_ptr = cfg_section_get(st, section);
+	if (!section_ptr)
+		CFG_SET_RETURN_STATUS(st, CFG_ERROR_NOT_FOUND);
 
 	/* look for the entry in the existing section */
 	for (i = 0; i < section_ptr->nentries; i++) {
@@ -222,19 +262,6 @@ cfg_status_t cfg_value_set(cfg_t *st, const cfg_char *section, const cfg_char *k
 		}
 	}
 
-	/* entry not found; add it or return error */
-	if (add) {
-		section_ptr->entry = (cfg_entry_t *)realloc(section_ptr->entry, (section_ptr->nentries + 1) * sizeof(cfg_section_t));
-		if (!section_ptr->entry)
-			CFG_SET_RETURN_STATUS(st, CFG_ERROR_ALLOC);
-		entry = &section_ptr->entry[section_ptr->nentries];
-		entry->section = section_ptr;
-		entry->key = cfg_strdup(key);
-		entry->key_hash = key_hash;
-		entry->value = cfg_strdup(value);
-		section_ptr->nentries++;
-		CFG_SET_RETURN_STATUS(st, CFG_STATUS_OK);
-	}
 	CFG_SET_RETURN_STATUS(st, CFG_ERROR_NOT_FOUND);
 }
 

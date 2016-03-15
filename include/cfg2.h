@@ -212,6 +212,14 @@ cfg_entry_t *cfg_entry_get(cfg_t *st, const cfg_char *section, const cfg_char *k
 CFG_API
 cfg_entry_t *cfg_root_entry_get(cfg_t *st, const cfg_char *key);
 
+/* create an entry (unless the entry already exists) and return a pointer to it. */
+CFG_API
+cfg_entry_t *cfg_entry_add(cfg_t *st, const cfg_char *section, const cfg_char *key, const cfg_char *value);
+
+/* create an entry in the root section (unless the entry already exists) and return a pointer to it. */
+CFG_API
+cfg_entry_t *cfg_root_entry_add(cfg_t *st, const cfg_char *key, const cfg_char *value);
+
 /* get the key for an entry */
 CFG_API
 cfg_char *cfg_entry_key_get(cfg_t *st, cfg_entry_t *entry);
