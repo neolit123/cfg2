@@ -81,6 +81,11 @@ int main(void)
 	else
 		printf("setting value error: %d\n", err);
 
+	/* create an entry in the root section */
+	puts("");
+	entry = cfg_root_entry_add(st, "some_new_key", "some_new_value");
+	printf("entry added: %s\n", entry ? "OK" : "ERROR");
+
 	/* print some values */
 	puts("");
 	printf("find value by key (key1): %s\n", cfg_value_get(st, "section1", "key1"));
