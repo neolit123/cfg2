@@ -55,7 +55,7 @@ go wrong, just warnings if cfg_t's 'verbose' field is more than 0
 * \x??[??] sequences are not supported as they take way too much space.
 use direct hex strings (e.g. key9) and parse them explicitly with
 cfg_hex_to_char().
-
+* the parser, file i/o and hashing functions have a 32bit limit.
 ================================================================================
 WHY WRITE A NEW CONFIG LIBRARY?:
 
