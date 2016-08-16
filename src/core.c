@@ -350,6 +350,24 @@ cfg_status_t cfg_buffer_parse(cfg_t *st, cfg_char *buf, cfg_uint32 sz, cfg_bool 
 	CFG_SET_RETURN_STATUS(st, ret);
 }
 
+#define F_READ_BLOCK_SZ 1024
+
+static cfg_uint32 cfg_get_file_size(FILE *f)
+{
+	char buf[F_READ_BLOCK_SZ];
+	cfg_uint32 sz_bytes, sz = 0;
+
+	while (CFG_TRUE) {
+		sz_bytes = fread(buf, 1, F_READ_BLOCK_SZ, f);
+		sz += sz_bytes;
+		if (sz_bytes != F_READ_BLOCK_SZ)
+			break;
+	}
+	rewind(f);
+
+	return sz;
+}
+
 cfg_status_t cfg_file_ptr_parse(cfg_t *st, FILE *f, cfg_bool close)
 {
 	cfg_char *buf;
@@ -361,9 +379,9 @@ cfg_status_t cfg_file_ptr_parse(cfg_t *st, FILE *f, cfg_bool close)
 		CFG_SET_RETURN_STATUS(st, CFG_ERROR_FILE);
 
 	/* get file size */
-	while (fgetc(f) != EOF)
-		sz++;
-	rewind(f);
+	sz = cfg_get_file_size(f);
+	if (!sz)
+		CFG_SET_RETURN_STATUS(st, CFG_ERROR_FREAD);
 
 	buf = (cfg_char *)malloc(sz);
 	if (!buf) {
